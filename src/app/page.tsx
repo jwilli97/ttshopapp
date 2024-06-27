@@ -64,7 +64,7 @@ export default function Login() {
           </Button>
         </div>
         <div>
-          <Button size="lg" variant={"ghost"} className="hover:bg-accent/50 w-72 h-11 mt-3" onClick={() => router.push('/CreateAccount')}>
+          <Button size="lg" variant={"ghost"} className="hover:bg-accent/50 w-72 h-11 mt-3" onClick={() => router.push('/createAccount')}>
             Create Account
           </Button>
         </div>
