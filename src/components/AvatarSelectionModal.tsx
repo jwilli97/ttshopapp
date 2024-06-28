@@ -14,7 +14,7 @@ export function AvatarSelectionModal({ isOpen, onClose, avatars, onSelect }: Ava
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogTrigger asChild>
-            <Button variant="outline"><PlusIcon /></Button>
+            <Button variant={"ghost"} className="hover:bg-primary/75" size={"tiny"}><PlusIcon /></Button>
         </DialogTrigger>
         <DialogContent>
             <DialogHeader>
@@ -23,7 +23,7 @@ export function AvatarSelectionModal({ isOpen, onClose, avatars, onSelect }: Ava
             </DialogHeader>
             <div className="grid grid-cols-3 gap-4">
                 {avatars.map((avatar, index) => (
-                <Avatar key={index} className="h-20 w-20 cursor-pointer hover:ring-2 hover:ring-primary" onClick={() => onSelect(avatar)}>
+                <Avatar key={index} className="h-30 w-18 cursor-pointer hover:ring-2 hover:ring-primary" onClick={() => onSelect(avatar)}>
                     <AvatarImage src={avatar} alt={`Avatar option ${index + 1}`} />
                 </Avatar>
                 ))}

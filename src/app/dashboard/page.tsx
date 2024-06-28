@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config } from "@fortawesome/fontawesome-svg-core";
 import TinyTokenShop from "@/components/TinyTokenShop";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ export default function Dashboard() {
     const [loyaltyBalance, setLoyaltyBalance] = useState<number | null>(null);
     const [displayName, setDisplayName] = useState<string>('Loading...');
     const [avatarUrl, setAvatarUrl] = useState('');
+    const router = useRouter();
 
     useEffect(() => {
         async function fetchData() {
@@ -61,12 +63,12 @@ export default function Dashboard() {
     }, []);
 
     return (
-        <div className="flex h-screen w-full flex-col items-center px-4 py-6 md:py-12 relative">
+        <div className="flex h-screen w-full flex-col items-center px-4 py-6 relative">
             <div className="flex flex-row items-center w-full md:w-11/12 justify-between">
                 <div className="flex flex-row items-center">
                     <Link href="/Account">
                         <Avatar>
-                            <AvatarImage src={avatarUrl || "profile_pics/profileNug7.png"} alt="Profile Picture" /> {/* take image set by user in DB for profile picture, delete comment when complete */}
+                            <AvatarImage src={avatarUrl} alt="Profile Picture" /> {/* || "profile_pics/profileNug7.png" */}
                             <AvatarFallback className="text-2xl">TT</AvatarFallback>
                         </Avatar>
                     </Link>
@@ -94,8 +96,8 @@ export default function Dashboard() {
                 </div>
             </div>
             <div className="fixed bottom-0 left-0 w-full flex justify-center pb-6 px-4 z-50">
-                <Button className="bg-primary hover:bg-primary/75 w-full md:w-72 h-11 shadow-lg" asChild> 
-                    <Link href="/Order">Place Order</Link>
+                <Button className="bg-primary hover:bg-primary/75 w-full md:w-72 h-11 shadow-lg" onClick={() => router.push('/Order')}> 
+                    Place Order
                 </Button>
             </div>
         </div>

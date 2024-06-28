@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import ErrorIcon from "@/components/icons/errorIcon";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function Login() {
 
@@ -47,7 +46,7 @@ export default function Login() {
           <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo"  />
         </div>
         <div>
-          <p className="text-4xl mb-8 ">Welcome to Tiny Trees</p>
+          <h1 className="text-4xl mb-8 ">Welcome to Tiny Trees</h1>
         </div>
         <div className="grid w-full max-w-sm items center gap-2 mb-4">
           <Label htmlFor="email">Email</Label>
@@ -64,7 +63,7 @@ export default function Login() {
           </Button>
         </div>
         <div>
-          <Button size="lg" variant={"ghost"} className="hover:bg-accent/50 w-72 h-11 mt-3" onClick={() => router.push('/createAccount')}>
+          <Button size="lg" variant={"ghost"} className="hover:bg-accent/50 w-72 h-11 mt-3" onClick={() => router.push('/CreateAccount')}>
             Create Account
           </Button>
         </div>

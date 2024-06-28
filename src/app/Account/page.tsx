@@ -64,7 +64,7 @@ export default function Account() {
     if (error) return <div className="flex h-screen items-center justify-center text-red-500">{error}</div>;
 
     return (
-        <div className="flex h-screen w-full flex-col items-center px-4 py-6 md:py-12 relative">
+        <div className="flex h-screen w-full flex-col items-center px-4 py-6 relative">
             <div className="flex flex-row items-center w-full justify-between">
                 <BackButton />
                 <LogOutButton />
@@ -85,7 +85,7 @@ export default function Account() {
                 <p>Address: {address}</p>
             </div>
             <div>
-                <Button className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" onClick={() => router.push('/EditAccount')}>
+                <Button className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" onClick={() => router.push('/Account/Edit')}>
                     Edit Profile
                 </Button>
             </div>

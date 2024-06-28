@@ -2,9 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import BackButton from "@/components/backButton";
-import LogOutButton from "@/components/logoutButton";
-import PlusIcon from "@/components/icons/plusIcon";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -13,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AvatarSelectionModal } from "@/components/AvatarSelectionModal";
 import { supabase } from "@/lib/supabaseClient";
 
-export default function EditAccount() {
+export default function CreateProfile() {
 
     const [displayName, setDisplayName] = useState('');
     const [email, setEmail] = useState('');
@@ -109,7 +106,7 @@ export default function EditAccount() {
                     setSelectedAvatar(''); // Reset selectedAvatar after updating
                 }
                 
-                router.push('/Account');
+                router.push('/dashboard');
             }
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -129,19 +126,13 @@ export default function EditAccount() {
 
     return (
         <div className="flex h-screen flex-col items-center px-4 py-12">
-            <div className="flex flex-row items-center w-full justify-between">
-                <BackButton />
-                <LogOutButton />
-            </div>
             <div className="flex flex-col mb-4 items-center">
-                <div className="flex flex-row place-items-end">
+                <div className="flex flex-row place-items-end" onClick={() => setIsAvatarModalOpen(true)}>
                     <Avatar className="h-32 w-32">
-                        <AvatarImage src={avatarUrl || selectedAvatar || "profile_pics/profileNug7.png"} alt="Profile Picture" />
+                        <AvatarImage src={selectedAvatar} alt=" Selected Profile Picture" />
                         <AvatarFallback className="text-2xl">TT</AvatarFallback>
-                    </Avatar> 
-                    <Button variant="ghost" size="icon" onClick={() => setIsAvatarModalOpen(true)}>
-                        <PlusIcon />
-                    </Button>
+                    </Avatar>
+                    <AvatarSelectionModal isOpen={isAvatarModalOpen} onClose={() => setIsAvatarModalOpen(false)} avatars={predefinedAvatars} onSelect={handleAvatarSelect} />
                 </div>
                 <p className="text-3xl font-semibold mt-2 mb-1">{displayName}</p>
                 <Badge className="bg-accent text-primary hover:text-accent hover:cursor-pointer">Membership Tier</Badge>
@@ -163,10 +154,9 @@ export default function EditAccount() {
                 {error && <p className="text-red-500 mt-2">{error}</p>}
                 <div className="fixed bottom-0 left-0 w-full flex justify-center pb-6 px-4 z-50">
                     <Button className="bg-primary hover:bg-primary/75 w-full md:w-72 h-11 shadow-lg" type="submit" disabled={isLoading}>
-                        {isLoading ? 'Saving...' : 'Save Changes'}
+                        {isLoading ? 'Saving...' : 'Continue'}
                     </Button>
                 </div>
-                <AvatarSelectionModal isOpen={isAvatarModalOpen} onClose={() => setIsAvatarModalOpen(false)} avatars={predefinedAvatars} onSelect={handleAvatarSelect} />
             </form>
         </div>
     );
