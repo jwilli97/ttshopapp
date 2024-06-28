@@ -16,8 +16,8 @@ export default function CreateAccount() {
       <div>
         <p className="text-4xl mb-8 ">Welcome to Tiny Trees</p>
       </div>
-      <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11" onClick={() => router.push('/CreateAccount/New')}>I'm a new customer</Button>
-      <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" onClick={() => router.push('/CreateAccount/Returning')}>I've shopped here before</Button>
+      <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11" onClick={() => router.push('/createAccount/New')}>I'm a new customer</Button>
+      <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" onClick={() => router.push('/createAccount/Returning')}>I've shopped here before</Button>
       <Button size="lg" variant={"ghost"} className="hover:bg-accent/50 w-72 h-11 mt-6" onClick={() => router.push('/')}>Back</Button>
     </div>
   );

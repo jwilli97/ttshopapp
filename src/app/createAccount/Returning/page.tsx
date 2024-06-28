@@ -21,7 +21,7 @@ export default function ConnectAccount() {
             <div>
                 <Label htmlFor="phoneNumber">Enter your phone number</Label>
                 <Input className="mt-1.5 mb-3" type="text" id="phoneNumber" autoComplete="phone" placeholder="555-555-5555" />
-                <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" onClick={() => router.push('/CreateAccount/Profile')}>Continue</Button> {/* TODO: Add square api call to connect existing account & loyalty info */}
+                <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" onClick={() => router.push('/createAccount/Profile')}>Continue</Button> {/* TODO: Add square api call to connect existing account & loyalty info */}
             </div>
         </div>
     );
