@@ -15,6 +15,7 @@ export default function NewAccount() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -28,12 +29,16 @@ export default function NewAccount() {
     return password.length >= 8;
   };
 
+  const validatePhoneNumber = (phoneNumber: string) => {
+    return /\d{3}-\d{3}-\d{4}/.test(phoneNumber);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword || !phoneNumber) {
       setError('Please fill in all fields');
       setIsLoading(false);
       return;
@@ -53,6 +58,12 @@ export default function NewAccount() {
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!validatePhoneNumber(phoneNumber)) {
+      setError('Please enter a valid phone number');
       setIsLoading(false);
       return;
     }
@@ -84,7 +95,7 @@ export default function NewAccount() {
           <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo"  />
         </div>
         <div>
-          <p className="text-4xl mb-8 ">Create Your Account</p>
+          <h1 className="text-4xl mb-8 ">Create Your Account</h1>
         </div>
         <div className="grid w-full max-w-sm items center gap-2 mb-4">
           <Label htmlFor="email">Email</Label>
@@ -97,6 +108,10 @@ export default function NewAccount() {
         <div className="grid w-full max-w-sm items center gap-2 mb-6">
           <Label htmlFor="confirmPassword">Confirm Password</Label>
           <Input type="text" id="confirmPassword" placeholder="*******" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+        </div>
+        <div className="grid w-full max-w-sm items center gap-2 mb-4">
+          <Label htmlFor="phoneNumber">Phone Number</Label>
+          <Input type="text" id="phoneNumber" autoComplete="phoneNumber" placeholder="(123)-555-5555" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
         </div>
         <div className="flex items-center space-x-2 mb-4">
           <Checkbox id="terms" checked={acceptedTerms} onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)} />
@@ -116,7 +131,7 @@ export default function NewAccount() {
         </div>
         <div>
           <Button size="lg" variant={"ghost"} className="hover:bg-accent/50 w-72 h-11 mt-3" asChild>
-            <Link href="/" className="underline">Sign In</Link>
+            <Link href="/" className="underline">Back</Link>
           </Button>
         </div>
       </div>

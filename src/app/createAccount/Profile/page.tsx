@@ -1,5 +1,6 @@
 'use client';
 
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -125,6 +126,7 @@ export default function CreateProfile() {
       };
 
     return (
+        <ProtectedRoute>
         <div className="flex h-screen flex-col items-center px-4 py-12">
             <div className="flex flex-col mb-4 items-center">
                 <div className="flex flex-row place-items-end" onClick={() => setIsAvatarModalOpen(true)}>
@@ -159,5 +161,6 @@ export default function CreateProfile() {
                 </div>
             </form>
         </div>
+        </ProtectedRoute>
     );
 }

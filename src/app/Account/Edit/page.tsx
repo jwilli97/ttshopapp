@@ -1,9 +1,10 @@
 'use client';
 
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import BackButton from "@/components/backButton";
+import HomeButton from "@/components/HomeButton";
 import LogOutButton from "@/components/logoutButton";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -128,9 +129,10 @@ export default function EditAccount() {
       };
 
     return (
+        <ProtectedRoute>
         <div className="flex h-screen flex-col items-center px-4 py-6">
             <div className="flex flex-row items-center w-full justify-between">
-                <BackButton />
+                <HomeButton />
                 <LogOutButton />
             </div>
             <div className="flex flex-col mb-4 items-center">
@@ -168,5 +170,6 @@ export default function EditAccount() {
                 </div>
             </form>
         </div>
+        </ProtectedRoute>
     );
 }
