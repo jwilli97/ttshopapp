@@ -45,7 +45,6 @@ export default function FirstLogIn() {
             </div>
             <div className="flex flex-col place-items-center mb-8">
                 <h1 className="text-4xl">Thanks for signing up!</h1>
-                <p>We'll send you a confirmation email shortly.</p>
             </div>
             <div className="grid w-full max-w-sm items center gap-2 mb-4">
                 <Label htmlFor="email">Email</Label>
