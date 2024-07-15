@@ -70,7 +70,7 @@ export default function ConnectAccount() {
                 <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo" />
             </div>
             <div>
-                <h1 className="text-4xl mb-8">Let's get you verified!</h1>
+                <h1 className="text-4xl mb-8">Let&apos;s get you verified!</h1>
             </div>
             <div>
                 <Label htmlFor="phoneNumber">Enter your referral number</Label>
