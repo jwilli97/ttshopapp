@@ -82,7 +82,7 @@ export default function NewAccount() {
     if (error) {
       setError(error.message);
     } else {
-      router.push('/CreateAccount/Pending');
+      router.push('/createAccount/Pending');
     }
 
     setIsLoading(false);

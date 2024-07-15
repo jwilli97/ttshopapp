@@ -70,7 +70,7 @@ export default function ConnectAccount() {
 
             if (squareData.exists) {
                 // console.log('Account exists, redirecting to /CreateAccount/Pending');
-                router.push('/CreateAccount/SignUp');
+                router.push('/createAccount/SignUp');
             } else {
                 // console.log('No account found with this phone number');
                 setError('No account found with this phone number');

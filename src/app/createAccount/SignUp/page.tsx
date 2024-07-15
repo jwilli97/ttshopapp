@@ -111,7 +111,7 @@ export default function SignUp() {
                 throw new Error(data.error || 'An error occurred during sign up');
             }
 
-            router.push('/CreateAccount/FirstLogIn');
+            router.push('/createAccount/FirstLogIn');
         } catch (error: any) {
             setError(error.message);
         }

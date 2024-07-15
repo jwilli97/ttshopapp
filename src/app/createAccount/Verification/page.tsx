@@ -50,7 +50,7 @@ export default function ConnectAccount() {
             if (response.ok) {
                 if (data.exists) {
                     console.log('Account exists, redirecting to /CreateAccount/Profile');
-                    router.push('/CreateAccount/New');
+                    router.push('/createAccount/New');
                 } else {
                     setError('No account found with this phone number');
                 }
