@@ -161,7 +161,7 @@ export default function CreateProfile() {
                 <Input className="mt-1 mb-2.5" type="tel" id="phoneNumber" placeholder="512-459-2222" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={isLoading} />
                 <Label className="ml-2" htmlFor="address">Delivery Address</Label>
                 <Input className="mt-1 mb-2.5" type="text" id="address" placeholder="8467 Any Street, Houston, TX, 12345" value={address} onChange={(e) => setAddress(e.target.value)} disabled={isLoading} />
-                {error && <p className="text-red-500 mt-2">{error}</p>}
+                {error && <p className="text-accent mt-2">{error}</p>}
                 <div className="fixed bottom-0 left-0 w-full flex justify-center pb-6 px-4 z-50">
                     <Button className="bg-primary hover:bg-primary/75 w-full md:w-72 h-11 shadow-lg" type="submit" disabled={isLoading}>
                         {isLoading ? 'Saving...' : 'Continue'}

@@ -46,22 +46,24 @@ export default function FirstLogIn() {
             <div className="flex flex-col place-items-center mb-8">
                 <h1 className="text-4xl">Thanks for signing up!</h1>
             </div>
-            <div className="grid w-full max-w-sm items center gap-2 mb-4">
-                <Label htmlFor="email">Email</Label>
-                <Input type="text" id="email" autoComplete="email" placeholder="mikewazowski@aol.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-            </div>
-            <div className="grid w-full max-w-sm items center gap-2 mb-6">
-                <Label htmlFor="password">Password</Label>
-                <Input type="password" id="password" placeholder="*******" value={password} onChange={(e) => setPassword(e.target.value)} />
-            </div>
-            {error && (<div className="flex flex-row text-accent font-thin text-sm mb-4">
-                <ErrorIcon /> {error}
-            </div>)}
-            <div>
-                <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" type="submit" disabled={isLoading}>
-                    {isLoading ? 'Loading...' : 'Continue'}
-                </Button>
-            </div>
+            <form onSubmit={handleSubmit}>
+                <div className="grid w-full max-w-sm items center gap-2 mb-4">
+                    <Label htmlFor="email">Email</Label>
+                    <Input type="text" id="email" autoComplete="email" placeholder="mikewazowski@aol.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </div>
+                <div className="grid w-full max-w-sm items center gap-2 mb-6">
+                    <Label htmlFor="password">Password</Label>
+                    <Input type="password" id="password" placeholder="*******" value={password} onChange={(e) => setPassword(e.target.value)} />
+                </div>
+                {error && (<div className="flex flex-row text-accent font-thin text-sm mb-4">
+                    <ErrorIcon /> {error}
+                </div>)}
+                <div>
+                    <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" type="submit" disabled={isLoading}>
+                        {isLoading ? 'Loading...' : 'Continue'}
+                    </Button>
+                </div>
+            </form>
         </div>
     );
 }
