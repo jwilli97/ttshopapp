@@ -83,7 +83,7 @@ export default function Dashboard() {
                     <div className="container bg-[#cbd5e1] h-0.5 w-full md:w-11/12 mb-3 rounded-full"></div>
                     <TinyTokenShop loyaltyBalance={loyaltyBalance} /> {/* Renders the TinyTokenShop component, which displays the tiny tokens and shop menu */}
                     <div className="container bg-[#cbd5e1] h-0.5 w-full md:w-11/12 mt-3 rounded-full"></div>
-                    <div className="mt-3 mb-3 w-full md:w-auto">
+                    <div className="mt-3 mb-20 w-full md:w-auto">
                         {menuUrl && <Image src={menuUrl} width={500} height={100} alt="Current Menu" />}
                     </div>
                 </div>

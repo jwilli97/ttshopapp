@@ -80,6 +80,15 @@ export default function CreateProfile() {
         setIsLoading(true);
         setError('');
         try {
+            // search for square customer ID
+            const squareResponse = await fetch('/api/searchSquareAccount', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phoneNumber }),
+            });
+            const squareData = await squareResponse.json();
+            console.log('squareData:', squareData);
+
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 const { error } = await supabase
@@ -93,6 +102,7 @@ export default function CreateProfile() {
                         phone_number: phoneNumber,
                         address: address,
                         avatar_url: selectedAvatar || avatarUrl,
+                        square_customer_id: squareData.customerId,
                         updated_at: new Date()
                     }, {
                         onConflict: 'user_id'
@@ -110,7 +120,7 @@ export default function CreateProfile() {
             }
         } catch (error) {
             console.error('Error updating profile:', error);
-            setError('Failed to update profile. Please try again.');
+            setError('Failed to create profile. Please try again.');
             if (error instanceof Error) {
                 console.error('Error details:', error.message);
             }
