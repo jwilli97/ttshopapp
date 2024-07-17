@@ -32,7 +32,7 @@ export default function FirstLogIn() {
         if (error) {
             setError(error.message);
         } else {
-            router.push('/Account/Edit');
+            router.push('/createAccount/Profile');
         }
 
         setIsLoading(false);

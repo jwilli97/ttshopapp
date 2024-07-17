@@ -8,14 +8,14 @@ const client = new Client({
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const customerId = searchParams.get('customerId');
+  const loyaltyId = searchParams.get('loyaltyId');
 
-  if (!customerId) {
-    return NextResponse.json({ error: 'Customer ID is required' }, { status: 400 });
+  if (!loyaltyId) {
+    return NextResponse.json({ error: 'Loyalty ID is required' }, { status: 400 });
   }
 
   try {
-    const response = await client.loyaltyApi.retrieveLoyaltyAccount(customerId);
+    const response = await client.loyaltyApi.retrieveLoyaltyAccount(loyaltyId);
     const balance = response.result.loyaltyAccount?.balance || 0;
 
     return NextResponse.json({ balance });

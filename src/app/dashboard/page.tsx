@@ -31,30 +31,33 @@ export default function Dashboard() {
                 }
                 const menuData: { url: string } = await menuResponse.json();
                 setMenuUrl(menuData.url);
-
-                // Fetch loyalty balance
-                const customerId = '0ead1ed9-3dfd-4f33-a580-59661a7467a9'; // Replace with actual customer ID, delete comment when complete
-                const loyaltyResponse = await fetch(`/api/getLoyaltyBalance?customerId=${customerId}`);
-                if (!loyaltyResponse.ok) {
-                    throw new Error(`HTTP error! status: ${loyaltyResponse.status}`);
-                }
-                const loyaltyData: { balance: number } = await loyaltyResponse.json();
-                setLoyaltyBalance(loyaltyData.balance);
-
-                // Fetch display name
+    
+                // Fetch user data including Square Loyalty ID
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
                     const { data, error } = await supabase
                         .from('profiles')
-                        .select('display_name, avatar_url')
+                        .select('display_name, avatar_url, square_loyalty_id')
                         .eq('user_id', user.id)
                         .single();
-
-                        if (error) throw error;
-                        if (data) {
-                            setDisplayName(data.display_name);
-                            setAvatarUrl(data.avatar_url);
+    
+                    if (error) throw error;
+                    if (data) {
+                        setDisplayName(data.display_name);
+                        setAvatarUrl(data.avatar_url);
+                        
+                        // Fetch loyalty balance using Square Loyalty ID
+                        if (data.square_loyalty_id) {
+                            const loyaltyResponse = await fetch(`/api/getLoyaltyBalance?loyaltyId=${data.square_loyalty_id}`);
+                            if (!loyaltyResponse.ok) {
+                                throw new Error(`HTTP error! status: ${loyaltyResponse.status}`);
+                            }
+                            const loyaltyData: { balance: number } = await loyaltyResponse.json();
+                            setLoyaltyBalance(loyaltyData.balance);
+                        } else {
+                            console.warn('No Square Loyalty ID found for this user');
                         }
+                    }
                 }
             } catch (error) {
                 console.error("There was a problem fetching data:", error);

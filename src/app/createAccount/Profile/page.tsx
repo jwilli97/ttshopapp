@@ -103,6 +103,7 @@ export default function CreateProfile() {
                         address: address,
                         avatar_url: selectedAvatar || avatarUrl,
                         square_customer_id: squareData.customerId,
+                        square_loyalty_id: squareData.loyaltyId,
                         updated_at: new Date()
                     }, {
                         onConflict: 'user_id'

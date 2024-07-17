@@ -20,7 +20,12 @@ export default function SignUp() {
     const router = useRouter();
 
     const validatePhoneNumber = (phoneNumber: string) => {
-        return /^\(\d{3}\)-\d{3}-\d{4}$/.test(phoneNumber);
+        return /^\d{10}$/.test(phoneNumber);
+    };
+
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const stripped = e.target.value.replace(/\D/g, '').slice(0, 10);
+        setPhoneNumber(stripped);
     };
 
     const validateEmail = (email: string) => {
@@ -131,8 +136,8 @@ export default function SignUp() {
                         <Label htmlFor="phoneNumber" className="mb-2">Phone Number</Label>
                         <InputMask 
                             mask="(999)-999-9999"
-                            value={phoneNumber}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)}
+                            value={phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1)-$2-$3')}
+                            onChange={handlePhoneChange}
                         >
                             {(inputProps : any) => (
                                 <Input 
@@ -161,8 +166,8 @@ export default function SignUp() {
                     {password && !checkPasswordStrength(password).allValid && (
                             <div className="mt-2">
                                 {checkPasswordStrength(password).results.map((check, index) => (
-                                    <div key={index} className={check.isValid ? 'text-primary' : 'text-accent text-sm'}>
-                                        {check.isValid ? '✓' : '✗'} {check.message}
+                                    <div key={index} className={check.isValid ? 'text-primary text-sm' : 'text-accent text-sm'}>
+                                        {check.isValid ? '✓ ' : '✗ '} {check.message}
                                     </div>
                                 ))}
                             </div>

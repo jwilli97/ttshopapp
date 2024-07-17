@@ -30,7 +30,6 @@ export default function ConnectAccount() {
         const formattedPhoneNumber = formatPhoneNumber(phoneNumber);
 
         try {
-            // check supabase account first
             // console.log('Checking supabase account');
             const supaResponse = await fetch('/api/checkSupaAccount', {
                 method: 'POST',

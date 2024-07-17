@@ -6,13 +6,18 @@ const client = new Client({
     environment: Environment.Production,
 });
 
-export async function POST(request: Request) {
-    // console.log('API route hit');
+function formatPhoneNumber(phoneNumber: string): string {
+    const digitsOnly = phoneNumber.replace(/\D/g, '');
+    const withCountryCode = digitsOnly.startsWith('1') ? digitsOnly : `1${digitsOnly}`;
+    return `+${withCountryCode}`;
+}
 
+export async function POST(request: Request) {
     try {
         const { phoneNumber } = await request.json();
+        const formattedPhoneNumber = formatPhoneNumber(phoneNumber);
 
-        if (!phoneNumber || !phoneNumber.startsWith('+1')) {
+        if (!formattedPhoneNumber.startsWith('+1')) {
             return NextResponse.json({ message: 'Invalid phone number format' }, { status: 400 });
         }
 
@@ -20,7 +25,7 @@ export async function POST(request: Request) {
             query: {
                 filter: {
                     phoneNumber: {
-                        exact: phoneNumber
+                        exact: formattedPhoneNumber
                     }
                 }
             }
@@ -28,22 +33,25 @@ export async function POST(request: Request) {
 
         const customer = response.result.customers && response.result.customers[0];
 
-        if (customer) {
-            return NextResponse.json({ customerId: customer.id });
+        if (customer && customer.id) {
+            // Search for loyalty account
+            const loyaltyResponse = await client.loyaltyApi.searchLoyaltyAccounts({
+                query: {
+                    customerIds: [customer.id]
+                }
+            });
+
+            const loyaltyAccount = loyaltyResponse.result.loyaltyAccounts && loyaltyResponse.result.loyaltyAccounts[0];
+
+            return NextResponse.json({ 
+                customerId: customer.id,
+                loyaltyId: loyaltyAccount ? loyaltyAccount.id : null
+            });
         } else {
-            return NextResponse.json({ squareId: null });
+            return NextResponse.json({ customerId: null, loyaltyId: null });
         }
     } catch (error) {
         console.error('Error searching for Square account:', error);
         return NextResponse.json({ message: 'Error searching for Square account' }, { status: 500 });
     }
-}
-
-function formatPhoneNumber(phoneNumber: string): string {
-    // Remove all non-digit characters
-    const digitsOnly = phoneNumber.replace(/\D/g, '');
-    // If the number doesn't start with '1', add it
-    const withCountryCode = digitsOnly.startsWith('1') ? digitsOnly : `1${digitsOnly}`;
-    // Add the '+' at the beginning
-    return `+${withCountryCode}`;
 }
