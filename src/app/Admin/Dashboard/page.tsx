@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import ProtectedRoute from '@/components/ProtectedRoute';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from '@/lib/supabaseClient';
 
@@ -51,7 +52,8 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="flex h-screen w-full flex-col items-center px-4 py-6 relative">
+        <ProtectedRoute>
+            <div className="flex h-screen w-full flex-col items-center px-4 py-6 relative">
             <h1> ADMIN DASHBOARD</h1>
             <div>
                 <Card className="w-96 bg-primary">
@@ -66,5 +68,6 @@ export default function Dashboard() {
                 </Card>
             </div>
         </div>
+        </ProtectedRoute>
     );
 };
