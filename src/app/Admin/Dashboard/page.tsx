@@ -54,20 +54,20 @@ export default function Dashboard() {
     return (
         <AdminProtectedRoute>
             <div className="flex h-screen w-full flex-col items-center px-4 py-6 relative">
-            <h1> ADMIN DASHBOARD</h1>
-            <div>
-                <Card className="w-96 bg-primary">
-                    <CardHeader>
-                        <CardTitle>Current Menu</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Label htmlFor="picture">Upload Menu</Label>
-                        <Input id="picture" type="file" onChange={handleFileChange} />
-                        <Button className="bg-black hover:bg-black/75" onClick={handleUpload}>Upload</Button>
-                    </CardContent>
-                </Card>
+                <h1> ADMIN DASHBOARD</h1>
+                <div>
+                    <Card className="w-96 bg-primary place-items-center">
+                        <CardHeader>
+                            <CardTitle>Current Menu</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Label htmlFor="picture">Upload Menu</Label>
+                            <Input id="picture" type="file" onChange={handleFileChange} />
+                            <Button className="bg-black hover:bg-black/75" onClick={handleUpload}>Upload</Button>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
-        </div>
         </AdminProtectedRoute>
     );
 };
