@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminProtectedRoute from '@/components/AdminProtectedRoute';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from '@/lib/supabaseClient';
 
@@ -52,7 +52,7 @@ export default function Dashboard() {
     };
 
     return (
-        <ProtectedRoute>
+        <AdminProtectedRoute>
             <div className="flex h-screen w-full flex-col items-center px-4 py-6 relative">
             <h1> ADMIN DASHBOARD</h1>
             <div>
@@ -63,11 +63,11 @@ export default function Dashboard() {
                     <CardContent>
                         <Label htmlFor="picture">Upload Menu</Label>
                         <Input id="picture" type="file" onChange={handleFileChange} />
-                        <Button className="bg-black" onClick={handleUpload}>Upload</Button>
+                        <Button className="bg-black hover:bg-black/75" onClick={handleUpload}>Upload</Button>
                     </CardContent>
                 </Card>
             </div>
         </div>
-        </ProtectedRoute>
+        </AdminProtectedRoute>
     );
 };
