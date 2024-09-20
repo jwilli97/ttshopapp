@@ -11,11 +11,14 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react";
 
 interface AvatarSelectionModalProps {
-  avatarUrl: string;
-  onAvatarSelect: (avatar: string) => void;
   isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
-}
+  onClose: () => void;
+  avatars: string[];
+  onSelect: (avatarUrl: string) => void;
+  avatarUrl: string; // Add this line
+  onAvatarSelect: (avatarUrl: string) => void; // Add this line
+  onOpenChange: (open: boolean) => void; // Add this line
+};
 
 export default function AvatarSelectionModal({
   avatarUrl,

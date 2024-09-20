@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AvatarSelectionModal } from "@/components/AvatarSelectionModal";
+import  AvatarSelectionModal from "@/components/AvatarSelectionModal";
 import { supabase } from "@/lib/supabaseClient";
 
 export default function EditAccount() {
@@ -143,7 +143,15 @@ export default function EditAccount() {
                             <Image src={avatarUrl} width={128} height={128} alt="Fallback Profile Picture" />
                         </AvatarFallback>
                     </Avatar>
-                    <AvatarSelectionModal isOpen={isAvatarModalOpen} onClose={() => setIsAvatarModalOpen(false)} avatars={predefinedAvatars} onSelect={handleAvatarSelect} />
+                    <AvatarSelectionModal 
+                        avatarUrl={selectedAvatar || avatarUrl}
+                        onSelect={handleAvatarSelect}
+                        onAvatarSelect={handleAvatarSelect}
+                        onClose={() => setIsAvatarModalOpen(false)}
+                        onOpenChange={setIsAvatarModalOpen}
+                        isOpen={isAvatarModalOpen}
+                        avatars={predefinedAvatars}
+                    />
                 </div>
                 <p className="text-3xl font-semibold mt-2 mb-1">{displayName}</p>
                 <Badge className="bg-accent text-primary hover:text-accent hover:cursor-pointer">Membership Tier</Badge>
