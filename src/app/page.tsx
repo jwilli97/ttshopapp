@@ -46,7 +46,7 @@ export default function Login() {
           <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo"  />
         </div>
         <div>
-          <h1 className="text-4xl mb-8 ">Welcome to Tiny Trees</h1>
+          <h1 className="text-white text-4xl mb-8 ">Welcome to Tiny Trees</h1>
         </div>
         <div className="grid w-full max-w-sm items center gap-2 mb-4">
           <Label htmlFor="email">Email</Label>

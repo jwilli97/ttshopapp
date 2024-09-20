@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AvatarSelectionModal } from "@/components/AvatarSelectionModal";
+import AvatarSelectionModal from "@/components/AvatarSelectionModal";
 import { supabase } from "@/lib/supabaseClient";
 
 export default function CreateProfile() {
@@ -25,17 +25,6 @@ export default function CreateProfile() {
     const [error, setError] = useState('');
     const router = useRouter();
 
-    const predefinedAvatars = [
-        '/profile_pics/profileNug1.png',
-        '/profile_pics/profileNug2.png',
-        '/profile_pics/profileNug3.png',
-        '/profile_pics/profileNug4.png',
-        '/profile_pics/profileNug5.png',
-        '/profile_pics/profileNug6.png',
-        '/profile_pics/profileNug7.png',
-        '/profile_pics/profileNug8.png',
-        '/profile_pics/profileNug9.png',
-      ];
 
     useEffect(() => {
         fetchUserProfile();
@@ -132,24 +121,18 @@ export default function CreateProfile() {
 
       const handleAvatarSelect = (avatarUrl: string) => {
         setSelectedAvatar(avatarUrl);
-        setIsAvatarModalOpen(false);
+        setAvatarUrl(avatarUrl);
       };
 
     return (
         <div className="flex h-screen flex-col items-center px-4 py-12">
-            <div className="flex flex-col mb-4 items-center">
-                <div className="flex flex-row place-items-end" onClick={() => setIsAvatarModalOpen(true)}>
-                    <Avatar className="h-32 w-32">
-                        <AvatarImage src={selectedAvatar} alt=" Selected Profile Picture" />
-                        <AvatarFallback className="text-2xl">TT</AvatarFallback>
-                    </Avatar>
-                    <AvatarSelectionModal isOpen={isAvatarModalOpen} onClose={() => setIsAvatarModalOpen(false)} avatars={predefinedAvatars} onSelect={handleAvatarSelect} />
-                </div>
+            <div className="flex flex-col items-center">
+                <AvatarSelectionModal avatarUrl={avatarUrl} onAvatarSelect={handleAvatarSelect} isOpen={isAvatarModalOpen} onOpenChange={setIsAvatarModalOpen} />
                 <p className="text-3xl font-semibold mt-2 mb-1">{displayName}</p>
                 <Badge className="bg-accent text-primary hover:text-accent hover:cursor-pointer">Membership Tier</Badge>
             </div>
-            <div className="container bg-[#cbd5e1] h-0.5 w-full md:w-11/12 rounded-full"></div>
-            <form onSubmit={handleSubmit} className="w-8/12 mt-4">
+            <div className="container bg-[#cbd5e1] h-0.5 w-full mt-4 md:w-11/12 rounded-full"></div>
+            <form onSubmit={handleSubmit} className="w-80 mt-4 md:">
                 <Label className="ml-2" htmlFor="displayname">Display Name</Label>
                 <Input className="mt-1 mb-2.5" type="text" id="displayname" placeholder="Display Name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} disabled={isLoading} />
                 <Label className="ml-2" htmlFor="email">Email</Label>
