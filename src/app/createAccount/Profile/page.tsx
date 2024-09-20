@@ -25,6 +25,18 @@ export default function CreateProfile() {
     const [error, setError] = useState('');
     const router = useRouter();
 
+    const predefinedAvatars = [
+        '/profile_pics/profileNug1.png',
+        '/profile_pics/profileNug2.png',
+        '/profile_pics/profileNug3.png',
+        '/profile_pics/profileNug4.png',
+        '/profile_pics/profileNug5.png',
+        '/profile_pics/profileNug6.png',
+        '/profile_pics/profileNug7.png',
+        '/profile_pics/profileNug8.png',
+        '/profile_pics/profileNug9.png',
+    ];
+
 
     useEffect(() => {
         fetchUserProfile();
@@ -127,7 +139,15 @@ export default function CreateProfile() {
     return (
         <div className="flex h-screen flex-col items-center px-4 py-12">
             <div className="flex flex-col items-center">
-                <AvatarSelectionModal avatarUrl={avatarUrl} onAvatarSelect={handleAvatarSelect} isOpen={isAvatarModalOpen} onOpenChange={setIsAvatarModalOpen} />
+                <AvatarSelectionModal 
+                    avatarUrl={avatarUrl}
+                    onAvatarSelect={handleAvatarSelect}
+                    onSelect={handleAvatarSelect}
+                    onClose={() => setIsAvatarModalOpen(false)}
+                    onOpenChange={setIsAvatarModalOpen}
+                    isOpen={isAvatarModalOpen}
+                    avatars={predefinedAvatars}
+                />
                 <p className="text-3xl font-semibold mt-2 mb-1">{displayName}</p>
                 <Badge className="bg-accent text-primary hover:text-accent hover:cursor-pointer">Membership Tier</Badge>
             </div>
