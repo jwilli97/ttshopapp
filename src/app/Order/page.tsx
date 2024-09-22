@@ -139,7 +139,7 @@ export default function NewOrder() {
       try {
         const menuResponse = await fetch('/api/getMenuUrl');
         if (!menuResponse.ok) {
-          throw new Error(`HTTP error! status: ${menuResponse.status}`);
+            throw new Error(`HTTP error! status: ${menuResponse.status}`);
         }
         const menuData: { url: string } = await menuResponse.json();
         setMenuUrl(menuData.url);
@@ -278,11 +278,17 @@ export default function NewOrder() {
           </div>
         </div>
         <div>
-        {menuUrl && (
-          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <Image src={menuUrl} width={500} height={100} alt="Current Menu" className="mx-auto" />
-          </div>
-        )}
+          {menuUrl && (
+            <Image 
+              src={menuUrl} 
+              width={500} 
+              height={500} 
+              alt="Current Menu" 
+              className="mx-auto" 
+              priority
+              style={{ width: 'auto', height: 'auto' }}
+            />
+          )}
         </div>
       </main>
       
