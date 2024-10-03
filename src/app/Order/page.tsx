@@ -12,13 +12,38 @@ import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import BottomNav from "@/components/BottomNav";
 import LogOutButton from "@/components/logoutButton";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, Coins } from "lucide-react";
 import { useUser } from '@supabase/auth-helpers-react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+
+interface OrderDetails {
+  item: string;
+  tokenRedemption: string;
+  phoneNumber: string;
+  deliveryStreetAddress: string;
+  deliveryZipcode: string;
+  deliveryMethod: string;
+  paymentMethod: string;
+}
+
+interface TinyTokenShopItem {
+  id: number;
+  name: string;
+  cost: number;
+}
+
+const tokenShopItems: TinyTokenShopItem[] = [
+  { id: 1, name: 'Mystery Preroll', cost: 200 },
+  { id: 2, name: 'Mystery Light Depth Eighth', cost: 400 },
+  { id: 3, name: 'Blind 6 Joint Pack', cost: 800 },
+  { id: 4, name: 'Blind Edibles Box', cost: 1000 },
+  { id: 5, name: 'Mystery Pen', cost: 1500 },
+]
 
 export default function NewOrder() {
-  
   const [step, setStep] = useState(0);
-  const [order, setOrder] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [menuUrl, setMenuUrl] = useState<string>('');
   const [loyaltyBalance, setLoyaltyBalance] = useState<number | null>(null);
@@ -29,21 +54,32 @@ export default function NewOrder() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
-  const [orderDetails, setOrderDetails] = useState('');
+  const [orderDetails, setOrderDetails] = useState<OrderDetails>({
+    item: '',
+    tokenRedemption: '',
+    phoneNumber: '',
+    deliveryStreetAddress: '',
+    deliveryZipcode: '',
+    deliveryMethod: 'contactless', // Default value
+    paymentMethod: 'venmo', // Default Value
+  })
   const [zipcode, setZipcode] = useState('');
+  const [showTokenShop, setShowTokenShop] = useState(false);
   const user = useUser();
 
   const steps = [
     {
       title: "What would you like to order?",
       content: (
-        <Textarea
-          className="bg-gray-200 text-black"
-          placeholder="Enter the items you want to order..."
-          value={orderDetails}
-          onChange={(e) => setOrderDetails(e.target.value)}
-          rows={3}
-        />
+        <div>
+          <Textarea
+            className="bg-gray-200 text-black"
+            placeholder="Enter the items you want to order..."
+            value={orderDetails.item}
+            onChange={(e) => setOrderDetails({ ...orderDetails, item: e.target.value })}
+            rows={3}
+          />
+        </div>
       ),
     },
     {
@@ -51,7 +87,7 @@ export default function NewOrder() {
         content: (
           <div>
             <Label className="font-bold">Delivery Method</Label>
-            <RadioGroup defaultValue="Venmo">
+            <RadioGroup defaultValue={orderDetails.deliveryMethod} onValueChange={(value) => setOrderDetails({ ...orderDetails, deliveryMethod: value })}>
               <div className="flex items-center space-x-2">
                   <RadioGroupItem value="contactless" id="r1" />
                   <Label htmlFor="r1">Contactless</Label>
@@ -65,8 +101,8 @@ export default function NewOrder() {
             <Textarea
               className="bg-gray-200 text-black mb-3"
               placeholder="Enter your street address"
-              value={streetAddress}
-              onChange={(e) => setStreetAddress(e.target.value)}
+              value={orderDetails.deliveryStreetAddress}
+              onChange={(e) => setOrderDetails({ ...orderDetails, deliveryStreetAddress: e.target.value })}
               rows={2}
             />
             <Label className="font-bold">ZIP Code</Label>
@@ -74,8 +110,8 @@ export default function NewOrder() {
               className="bg-gray-200 text-black"
               type="text"
               placeholder="Enter your ZIP code"
-              value={zipcode}
-              onChange={(e) => setZipcode(e.target.value)}
+              value={orderDetails.deliveryZipcode}
+              onChange={(e) => setOrderDetails({ ...orderDetails, deliveryZipcode: e.target.value })}
             />
           </div>
         ),
@@ -83,7 +119,7 @@ export default function NewOrder() {
     {
       title: "Select your payment method.",
       content: (
-        <RadioGroup defaultValue="Venmo">
+        <RadioGroup defaultValue={orderDetails.paymentMethod} onValueChange={(value) => setOrderDetails({ ...orderDetails, paymentMethod: value })}>
             <div className="flex items-center space-x-2">
                 <RadioGroupItem value="venmo" id="r1" />
                 <Label htmlFor="r1">Venmo</Label>
@@ -102,8 +138,8 @@ export default function NewOrder() {
           className="bg-gray-200 text-black"
           type="tel"
           placeholder="Enter your phone number"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
+          value={orderDetails.phoneNumber}
+          onChange={(e) => setOrderDetails({ ...orderDetails, phoneNumber: e.target.value })}
         />
       ),
     },
@@ -112,9 +148,9 @@ export default function NewOrder() {
       content: (
         <div className="space-y-1">
           <p className="font-bold">Display Name: {displayName}</p>
-          <p className="font-bold">Order Details: {orderDetails}</p>
-          <p className="font-bold">Phone Number: {phoneNumber}</p>
-          <p className="font-bold">Delivery Address: {streetAddress}, {zipcode}</p>
+          <p className="font-bold">Order Details: {orderDetails.item}</p>
+          <p className="font-bold">Phone Number: {orderDetails.phoneNumber}</p>
+          <p className="font-bold">Delivery Address: {orderDetails.deliveryStreetAddress}, {orderDetails.deliveryZipcode}</p>
         </div>
       ),
     },
@@ -160,6 +196,14 @@ export default function NewOrder() {
             setStreetAddress(data.street_address);
             setZipcode(data.zipcode);
             setPhoneNumber(data.phone_number);
+
+            //autofill orders with user profile data
+            setOrderDetails((prev) => ({
+              ...prev,
+              phoneNumber: data.phone_number,
+              deliveryStreetAddress: data.street_address,
+              deliveryZipcode: data.zipcode,
+            }));
             
             if (data.square_loyalty_id) {
               const loyaltyResponse = await fetch(`/api/getLoyaltyBalance?loyaltyId=${data.square_loyalty_id}`);
@@ -196,9 +240,12 @@ export default function NewOrder() {
           user_id: userId,
           display_name: displayName,
           order_details: orderDetails,
-          phone_number: phoneNumber,
-          street_address: streetAddress,
-          zipcode: zipcode,
+          token_redemption: orderDetails.tokenRedemption,
+          phone_number: orderDetails.phoneNumber,
+          street_address: orderDetails.deliveryStreetAddress,
+          zipcode: orderDetails.deliveryZipcode,
+          delivery_method: orderDetails.deliveryMethod,
+          payment_method: orderDetails.paymentMethod,
           status: 'pending'
         });
 
@@ -220,6 +267,11 @@ export default function NewOrder() {
   if (error) {
     return <div className="flex h-screen items-center justify-center text-red-500">{error}</div>;
   }
+
+  const handleRewardClaim = async (itemId: number) => {
+  // Implement the logic to handle the reward claim
+  // Example: Update the user's loyalty balance or redeem the item
+};
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -275,9 +327,46 @@ export default function NewOrder() {
                 </Button>
               )}
             </div>
+            <div className="mt-8 flex justify-between items-center">
+              <p className="text-sm font-medium">Your Tokens: {loyaltyBalance}</p>
+              <Dialog open={showTokenShop} onOpenChange={setShowTokenShop}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Coins className="mr-2 h-4 w-4" />
+                    Token Shop
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Token Shop</DialogTitle>
+                    <DialogDescription>Redeem your tokens for rewards</DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    {tokenShopItems.map((item) => (
+                      <Card key={item.id}>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <CardTitle className="text-sm font-medium">
+                            {item.name}
+                          </CardTitle>
+                          <Badge variant="secondary">{item.cost} Tokens</Badge>
+                        </CardHeader>
+                        <CardContent>
+                          <Button
+                            onClick={() => handleRewardClaim(item.id)}
+                            disabled={loyaltyBalance === null || loyaltyBalance < item.cost}
+                          >
+                            Claim Reward
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
-        <div>
+        <div className="mt-8">
           {menuUrl && (
             <Image 
               src={menuUrl} 
@@ -292,7 +381,9 @@ export default function NewOrder() {
         </div>
       </main>
       
-      <BottomNav />
+      <footer>
+        <BottomNav />
+      </footer>
     </div>
   );
 }

@@ -1,9 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    reactStrictMode: true,
     images: {
-        domains: ['xjzjmufcwryxhopgcvhz.supabase.co']
-    }
-};
-
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'xjzjmufcwryxhopgcvhz.supabase.co',
+          port: '',
+          pathname: '/storage/v1/object/public/**',
+        },
+      ],
+    },
+  };
+  
 export default nextConfig;
