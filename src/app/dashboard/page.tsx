@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import LogOutButton from "@/components/logoutButton";
 import BottomNav from "@/components/BottomNav";
+import Intercom from '@intercom/messenger-js-sdk';
 // config.autoAddCss = false;
 
 export default function Dashboard() {
@@ -39,7 +40,7 @@ export default function Dashboard() {
                 if (user) {
                     const { data, error } = await supabase
                         .from('profiles')
-                        .select('display_name, avatar_url, square_loyalty_id')
+                        .select('*')
                         .eq('user_id', user.id)
                         .single();
     
@@ -47,6 +48,14 @@ export default function Dashboard() {
                     if (data) {
                         setDisplayName(data.display_name);
                         setAvatarUrl(data.avatar_url);
+
+                        Intercom({
+                            app_id: 'cdcmnvsm',
+                            user_id: data.user_id,
+                            name: data.display_name,
+                            email: data.email,
+                            created_at: data.created_at,
+                        });
                         
                         // Fetch loyalty balance using Square Loyalty ID
                         if (data.square_loyalty_id) {
