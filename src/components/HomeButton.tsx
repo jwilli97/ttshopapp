@@ -11,9 +11,9 @@ const HomeButton = () => {
     };
 
     return (
-        <Button variant={'ghost'} className="bg-background hover:bg-background" onClick={handleHome}>
+        <Button variant={'ghost'} className="bg-background hover:bg-background hover:text-white" onClick={handleHome}>
             <HomeIcon />
-            <p className="ml-2 font-light">HOME</p>
+            <p className="ml-2 font-light text-white">HOME</p>
         </Button>
     );
 }

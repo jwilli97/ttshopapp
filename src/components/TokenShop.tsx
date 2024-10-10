@@ -30,12 +30,12 @@ const TokenShop: React.FC<TinyTokenShopProps> = ({ loyaltyBalance }: TinyTokenSh
 
   const [isShopOpen, setIsShopOpen] = useState(false);
 
-  const progressPercentage = loyaltyBalance !== null ? Math.min((loyaltyBalance / 100) * 100, 100) : 0;
+  const progressPercentage = loyaltyBalance !== null ? Math.min((loyaltyBalance / 2000) * 100, 2000) : 0;
 
   const toggleShop = () => setIsShopOpen(!isShopOpen);
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-background rounded-lg">
+    <div className="w-full max-w-md mx-auto p-6 bg-background text-white rounded-lg">
         <div className='flex space-x-2'>
             <div className='mt-2'>
                 <ShopIcon />
@@ -45,7 +45,7 @@ const TokenShop: React.FC<TinyTokenShopProps> = ({ loyaltyBalance }: TinyTokenSh
         <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
                 <span className="text-lg font-medium">Balance:</span>
-                <span className="text-xl font-bold">{loyaltyBalance} <CoinIcon /></span>
+                <span className="flex items-center text-xl font-bold">{loyaltyBalance} <CoinIcon /></span>
             </div>
             <Progress value={progressPercentage} className="w-full" />
         </div>
@@ -59,11 +59,11 @@ const TokenShop: React.FC<TinyTokenShopProps> = ({ loyaltyBalance }: TinyTokenSh
             {isShopOpen ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
             </Button>
             {isShopOpen && (
-                <ul className="mt-4 space-y-2">
+                <ul className="mt-4 text-primary space-y-2">
                     {shopItems.map((item) => (
-                        <li key={item.id} className="flex justify-between items-center p-2 bg-muted rounded">
+                        <li key={item.id} className="flex justify-between items-center p-2 bg-muted/45 backdrop-blur-sm rounded-md border border-muted/10">
                             <span>{item.name}</span>
-                            <span className="font-medium"><CoinIcon /> {item.cost}</span>
+                            <span className="flex items-center font-medium">{item.cost} <CoinIcon /></span>
                         </li>
                     ))}
                 </ul>

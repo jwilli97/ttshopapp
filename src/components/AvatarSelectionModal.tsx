@@ -61,13 +61,13 @@ export default function AvatarSelectionModal({
             />
             <AvatarFallback className="text-2xl">TT</AvatarFallback>
           </Avatar>
-          <Button variant="outline" size={"sm"}>Edit Profile Picture</Button>
+          <Button variant="outline" size={"sm"} className="text-white">Edit Profile Picture</Button>
         </div>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Choose your Bud!</DialogTitle>
-          <DialogDescription className="text-wrap">
+          <DialogTitle className="text-white text-xl">Choose your Bud!</DialogTitle>
+          <DialogDescription className="text-wrap text-white">
             Select one of the following Buds to be your profile picture. You can change this anytime in the account settings.
           </DialogDescription>
         </DialogHeader>

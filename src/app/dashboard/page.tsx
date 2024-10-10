@@ -14,6 +14,7 @@ import { supabase } from "@/lib/supabaseClient";
 import LogOutButton from "@/components/logoutButton";
 import BottomNav from "@/components/BottomNav";
 import Intercom from '@intercom/messenger-js-sdk';
+import { ClipLoader } from "react-spinners";
 // config.autoAddCss = false;
 
 export default function Dashboard() {
@@ -22,10 +23,14 @@ export default function Dashboard() {
     const [loyaltyBalance, setLoyaltyBalance] = useState<number | null>(null);
     const [displayName, setDisplayName] = useState<string>('Loading...');
     const [avatarUrl, setAvatarUrl] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
         async function fetchData() {
+            setIsLoading(true);
+            setError(null);
             try {
                 // Fetch menu URL
                 const menuResponse = await fetch('/api/getMenuUrl');
@@ -72,10 +77,29 @@ export default function Dashboard() {
                 }
             } catch (error) {
                 console.error("There was a problem fetching data:", error);
+                setError("Failed to load data. Please try again later.");
+            } finally {
+                setIsLoading(false);
             }
         }
         fetchData();
     }, []);
+
+    if (isLoading) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <ClipLoader className="text-primary" size={50} />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <p className="text-red-500">{error}</p>
+            </div>
+        );
+    }
 
     return (
         <ProtectedRoute>
@@ -87,7 +111,7 @@ export default function Dashboard() {
                             <AvatarFallback className="text-2xl">TT</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col justify-left md:items-start ml-4" onClick={() => router.push('/Account')}>
-                            <p className="text-white text-2xl mt-3 font-semibold cursor-pointer">{displayName}</p>
+                            <p className="text-2xl font-semibold mt-2 mb-1 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">{displayName}</p>
                             <p className="text-white text-sm mt-0.5 text-center hover:font-bold cursor-pointer">View Account</p>
                         </div>
                     </div>

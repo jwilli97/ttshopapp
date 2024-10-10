@@ -20,7 +20,8 @@ export default function Account() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [address, setAddress] = useState('');
+    const [streetAddress, setStreetAddress] = useState('');
+    const [zipCode, setZipCode] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
@@ -50,7 +51,8 @@ export default function Account() {
                     setFirstName(data.first_name || '');
                     setLastName(data.last_name || '');
                     setPhoneNumber(data.phone_number || '');
-                    setAddress(data.address || '');
+                    setStreetAddress(data.street_address || '');
+                    setZipCode(data.zipcode || '');
                     setAvatarUrl(data.avatar_url || '');
                 }
             }
@@ -70,7 +72,7 @@ export default function Account() {
 
     return (
         <ProtectedRoute>
-            <div className="flex h-screen w-full flex-col items-center px-4 py-6 relative">
+            <div className="flex h-screen w-full flex-col items-center text-white px-4 py-6 relative">
                 <div className="flex flex-row items-center w-full justify-between">
                     <HomeButton />
                     <LogOutButton />
@@ -80,9 +82,9 @@ export default function Account() {
                     <AvatarFallback className="text-xl md:text-2xl">TT</AvatarFallback>
                 </Avatar>
                 <div>
-                    <p className="text-3xl font-semibold mt-1 mb-2">{displayName}</p>
+                    <p className="text-3xl font-semibold mt-2 mb-1 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">{displayName}</p>
                 </div>
-                <Badge className="bg-accent text-primary hover:text-accent hover:cursor-pointer">Membership Tier</Badge>
+                {/* <Badge className="bg-accent text-primary hover:text-accent hover:cursor-pointer">Membership Tier</Badge> */}
                 <div className="w-96">
                     <Tabs defaultValue="Display" className="mt-4">
                         <TabsList className="grid w-full grid-cols-2 text-primary">
@@ -92,26 +94,26 @@ export default function Account() {
                         <TabsContent value="Display">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Display Info</CardTitle>
-                                    <CardDescription className="font-light">Does there need to be anything here?</CardDescription>
+                                    <CardTitle className="text-white">Display Info</CardTitle>
+                                    <CardDescription className="font-light text-white">Does there need to be anything here?</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-2">
                                     <div>
-                                        <Label htmlFor="displayname" className="font-light">Display Name</Label>
-                                        <p className="text-lg font-semibold">{displayName}</p>
+                                        <Label htmlFor="displayname" className="font-light text-white">Display Name</Label>
+                                        <p className="text-xl font-semibold mb-1 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">{displayName}</p>
                                     </div>
                                     <div>
-                                        <Label className="font-light">Membership Tier</Label>
-                                        <p className="text-lg text-accent font-semibold">Chronic</p>
+                                        <Label className="font-light text-white">Membership Tier</Label>
+                                        <p className="text-lg text-accent font-semibold">Coming Soon!</p>
                                     </div>
                                     <div>
-                                        <Label className="font-light">Favorite Strain Type</Label>
+                                        <Label className="font-light text-white">Favorite Strain Type</Label>
                                         <Select>
-                                            <SelectTrigger className="w-48 mt-2">
+                                            <SelectTrigger className="w-48 mt-2 text-white">
                                                 <SelectValue placeholder="Select..." />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectGroup>
+                                                <SelectGroup className="text-white">
                                                     <SelectItem value="Indica">Indica</SelectItem>
                                                     <SelectItem value="Sativa">Sativa</SelectItem>
                                                     <SelectItem value="Hybrid">Hybrid</SelectItem>
@@ -125,10 +127,10 @@ export default function Account() {
                         <TabsContent value="Personal">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Personal Info</CardTitle>
-                                    <CardDescription>What should go here?</CardDescription>
+                                    <CardTitle className="text-white">Personal Info</CardTitle>
+                                    <CardDescription className="font-light text-white">What should go here? If anything?</CardDescription>
                                 </CardHeader>
-                                <CardContent className="space-y-2">
+                                <CardContent className="space-y-2 text-white">
                                     <div>
                                         <Label htmlFor="name" className="font-light">Name</Label>
                                         <p className="text-lg font-semibold">{firstName} {lastName}</p>
@@ -142,20 +144,20 @@ export default function Account() {
                                         <p className="text-lg font-semibold">{phoneNumber}</p>
                                     </div>
                                     <div>
-                                        <Label htmlFor="address" className="font-light">Address</Label>
-                                        <p className="text-lg font-semibold">{address}</p>
+                                        <Label htmlFor="address" className="font-light">DeliveryAddress</Label>
+                                        <p className="text-lg font-semibold">{streetAddress}, {zipCode}</p>
                                     </div>
                                 </CardContent>
                             </Card>
                         </TabsContent>
                     </Tabs>
                 </div>
-                <div className="fixed bottom-0 left-0 w-full flex justify-center pb-6 px-4 z-50">
-                    <Button className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" onClick={() => router.push('/Account/Edit')}>
+                <div className="w-full flex justify-center pb-6 px-4 z-50">
+                    <Button className="bg-primary hover:bg-primary/75 w-96 h-11 mt-6" onClick={() => router.push('/Account/Edit')}>
                         Edit Profile
                     </Button>
                 </div>
             </div>
         </ProtectedRoute>
     );
-}
+};

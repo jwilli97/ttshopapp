@@ -1,5 +1,7 @@
 'use client';
 
+// @ts-ignore
+import InputMask from "react-input-mask";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -7,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import ErrorIcon from "@/components/icons/errorIcon";
-import { supabase } from "@/lib/supabaseClient";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -19,18 +21,54 @@ export default function NewAccount() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const supabase = createClientComponentClient();
   const router = useRouter();
+
+  const validatePhoneNumber = (phoneNumber: string) => {
+    return /^\d{10}$/.test(phoneNumber);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const stripped = e.target.value.replace(/\D/g, '').slice(0, 10);
+    setPhoneNumber(stripped);
+  };
 
   const validateEmail = (email: string) => {
     return /\S+@\S+\.\S+/.test(email);
   };
 
   const validatePassword = (password: string) => {
-    return password.length >= 8;
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasDigit = /\d/.test(password);
+    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password);
+
+    return (
+      password.length >= minLength &&
+      hasUpperCase &&
+      hasLowerCase &&
+      hasDigit &&
+      hasSymbol
+    );
   };
 
-  const validatePhoneNumber = (phoneNumber: string) => {
-    return /\d{3}-\d{3}-\d{4}/.test(phoneNumber);
+  const checkPasswordStrength = (password: string) => {
+    const checks = [
+      { regex: /.{8,}/, message: 'At least 8 characters' },
+      { regex: /[A-Z]/, message: 'At least one uppercase letter' },
+      { regex: /[a-z]/, message: 'At least one lowercase letter' },
+      { regex: /\d/, message: 'At least one digit' },
+      { regex: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/, message: 'At least one symbol' }
+    ];
+
+    const results = checks.map(check => ({
+      message: check.message,
+      isValid: check.regex.test(password)
+    }));
+
+    const allValid = results.every(result => result.isValid);
+    return { allValid, results };
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -44,6 +82,12 @@ export default function NewAccount() {
       return;
     }
 
+    if (!validatePhoneNumber(phoneNumber)) {
+      setError('Please enter a valid phone number');
+      setIsLoading(false);
+      return;
+    }
+
     if (!validateEmail(email)) {
       setError('Please enter a valid email address');
       setIsLoading(false);
@@ -51,7 +95,7 @@ export default function NewAccount() {
     }
 
     if (!validatePassword(password)) {
-      setError('Password must be at least 8 characters long and include a number, uppercase letter,lowercase letter, ditig, and special character');
+      setError('Password must be at least 8 characters long and include an uppercase letter, lowercase letter, digit, and symbol');
       setIsLoading(false);
       return;
     }
@@ -62,65 +106,89 @@ export default function NewAccount() {
       return;
     }
 
-    if (!validatePhoneNumber(phoneNumber)) {
-      setError('Please enter a valid phone number');
-      setIsLoading(false);
-      return;
-    }
-
     if (!acceptedTerms) {
       setError('Please accept the terms of service');
       setIsLoading(false);
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        phone: phoneNumber,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
 
-    if (error) {
-      setError(error.message);
-    } else {
+      if (error) throw error;
+
+      alert('Please check your email for the confirmation link.');
       router.push('/createAccount/Pending');
+    } catch (error: any) {
+      setError(error.message || 'An error occurred during sign up.');
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center px-4 py-12">
+    <div className="flex h-screen w-full flex-col items-center text-white justify-center px-4 py-12">
       <div className="mb-10 animate-wiggle">
-        <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo"  />
+        <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo" />
       </div>
       <div>
-        <h1 className="text-4xl mb-8 ">Create Your Account</h1>
+        <h1 className="text-4xl mb-8">Create Your Account</h1>
       </div>
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-col items-center">
-          <div className="grid w-full max-w-sm items-center gap-2 mb-4">
-            <Label htmlFor="phoneNumber">Phone Number</Label>
-            <Input type="tel" id="phoneNumber" autoComplete="phoneNumber" placeholder="(123)-555-5555" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+      <form onSubmit={handleSubmit} className="w-full max-w-md">
+        <div className="flex flex-col place-items-center">
+          <div className="flex flex-col mb-4 w-3/4">
+            <Label htmlFor="phoneNumber" className="mb-2">Phone Number</Label>
+            <InputMask 
+              mask="(999)-999-9999"
+              value={phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1)-$2-$3')}
+              onChange={handlePhoneChange}
+            >
+              {(inputProps: any) => (
+                <Input 
+                  {...inputProps}
+                  type="tel" 
+                  id="phoneNumber" 
+                  autoComplete="tel" 
+                  placeholder="(123)-555-5555"
+                />
+              )}
+            </InputMask>
           </div>
-          <div className="grid w-full max-w-sm items-center gap-2 mb-4">
-            <Label htmlFor="email">Email</Label>
-            <Input type="text" id="email" autoComplete="email" placeholder="mikewazowski@aol.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <div className="flex flex-col mb-4 w-3/4">
+            <Label htmlFor="email" className="mb-2">Email</Label>
+            <Input type="text" id="email" autoComplete="email" placeholder="email@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
-          <div className="grid w-full max-w-sm items-center gap-2 mb-4">
-            <Label htmlFor="password">Password</Label>
+          <div className="flex flex-col mb-4 w-3/4">
+            <Label htmlFor="password" className="mb-2">Password</Label>
             <Input type="password" id="password" placeholder="*******" value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
-          <div className="grid w-full max-w-sm items-center gap-2 mb-6">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <div className="flex flex-col mb-6 w-3/4">
+            <Label htmlFor="confirmPassword" className="mb-2">Confirm Password</Label>
             <Input type="password" id="confirmPassword" placeholder="*******" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
           </div>
           <div className="flex flex-row place-items-center space-x-2 mb-4">
             <Checkbox id="terms" checked={acceptedTerms} onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)} />
             <Label htmlFor="terms">
-              I agree to the <Link href="/terms" className="text-primary">Terms of Service</Link>
+              I agree to the <Link href="/terms" className="text-accent">Terms of Service</Link>
             </Label>
           </div>
-          {error && <p className="flex place-items-center text-accent text-sm mb-2"><ErrorIcon /> {error}</p>}
+          {error && <p className="flex place-items-center text-red-500 text-sm mb-2"><ErrorIcon /> {error}</p>}
+          {password && !checkPasswordStrength(password).allValid && (
+            <div className="mt-2">
+              {checkPasswordStrength(password).results.map((check, index) => (
+                <div key={index} className={check.isValid ? 'text-primary text-sm' : 'text-accent text-sm'}>
+                  {check.isValid ? '✓ ' : '✗ '} {check.message}
+                </div>
+              ))}
+            </div>
+          )}
           <div>
             <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" type="submit" disabled={isLoading}>
               {isLoading ? 'Loading...' : 'Continue'}
@@ -135,4 +203,4 @@ export default function NewAccount() {
       </form>
     </div>
   );
-}
+};

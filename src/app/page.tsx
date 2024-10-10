@@ -48,31 +48,36 @@ export default function Login() {
         <div>
           <h1 className="text-white text-4xl mb-8 ">Welcome to Tiny Trees</h1>
         </div>
-        <div className="grid w-full max-w-sm items center gap-2 mb-4">
+        <div className="grid w-full max-w-sm text-white items-center gap-2 mb-4">
           <Label htmlFor="email">Email</Label>
           <Input type="text" id="email" autoComplete="email" placeholder="mikewazowski@aol.com" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
-        <div className="grid w-full max-w-sm items center gap-2 mb-6">
+        <div className="grid w-full max-w-sm text-white items-center gap-2 mb-6">
           <Label htmlFor="password">Password</Label>
           <Input type="password" id="password" placeholder="*******" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
-        { error && (<div className="flex flex-row text-accent font-thin text-sm"><ErrorIcon /> {error}</div>)}
+        { error && (<div className="flex flex-row text-red-500 font-thin text-sm"><ErrorIcon /> {error}</div>)}
         <div>
           <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" type="submit" disabled={isLoading}>
             {isLoading ? 'Loading...' : 'Login'}
           </Button>
         </div>
         <div>
-          <Button size="lg" variant={"ghost"} className="hover:bg-accent/50 w-72 h-11 mt-3" onClick={() => router.push('/createAccount')}>
-            Create Account
+          <Button size="lg" variant={"ghost"} className="text-accent hover:bg-accent/50 w-72 h-11 mt-4" onClick={() => router.push('/Nope')}>
+            Forgot Password?
           </Button>
         </div>
         <div>
-          <Button size="lg" variant={"ghost"} className="hover:bg-accent/50 w-72 h-11 mt-3" onClick={() => router.push('/Admin')}>
-            Admin
+          <Button size="lg" variant={"ghost"} className="text-white hover:bg-accent/50 w-72 h-11 mt-3" onClick={() => router.push('/createAccount')}>
+            Create Account
           </Button>
         </div>
+        {/* <div>
+          <Button size="lg" variant={"ghost"} className="text-white hover:bg-primary/50 w-72 h-11 mt-3" onClick={() => router.push('/Admin')}>
+            Admin
+          </Button>
+        </div> */}
       </div>
     </form>
   );
-}
+};

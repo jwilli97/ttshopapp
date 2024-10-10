@@ -16,7 +16,7 @@ import { ChevronRight, ChevronLeft, Coins } from "lucide-react";
 import { useUser } from '@supabase/auth-helpers-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 
 interface OrderDetails {
   item: string;
@@ -43,7 +43,7 @@ const tokenShopItems: TinyTokenShopItem[] = [
 ]
 
 export default function NewOrder() {
-  const [step, setStep] = useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [menuUrl, setMenuUrl] = useState<string>('');
   const [loyaltyBalance, setLoyaltyBalance] = useState<number | null>(null);
@@ -69,6 +69,7 @@ export default function NewOrder() {
 
   const steps = [
     {
+      id: 'item',
       title: "What would you like to order?",
       content: (
         <div>
@@ -81,57 +82,88 @@ export default function NewOrder() {
           />
         </div>
       ),
+      nextStep: () => 'deliveryMethod',
     },
     {
-        title: "Confirm your delivery method and address",
-        content: (
-          <div>
-            <Label className="font-bold">Delivery Method</Label>
-            <RadioGroup defaultValue={orderDetails.deliveryMethod} onValueChange={(value) => setOrderDetails({ ...orderDetails, deliveryMethod: value })}>
-              <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="contactless" id="r1" />
-                  <Label htmlFor="r1">Contactless</Label>
-              </div>
-              <div className="flex items-center space-x-2 mb-3">
-                  <RadioGroupItem value="person" id="r2" />
-                  <Label htmlFor="r2">In Person</Label>
-              </div>
-            </RadioGroup>
-            <Label className="font-bold">Street Address</Label>
-            <Textarea
-              className="bg-gray-200 text-black mb-3"
-              placeholder="Enter your street address"
-              value={orderDetails.deliveryStreetAddress}
-              onChange={(e) => setOrderDetails({ ...orderDetails, deliveryStreetAddress: e.target.value })}
-              rows={2}
-            />
-            <Label className="font-bold">ZIP Code</Label>
-            <Input
-              className="bg-gray-200 text-black"
-              type="text"
-              placeholder="Enter your ZIP code"
-              value={orderDetails.deliveryZipcode}
-              onChange={(e) => setOrderDetails({ ...orderDetails, deliveryZipcode: e.target.value })}
-            />
-          </div>
-        ),
-    },
-    {
-      title: "Select your payment method.",
+      id: 'deliveryMethod',
+      title: "Choose your delivery method",
       content: (
-        <RadioGroup defaultValue={orderDetails.paymentMethod} onValueChange={(value) => setOrderDetails({ ...orderDetails, paymentMethod: value })}>
+        <div>
+          <RadioGroup 
+            defaultValue={orderDetails.deliveryMethod} 
+            onValueChange={(value) => {
+              setOrderDetails({ ...orderDetails, deliveryMethod: value });
+              // Reset payment method if changing from in-person to contactless
+              if (value === 'contactless' && orderDetails.paymentMethod === 'cash') {
+                setOrderDetails(prev => ({ ...prev, paymentMethod: 'venmo' }));
+              }
+            }}
+          >
             <div className="flex items-center space-x-2">
-                <RadioGroupItem value="venmo" id="r1" />
-                <Label htmlFor="r1">Venmo</Label>
+              <RadioGroupItem value="contactless" id="r1" />
+              <Label htmlFor="r1">Contactless*</Label>
             </div>
             <div className="flex items-center space-x-2">
-                <RadioGroupItem value="cash" id="r2" />
-                <Label htmlFor="r2">Cash</Label>
+              <RadioGroupItem value="person" id="r2" />
+              <Label htmlFor="r2">In Person</Label>
             </div>
+          </RadioGroup>
+          <div>
+            <p className="text-sm mt-6">*Prepayment via Venmo is required for contactless delivery</p>
+          </div>
+        </div>
+      ),
+      nextStep: () => 'address',
+    },
+    {
+      id: 'address',
+      title: "Confirm your delivery address",
+      content: (
+        <div>
+          <Label className="font-bold">Street Address</Label>
+          <Textarea
+            className="bg-gray-200 text-black mb-3"
+            placeholder="Enter your street address"
+            value={orderDetails.deliveryStreetAddress}
+            onChange={(e) => setOrderDetails({ ...orderDetails, deliveryStreetAddress: e.target.value })}
+            rows={2}
+          />
+          <Label className="font-bold">ZIP Code</Label>
+          <Input
+            className="bg-gray-200 text-black"
+            type="text"
+            placeholder="Enter your ZIP code"
+            value={orderDetails.deliveryZipcode}
+            onChange={(e) => setOrderDetails({ ...orderDetails, deliveryZipcode: e.target.value })}
+          />
+        </div>
+      ),
+      nextStep: () => 'paymentMethod',
+    },
+    {
+      id: 'paymentMethod',
+      title: "Select your payment method",
+      content: (
+        <RadioGroup 
+          defaultValue={orderDetails.paymentMethod} 
+          onValueChange={(value) => setOrderDetails({ ...orderDetails, paymentMethod: value })}
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="venmo" id="p1" />
+            <Label htmlFor="p1">Venmo</Label>
+          </div>
+          {orderDetails.deliveryMethod !== 'contactless' && (
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="cash" id="p2" />
+              <Label htmlFor="p2">Cash</Label>
+            </div>
+          )}
         </RadioGroup>
       ),
+      nextStep: () => 'phoneNumber',
     },
     {
+      id: 'phoneNumber',
       title: "Please confirm your phone number.",
       content: (
         <Input
@@ -142,31 +174,42 @@ export default function NewOrder() {
           onChange={(e) => setOrderDetails({ ...orderDetails, phoneNumber: e.target.value })}
         />
       ),
+      nextStep: () => 'confirmation',
     },
     {
+      id: 'confirmation',
       title: "Confirm your order details:",
       content: (
         <div className="space-y-1">
           <p className="font-bold">Display Name: {displayName}</p>
           <p className="font-bold">Order Details: {orderDetails.item}</p>
+          {orderDetails.tokenRedemption && (
+            <p className="font-bold">Token Redemption: {orderDetails.tokenRedemption}</p>
+          )}
           <p className="font-bold">Phone Number: {orderDetails.phoneNumber}</p>
           <p className="font-bold">Delivery Address: {orderDetails.deliveryStreetAddress}, {orderDetails.deliveryZipcode}</p>
         </div>
       ),
+      nextStep: () => null,
     },
   ];
 
-  const currentStep = steps[step];
+  const currentStep = steps[currentStepIndex];
 
   const handleNext = () => {
-    if (step < steps.length - 1) {
-      setStep(step + 1);
+    const nextStepId = currentStep.nextStep();
+    const nextStepIndex = steps.findIndex(step => step.id === nextStepId);
+    if (nextStepIndex !== -1) {
+      setCurrentStepIndex(nextStepIndex);
+    } else {
+      // Handle case when there's no next step (e.g., submit order)
+      handleSubmit();
     }
   };
 
   const handlePrevious = () => {
-    if (step > 0) {
-      setStep(step - 1);
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(currentStepIndex - 1);
     }
   };
 
@@ -182,31 +225,38 @@ export default function NewOrder() {
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          setUserId(user.id);
-          const { data, error } = await supabase
+          console.log('Authenticated user:', user);
+          
+          const { data: profileData, error: profileError } = await supabase
             .from('profiles')
-            .select('display_name, avatar_url, square_loyalty_id, street_address, zipcode, phone_number')
+            .select('*')
             .eq('user_id', user.id)
             .single();
 
-          if (error) throw error;
-          if (data) {
-            setDisplayName(data.display_name);
-            setAvatarUrl(data.avatar_url);
-            setStreetAddress(data.street_address);
-            setZipcode(data.zipcode);
-            setPhoneNumber(data.phone_number);
+          if (profileError) {
+            console.error('Error fetching profile:', profileError);
+            throw profileError;
+          }
+
+          if (profileData) {
+            console.log('User profile:', profileData);
+            setUserId(profileData.user_id); // Make sure this is set correctly
+            setDisplayName(profileData.display_name);
+            setAvatarUrl(profileData.avatar_url);
+            setStreetAddress(profileData.street_address);
+            setZipcode(profileData.zipcode);
+            setPhoneNumber(profileData.phone_number);
 
             //autofill orders with user profile data
             setOrderDetails((prev) => ({
               ...prev,
-              phoneNumber: data.phone_number,
-              deliveryStreetAddress: data.street_address,
-              deliveryZipcode: data.zipcode,
+              phoneNumber: profileData.phone_number,
+              deliveryStreetAddress: profileData.street_address,
+              deliveryZipcode: profileData.zipcode,
             }));
             
-            if (data.square_loyalty_id) {
-              const loyaltyResponse = await fetch(`/api/getLoyaltyBalance?loyaltyId=${data.square_loyalty_id}`);
+            if (profileData.square_loyalty_id) {
+              const loyaltyResponse = await fetch(`/api/getLoyaltyBalance?loyaltyId=${profileData.square_loyalty_id}`);
               if (!loyaltyResponse.ok) {
                 throw new Error(`HTTP error! status: ${loyaltyResponse.status}`);
               }
@@ -215,6 +265,9 @@ export default function NewOrder() {
             } else {
               console.warn('No Square Loyalty ID found for this user');
             }
+          } else {
+            console.error('No profile data found for user');
+            setError('No profile data found. Please contact support.');
           }
         }
       } catch (error) {
@@ -234,6 +287,7 @@ export default function NewOrder() {
     }
 
     try {
+      // Submit the order
       const { data, error } = await supabase
         .from('orders')
         .insert({
@@ -252,12 +306,68 @@ export default function NewOrder() {
       if (error) throw error;
 
       console.log("Order submitted:", data);
+
+      // If a reward was selected, redeem it after the order is submitted
+      if (orderDetails.tokenRedemption) {
+        await redeemTokenReward();
+      }
+
       alert("Order submitted successfully!");
-      router.push('/Order/Confirmation'); // Redirect to orders page after submission
-    } catch (error) {
+      router.push('/Order/Confirmation');
+    } catch (error: any) {
       console.error("Error submitting order:", error);
-      setError('Failed to submit order. Please try again.');
+      setError(error.message || 'Failed to submit order. Please try again.');
     }
+  };
+
+  const redeemTokenReward = async () => {
+    const selectedItem = tokenShopItems.find(item => 
+      `${item.name} (${item.cost} tokens)` === orderDetails.tokenRedemption
+    );
+
+    if (!selectedItem) {
+      throw new Error('Selected reward not found');
+    }
+
+    console.log('Attempting to redeem reward:', selectedItem);
+
+    // First, fetch the user's Square Loyalty ID
+    const { data: userData, error: userError } = await supabase
+      .from('profiles')
+      .select('square_loyalty_id')
+      .eq('user_id', userId)
+      .single();
+
+    if (userError || !userData?.square_loyalty_id) {
+      console.error('Error fetching Square Loyalty ID:', userError);
+      throw new Error('Failed to fetch Square Loyalty ID');
+    }
+
+    const squareLoyaltyId = userData.square_loyalty_id;
+
+    const redeemResponse = await fetch('/api/redeemRewards', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        accountId: squareLoyaltyId,
+        points: -selectedItem.cost,
+        reason: `Redeemed ${selectedItem.name}`
+      }),
+    });
+
+    if (!redeemResponse.ok) {
+      const errorData = await redeemResponse.json();
+      console.error('Redeem error data:', errorData);
+      throw new Error(errorData.error || 'Failed to redeem reward');
+    }
+
+    const redeemResult = await redeemResponse.json();
+    console.log('Redeem result:', redeemResult);
+    
+    // Update the loyalty balance
+    setLoyaltyBalance(prevBalance => prevBalance !== null ? prevBalance - selectedItem.cost : null);
   };
 
   if (isLoading) {
@@ -268,10 +378,32 @@ export default function NewOrder() {
     return <div className="flex h-screen items-center justify-center text-red-500">{error}</div>;
   }
 
-  const handleRewardClaim = async (itemId: number) => {
-  // Implement the logic to handle the reward claim
-  // Example: Update the user's loyalty balance or redeem the item
-};
+  const handleRewardClaim = (itemId: number) => {
+    // Find the selected item
+    const selectedItem = tokenShopItems.find(item => item.id === itemId);
+    if (!selectedItem) {
+      alert('Selected item not found');
+      return;
+    }
+
+    // Check if user has enough tokens
+    if (loyaltyBalance === null || loyaltyBalance < selectedItem.cost) {
+      alert('Insufficient tokens to claim this reward');
+      return;
+    }
+
+    // Update order details with the selected reward
+    setOrderDetails(prevDetails => ({
+      ...prevDetails,
+      tokenRedemption: `${selectedItem.name} (${selectedItem.cost} tokens)`,
+    }));
+
+    // Close the token shop dialog
+    setShowTokenShop(false);
+
+    // Show success message
+    alert(`${selectedItem.name} added to your order. It will be redeemed when you submit the order.`);
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -300,38 +432,32 @@ export default function NewOrder() {
                   <div
                     key={index}
                     className={`h-2 flex-grow ${
-                      index <= step ? "bg-primary" : "bg-gray-200"
+                      index <= currentStepIndex ? "bg-primary" : "bg-gray-200"
                     } ${index !== steps.length - 1 ? "mr-1" : ""}`}
                   />
                 ))}
               </div>
               <p className="text-sm text-gray-500 text-right">
-                Step {step + 1} of {steps.length}
+                Step {currentStepIndex + 1} of {steps.length}
               </p>
             </div>
             <h2 className="text-2xl font-bold mb-6">{currentStep.title}</h2>
             <div className="mb-8">{currentStep.content}</div>
             <div className="flex justify-between">
-              {step > 0 && (
+              {currentStepIndex > 0 && (
                 <Button onClick={handlePrevious} variant="outline">
                   <ChevronLeft className="mr-2 h-4 w-4" /> Previous
                 </Button>
               )}
-              {step < steps.length - 1 ? (
-                <Button onClick={handleNext} className={step === 0 ? "ml-auto" : ""}>
-                  Next <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              ) : (
-                <Button onClick={handleSubmit} className="ml-auto">
-                  Submit Order
-                </Button>
-              )}
+              <Button onClick={handleNext} className={currentStepIndex === 0 ? "ml-auto" : ""}>
+                Next <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
             </div>
             <div className="mt-8 flex justify-between items-center">
               <p className="text-sm font-medium">Your Tokens: {loyaltyBalance}</p>
               <Dialog open={showTokenShop} onOpenChange={setShowTokenShop}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="text-accent">
                     <Coins className="mr-2 h-4 w-4" />
                     Token Shop
                   </Button>
@@ -339,7 +465,7 @@ export default function NewOrder() {
                 <DialogContent className="max-w-md">
                   <DialogHeader>
                     <DialogTitle>Token Shop</DialogTitle>
-                    <DialogDescription>Redeem your tokens for rewards</DialogDescription>
+                    <DialogDescription className="text-black">Redeem your tokens for rewards</DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     {tokenShopItems.map((item) => (
@@ -361,6 +487,11 @@ export default function NewOrder() {
                       </Card>
                     ))}
                   </div>
+                  <DialogFooter className="relative">
+                    <div className="flex justify-center">
+                      <Button onClick={() => setShowTokenShop(false)}>Close</Button>
+                    </div>
+                  </DialogFooter>
                 </DialogContent>
               </Dialog>
             </div>

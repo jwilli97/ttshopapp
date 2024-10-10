@@ -7,7 +7,10 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import  Link from "next/link";
 import ErrorIcon from "@/components/icons/errorIcon";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
 
 export default function SignUp() {
@@ -17,6 +20,8 @@ export default function SignUp() {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
+    const supabase = createClientComponentClient();
     const router = useRouter();
 
     const validatePhoneNumber = (phoneNumber: string) => {
@@ -102,28 +107,29 @@ export default function SignUp() {
         }
 
         try {
-            const response = await fetch('/api/squareSignUp', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                phone: phoneNumber,
+                options: {
+                    emailRedirectTo: `${window.location.origin}/auth/callback`,
                 },
-                body: JSON.stringify({ email, password, phoneNumber }),
             });
 
-            const data = await response.json();
+            if (error) throw error;
 
-            if (!data.success) {
-                throw new Error(data.error || 'An error occurred during sign up');
-            }
-
-            router.push('/createAccount/FirstLogIn');
+            // If successful, inform the user to check their email
+            alert('Please check your email for the confirmation link.');
+            router.push('/createAccount/Pending');
         } catch (error: any) {
-            setError(error.message);
+            setError(error.message || 'An error occurred during sign up.');
+        } finally {
+            setIsLoading(false);
         }
     }
 
     return (
-        <div className="flex h-screen w-full flex-col items-center justify-center px-4 py-12">
+        <div className="flex h-screen w-full flex-col items-center text-white justify-center px-4 py-12">
             <div className="mb-10 animate-wiggle">
                 <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo"  />
             </div>
@@ -158,20 +164,26 @@ export default function SignUp() {
                         <Label htmlFor="password" className="mb-2">Password</Label>
                         <Input type="password" id="password" placeholder="*******" value={password} onChange={(e) => setPassword(e.target.value)} />
                     </div>
-                    <div className="flex flex-col mb-4 w-3/4">
+                    <div className="flex flex-col mb-6 w-3/4">
                         <Label htmlFor="confirmPassword" className="mb-2">Confirm Password</Label>
                         <Input type="password" id="confirmPassword" placeholder="*******" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                     </div>
-                    {error && <p className="flex place-items-center text-accent text-sm mb-2"><ErrorIcon /> {error}</p>}
+                    <div className="flex flex-row place-items-center space-x-2 mb-4">
+                        <Checkbox id="terms" checked={acceptedTerms} onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)} />
+                        <Label htmlFor="terms">
+                            I agree to the <Link href="/terms" className="text-accent">Terms of Service</Link>
+                        </Label>
+                    </div>
+                    {error && <p className="flex place-items-center text-red-500 text-sm mb-2"><ErrorIcon /> {error}</p>}
                     {password && !checkPasswordStrength(password).allValid && (
-                            <div className="mt-2">
-                                {checkPasswordStrength(password).results.map((check, index) => (
-                                    <div key={index} className={check.isValid ? 'text-primary text-sm' : 'text-accent text-sm'}>
-                                        {check.isValid ? '✓ ' : '✗ '} {check.message}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        <div className="mt-2">
+                            {checkPasswordStrength(password).results.map((check, index) => (
+                                <div key={index} className={check.isValid ? 'text-primary text-sm' : 'text-accent text-sm'}>
+                                    {check.isValid ? '✓ ' : '✗ '} {check.message}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                     <div>
                         <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" type="submit" disabled={isLoading}>
                             {isLoading ? 'Loading...' : 'Continue'}

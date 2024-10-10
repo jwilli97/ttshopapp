@@ -39,7 +39,7 @@ export default function FirstLogIn() {
     };
 
     return (
-        <div className="flex h-screen w-full flex-col items-center justify-center px-4 py-12">
+        <div className="flex h-screen w-full flex-col items-center text-white justify-center px-4 py-12">
             <div className="mb-10 animate-wiggle">
                 <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo" />
             </div>
@@ -56,9 +56,7 @@ export default function FirstLogIn() {
                     <Label htmlFor="password">Password</Label>
                     <Input type="password" id="password" placeholder="*******" value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
-                {error && (<div className="flex flex-row text-accent font-thin text-sm mb-4">
-                    <ErrorIcon /> {error}
-                </div>)}
+                {error && <p className="flex place-items-center text-red-500 text-sm mb-2"><ErrorIcon /> {error}</p>}
                 <div>
                     <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" type="submit" disabled={isLoading}>
                         {isLoading ? 'Loading...' : 'Continue'}
@@ -67,4 +65,4 @@ export default function FirstLogIn() {
             </form>
         </div>
     );
-}
+};

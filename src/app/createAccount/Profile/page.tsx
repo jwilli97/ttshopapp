@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AvatarSelectionModal from "@/components/AvatarSelectionModal";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -17,7 +16,8 @@ export default function CreateProfile() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [address, setAddress] = useState('');
+    const [streetAddress, setStreetAddress] = useState('');
+    const [zipCode, setZipCode] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [selectedAvatar, setSelectedAvatar] = useState('');
     const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
@@ -36,7 +36,6 @@ export default function CreateProfile() {
         '/profile_pics/profileNug8.png',
         '/profile_pics/profileNug9.png',
     ];
-
 
     useEffect(() => {
         fetchUserProfile();
@@ -61,7 +60,8 @@ export default function CreateProfile() {
                     setFirstName(data.first_name || '');
                     setLastName(data.last_name || '');
                     setPhoneNumber(data.phone_number || '');
-                    setAddress(data.address || '');
+                    setStreetAddress(data.street_address || '');
+                    setZipCode(data.zipcode || '');
                     setAvatarUrl(data.avatar_url || '');
                 }
             }
@@ -101,7 +101,8 @@ export default function CreateProfile() {
                         first_name: firstName,
                         last_name: lastName,
                         phone_number: phoneNumber,
-                        address: address,
+                        street_address: streetAddress,
+                        zipcode: zipCode,
                         avatar_url: selectedAvatar || avatarUrl,
                         square_customer_id: squareData.customerId,
                         square_loyalty_id: squareData.loyaltyId,
@@ -148,11 +149,11 @@ export default function CreateProfile() {
                     isOpen={isAvatarModalOpen}
                     avatars={predefinedAvatars}
                 />
-                <p className="text-3xl font-semibold mt-2 mb-1">{displayName}</p>
-                <Badge className="bg-accent text-primary hover:text-accent hover:cursor-pointer">Membership Tier</Badge>
+                <p className="text-3xl font-semibold mt-2 mb-1 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">{displayName}</p>
+                {/* <Badge className="bg-accent text-primary hover:text-accent hover:cursor-pointer">Membership Tier</Badge> */}
             </div>
             <div className="container bg-[#cbd5e1] h-0.5 w-full mt-4 md:w-11/12 rounded-full"></div>
-            <form onSubmit={handleSubmit} className="w-80 mt-4 md:">
+            <form onSubmit={handleSubmit} className="w-80 text-white mt-4 md:">
                 <Label className="ml-2" htmlFor="displayname">Display Name</Label>
                 <Input className="mt-1 mb-2.5" type="text" id="displayname" placeholder="Display Name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} disabled={isLoading} />
                 <Label className="ml-2" htmlFor="email">Email</Label>
@@ -163,8 +164,10 @@ export default function CreateProfile() {
                 <Input className="mt-1 mb-2.5" type="text" id="lastname" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} disabled={isLoading} />
                 <Label className="ml-2" htmlFor="phoneNumber">Phone Number</Label>
                 <Input className="mt-1 mb-2.5" type="tel" id="phoneNumber" placeholder="512-459-2222" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={isLoading} />
-                <Label className="ml-2" htmlFor="address">Delivery Address</Label>
-                <Input className="mt-1 mb-2.5" type="text" id="address" placeholder="8467 Any Street, Houston, TX, 12345" value={address} onChange={(e) => setAddress(e.target.value)} disabled={isLoading} />
+                <Label className="ml-2" htmlFor="streetAddress">Street Address</Label>
+                <Input className="mt-1 mb-2.5" type="text" id="streetAddress" placeholder="8467 Any Street, Houston, TX, 12345" value={streetAddress} onChange={(e) => setStreetAddress(e.target.value)} disabled={isLoading} />
+                <Label className="ml-2" htmlFor="zipCode">Zip Code</Label>
+                <Input className="mt-1 mb-2.5" type="text" id="zipCode" placeholder="12345" value={zipCode} onChange={(e) => setZipCode(e.target.value)} disabled={isLoading} />
                 {error && <p className="text-accent mt-2">{error}</p>}
                 <div className="fixed bottom-0 left-0 w-full flex justify-center pb-6 px-4 z-50">
                     <Button className="bg-primary hover:bg-primary/75 w-full md:w-72 h-11 shadow-lg" type="submit" disabled={isLoading}>
