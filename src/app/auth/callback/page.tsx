@@ -19,7 +19,7 @@ export default function AuthCallback() {
       }
 
       if (!session) {
-        router.push('/signup?error=No session found')
+        router.push('/SignUp?error=No session found')
         return
       }
 
