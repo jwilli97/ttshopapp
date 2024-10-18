@@ -14,7 +14,7 @@ export default function AuthCallback() {
 
       if (error) {
         console.error('Error:', error)
-        router.push('/signup?error=Could not authenticate user')
+        router.push('/createAccount/SignUp?error=Could not authenticate user')
         return
       }
 

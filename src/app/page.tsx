@@ -63,7 +63,7 @@ export default function Login() {
           </Button>
         </div>
         <div>
-          <Button size="lg" variant={"ghost"} className="text-accent hover:bg-accent/50 w-72 h-11 mt-4" onClick={() => router.push('/Nope')}>
+          <Button size="lg" variant={"ghost"} className="text-accent hover:bg-accent/50 w-72 h-11 mt-4" onClick={() => router.push('/ForgotPassword')}>
             Forgot Password?
           </Button>
         </div>
