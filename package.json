@@ -28,6 +28,7 @@
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
+    "@radix-ui/react-toast": "^1.2.2",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/supabase-js": "^2.44.1",
@@ -49,6 +50,7 @@
     "react-input-mask": "^2.0.4",
     "react-modal": "^3.16.1",
     "react-spinners": "^0.14.1",
+    "recharts": "^2.13.0",
     "square": "^37.1.1",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7"

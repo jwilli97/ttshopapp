@@ -41,7 +41,7 @@ export default function AdminLogin() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="flex h-screen w-full flex-col items-center justify-center px-4 py-12">
+      <div className="flex h-screen w-full flex-col items-center justify-center text-white px-4 py-12">
         <div className="mb-10 animate-wiggle">
           <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo"  />
         </div>

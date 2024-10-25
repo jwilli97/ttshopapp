@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import  Link from "next/link";
+import Link from "next/link";
 import ErrorIcon from "@/components/icons/errorIcon";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
@@ -24,17 +24,25 @@ export default function SignUp() {
     const supabase = createClientComponentClient();
     const router = useRouter();
 
+    const formatPhoneForStorage = (phone: string) => {
+        // Remove all non-digits and ensure US format
+        const cleaned = phone.replace(/\D/g, '');
+        return `+1${cleaned}`;
+    };
+
     const validatePhoneNumber = (phoneNumber: string) => {
-        return /^\d{10}$/.test(phoneNumber);
+        const cleaned = phoneNumber.replace(/\D/g, '');
+        return cleaned.length === 10;
+    };
+
+    const validateEmail = (email: string): boolean => {
+        const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return re.test(email);
     };
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const stripped = e.target.value.replace(/\D/g, '').slice(0, 10);
         setPhoneNumber(stripped);
-    };
-
-    const validateEmail = (email: string) => {
-        return /\S+@\S+\.\S+/.test(email);
     };
 
     const validatePassword = (password: string) => {
@@ -76,8 +84,15 @@ export default function SignUp() {
         setIsLoading(true);
         setError('');
 
-        if (!email || !password || !confirmPassword) {
+        // Basic validation checks
+        if (!email || !password || !confirmPassword || !phoneNumber) {
             setError('Please fill in all fields');
+            setIsLoading(false);
+            return;
+        }
+
+        if (!acceptedTerms) {
+            setError('Please accept the Terms of Service');
             setIsLoading(false);
             return;
         }
@@ -95,7 +110,7 @@ export default function SignUp() {
         }
 
         if (!validatePassword(password)) {
-            setError('Password must be at least 8 characters long and include an uppercase letter, lowercase letter, digit, and symbol');
+            setError('Password does not meet requirements');
             setIsLoading(false);
             return;
         }
@@ -107,26 +122,44 @@ export default function SignUp() {
         }
 
         try {
-            const { data, error } = await supabase.auth.signUp({
+            // Format phone number for storage
+            const formattedPhone = formatPhoneForStorage(phoneNumber);
+
+            const { data, error: signUpError } = await supabase.auth.signUp({
                 email,
                 password,
-                phone: phoneNumber,
                 options: {
                     emailRedirectTo: `${window.location.origin}/auth/callback`,
-                },
+                    data: {
+                        phone: formattedPhone,  // Store in user metadata
+                        signUpDate: new Date().toISOString(),
+                    }
+                }
             });
 
-            if (error) throw error;
+            if (signUpError) {
+                if (signUpError.message.includes('already registered')) {
+                    throw new Error('An account with this email already exists');
+                }
+                throw signUpError;
+            }
 
-            // If successful, inform the user to check their email
-            alert('Please check your email for the confirmation link.');
+            // Check if we need to confirm email
+            if (data?.user?.identities?.length === 0) {
+                setError('An account with this email already exists');
+                setIsLoading(false);
+                return;
+            }
+
+            // Success path
             router.push('/createAccount/Pending');
         } catch (error: any) {
-            setError(error.message || 'An error occurred during sign up.');
+            console.error('Signup error:', error);
+            setError(error.message || 'An error occurred during sign up');
         } finally {
             setIsLoading(false);
         }
-    }
+    };
 
     return (
         <div className="flex h-screen w-full flex-col items-center text-white justify-center px-4 py-12">
