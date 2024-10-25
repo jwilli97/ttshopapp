@@ -3,8 +3,10 @@
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Suspense } from 'react';
 
-export default function AuthCallback() {
+// Separate component for the auth logic
+function AuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient();
@@ -12,11 +14,9 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       const code = searchParams.get('code');
-      const next = searchParams.get('next') ?? '/';
       
       if (code) {
         try {
-          // Exchange the code for a session
           const { error: signInError } = await supabase.auth.exchangeCodeForSession(code);
           
           if (signInError) {
@@ -54,7 +54,26 @@ export default function AuthCallback() {
 
   return (
     <div className="flex h-screen items-center justify-center">
-      <p className="text-lg">Verifying your account...</p>
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-lg">Verifying your account...</p>
+      </div>
     </div>
+  );
+}
+
+// Main component with Suspense wrapper
+export default function AuthCallback() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-lg">Loading...</p>
+        </div>
+      </div>
+    }>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }
