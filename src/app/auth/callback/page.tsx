@@ -60,7 +60,7 @@ function AuthCallbackContent() {
       </div>
     </div>
   );
-}
+};
 
 // Main component with Suspense wrapper
 export default function AuthCallback() {
@@ -76,4 +76,4 @@ export default function AuthCallback() {
       <AuthCallbackContent />
     </Suspense>
   );
-}
+};

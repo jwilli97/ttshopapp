@@ -1,42 +1,22 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from "react"
-import { ArrowDown, ArrowUp, ArrowUpDown, Bell, ChevronDown, Package, Plus, Search, ShoppingCart, User } from "lucide-react"
-import { supabase } from "@/lib/supabaseClient"
-import Image from "next/image"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/components/ui/hooks/use-toast"
-import { ToastAction } from "@/components/ui/toast"
+import React, { useState, useEffect } from "react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Bell, ChevronDown, Package, Plus, Search, ShoppingCart, User } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 // Define Order types
 interface Order {
@@ -105,6 +85,8 @@ const getStatusBadge = (status: string) => {
 
 export default function AdminDashboard() {
     const [orders, setOrders] = useState<Order[]>([])
+    const [displayName, setDisplayName] = useState<string>('Loading...');
+    const [avatarUrl, setAvatarUrl] = useState('');
     const [searchTerm, setSearchTerm] = useState<string>("")
     const [sortColumn, setSortColumn] = useState<SortColumn>("id")
     const [sortDirection, setSortDirection] = useState<SortDirection>("asc")
@@ -123,29 +105,45 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         async function fetchData() {
-        try {
-            // Fetch all orders
-            const { data: orderData, error: orderError } = await supabase
-            .from('orders')
-            .select('*')
-            .order('created_at', { ascending: false })
+            try {
+                // Fetch current admin's information
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    const { data, error } = await supabase
+                        .from('profiles')
+                        .select('display_name, avatar_url')
+                        .eq('user_id', user.id)
+                        .single();
+    
+                    if (error) throw error;
+                    if (data) {
+                        setDisplayName(data.display_name);
+                        setAvatarUrl(data.avatar_url);
+                    }
+                }
 
-            if (orderError) throw orderError
-            if (orderData) {
-            setOrders(orderData)
+                // Fetch all orders without any user-specific filter
+                const { data: orderData, error: orderError } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+
+                if (orderError) throw orderError
+                if (orderData) {
+                    setOrders(orderData)
+                }
+            } catch (error) {
+                console.error("There was a problem fetching data:", error)
+                toast({
+                    variant: "destructive",
+                    title: "Error fetching orders",
+                    description: "There was a problem loading the orders.",
+                    action: <ToastAction altText="Try again">Try again</ToastAction>,
+                })
             }
-        } catch (error) {
-            console.error("There was a problem fetching data:", error)
-            toast({
-                variant: "destructive",
-                title: "Error fetching orders",
-                description: "There was a problem loading the orders.",
-                action: <ToastAction altText="Try again">Try again</ToastAction>,
-            })
-        }
         }
         fetchData()
-    }, [toast])
+    }, [])
 
     const sortedOrders = [...orders].sort((a, b) => {
         if (a[sortColumn] < b[sortColumn]) return sortDirection === "asc" ? -1 : 1
@@ -222,7 +220,7 @@ export default function AdminDashboard() {
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                        <AvatarImage src="/placeholder-avatar.jpg" alt="@user" />
+                        <AvatarImage src={avatarUrl} alt="@user" />
                         <AvatarFallback>TT</AvatarFallback>
                     </Avatar>
                     </Button>
@@ -230,7 +228,7 @@ export default function AdminDashboard() {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">John Doe</p>
+                        <p className="text-sm font-medium leading-none">{displayName}</p>
                         <p className="text-xs leading-none text-muted-foreground">john@example.com</p>
                     </div>
                     </DropdownMenuLabel>
@@ -320,21 +318,21 @@ export default function AdminDashboard() {
                         <TableHeader>
                         <TableRow>
                             <TableHead onClick={() => handleSort("id")} className="cursor-pointer">
-                            <div className="flex items-center text-nowrap">Order ID <ArrowUpDown className="ml-2 h-4 w-4" /></div>
+                            <div className="flex items-center text-center text-nowrap">Order ID <ArrowUpDown className="ml-2 h-4 w-4" /></div>
                             </TableHead>
                             <TableHead onClick={() => handleSort("display_name")} className="cursor-pointer">
-                            <div className="flex items-center text-nowrap">Customer <ArrowUpDown className="ml-2 h-4 w-4" /></div>
+                            <div className="flex items-center text-center text-nowrap">Customer <ArrowUpDown className="ml-2 h-4 w-4" /></div>
                             </TableHead>
-                            <TableHead>Order Details</TableHead>
-                            <TableHead>Token Redemption</TableHead>
-                            <TableHead>Payment Method</TableHead>
-                            <TableHead>Delivery Method</TableHead>
-                            <TableHead>Street Address</TableHead>
-                            <TableHead>Zipcode</TableHead>
+                            <TableHead className="text-center">Order Details</TableHead>
+                            <TableHead className="text-center">Token Redemption</TableHead>
+                            <TableHead className="text-center">Payment Method</TableHead>
+                            <TableHead className="text-center">Delivery Method</TableHead>
+                            <TableHead className="text-center">Street Address</TableHead>
+                            <TableHead className="text-center">Zipcode</TableHead>
                             <TableHead onClick={() => handleSort("status")} className="cursor-pointer">
-                            <div className="flex items-center text-nowrap">Status <ArrowUpDown className="ml-2 h-4 w-4" /></div>
+                            <div className="flex items-center text-center text-nowrap">Status <ArrowUpDown className="ml-2 h-4 w-4" /></div>
                             </TableHead>
-                            <TableHead>Actions</TableHead>
+                            <TableHead className="text-center">Actions</TableHead>
                         </TableRow>
                         </TableHeader>
                         <TableBody className="text-center">
@@ -346,7 +344,7 @@ export default function AdminDashboard() {
                                 {(() => {
                                 try {
                                     const details = JSON.parse(order.order_details)
-                                    return `${details.item} (${details.tokenRedemption} tokens)`
+                                    return `${details.item}`
                                 } catch (error) {
                                     return order.order_details
                                 }
@@ -410,6 +408,15 @@ export default function AdminDashboard() {
                                         id="details"
                                         value={editingOrder.order_details}
                                         onChange={(e) => setEditingOrder({ ...editingOrder, order_details: e.target.value })}
+                                        className="col-span-3"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="token_redemption" className="text-right">Token Redemption</Label>
+                                    <Input
+                                        id="token_redemption"
+                                        value={editingOrder.token_redemption}
+                                        onChange={(e) => setEditingOrder({ ...editingOrder, token_redemption: e.target.value })}
                                         className="col-span-3"
                                     />
                                 </div>

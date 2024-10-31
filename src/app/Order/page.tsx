@@ -104,7 +104,7 @@ export default function NewOrder() {
               <Label htmlFor="r1">Contactless*</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="person" id="r2" />
+              <RadioGroupItem value="in person" id="r2" />
               <Label htmlFor="r2">In Person</Label>
             </div>
           </RadioGroup>
