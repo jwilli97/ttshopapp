@@ -138,7 +138,7 @@ export default function CreateProfile() {
       };
 
     return (
-        <div className="flex h-screen flex-col items-center px-4 py-12">
+        <div className="flex h-screen flex-col items-center px-4 py-12 mb-40">
             <div className="flex flex-col items-center">
                 <AvatarSelectionModal 
                     avatarUrl={avatarUrl}
@@ -153,7 +153,7 @@ export default function CreateProfile() {
                 {/* <Badge className="bg-accent text-primary hover:text-accent hover:cursor-pointer">Membership Tier</Badge> */}
             </div>
             <div className="container bg-[#cbd5e1] h-0.5 w-full mt-4 md:w-11/12 rounded-full"></div>
-            <form onSubmit={handleSubmit} className="w-80 text-white mt-4 md:">
+            <form onSubmit={handleSubmit} className="w-80 text-white mt-4">
                 <Label className="ml-2" htmlFor="displayname">Display Name</Label>
                 <Input className="mt-1 mb-2.5" type="text" id="displayname" placeholder="Display Name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} disabled={isLoading} />
                 <Label className="ml-2" htmlFor="email">Email</Label>
