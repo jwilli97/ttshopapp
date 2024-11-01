@@ -25,24 +25,39 @@ export async function GET(request: Request) {
     }
 
     // Initialize Supabase client
-    const supabase = createRouteHandlerClient({ cookies })
+    const cookieStore = cookies()
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
-    // Exchange the code for a session
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+    try {
+      // Exchange the code for a session
+      const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
-    if (exchangeError) {
-      console.error('Session exchange error:', exchangeError)
+      if (exchangeError) {
+        console.error('Session exchange error:', exchangeError.message)
+        return NextResponse.redirect(
+          new URL(`/auth/error?error=session_exchange_failed&description=${exchangeError.message}`, request.url)
+        )
+      }
+
+      if (!data.session) {
+        console.error('No session data returned')
+        return NextResponse.redirect(
+          new URL('/auth/error?error=no_session_data', request.url)
+        )
+      }
+
+      // Successful auth - redirect to dashboard or home
+      return NextResponse.redirect(new URL('/createAccount/FirstLogIn', request.url))
+    } catch (supabaseError) {
+      console.error('Supabase client error:', supabaseError)
       return NextResponse.redirect(
-        new URL(`/auth/error?error=session_exchange_failed`, request.url)
+        new URL(`/auth/error?error=supabase_client_error&description=${encodeURIComponent((supabaseError as Error).message)}`, request.url)
       )
     }
-
-    // Successful auth - redirect to dashboard or home
-    return NextResponse.redirect(new URL('/createAccount/FirstLogIn', request.url))
   } catch (err) {
     console.error('Callback error:', err)
     return NextResponse.redirect(
-      new URL('/auth/error?error=unexpected_error', request.url)
+      new URL(`/auth/error?error=unexpected_error&description=${encodeURIComponent((err as Error).message)}`, request.url)
     )
-  };
-};
+  }
+}
