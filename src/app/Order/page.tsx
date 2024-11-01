@@ -217,7 +217,7 @@ export default function NewOrder() {
               </div>
               {orderDetails.deliveryMethod === 'Contactless' && orderDetails.paymentMethod === 'Cash' && (
                 <Textarea
-                  className="bg-gray-200 text-black"
+                  className="bg-white text-black"
                   placeholder="Please specify where you will leave the cash and if you need change..."
                   value={orderDetails.cashDetails || ''}
                   onChange={(e) => setOrderDetails({ ...orderDetails, cashDetails: e.target.value })}
