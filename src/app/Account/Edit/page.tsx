@@ -19,7 +19,10 @@ export default function EditProfile() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [residenceType, setResidenceType] = useState('');
     const [streetAddress, setStreetAddress] = useState('');
+    const [city, setCity] = useState('');
+    const [state, setState] = useState('');
     const [zipCode, setZipCode] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [selectedAvatar, setSelectedAvatar] = useState('');
@@ -63,7 +66,10 @@ export default function EditProfile() {
                     setFirstName(data.first_name || '');
                     setLastName(data.last_name || '');
                     setPhoneNumber(data.phone_number || '');
+                    setResidenceType(data.residence_type || '');
                     setStreetAddress(data.street_address || '');
+                    setCity(data.city || '');
+                    setState(data.state || '');
                     setZipCode(data.zipcode || '');
                     setAvatarUrl(data.avatar_url || '');
                 }
@@ -104,7 +110,10 @@ export default function EditProfile() {
                         first_name: firstName,
                         last_name: lastName,
                         phone_number: phoneNumber,
+                        residence_type: residenceType,
                         street_address: streetAddress,
+                        city: city,
+                        state: state,
                         zipcode: zipCode,
                         avatar_url: selectedAvatar || avatarUrl,
                         square_customer_id: squareData.customerId,
@@ -142,7 +151,7 @@ export default function EditProfile() {
 
     return (
         <ProtectedRoute>
-        <div className="flex h-screen flex-col items-center px-4 py-12">
+        <div className="flex h-screen flex-col items-center mb-32">
             <div className="flex flex-col items-center">
                 <AvatarSelectionModal 
                     avatarUrl={avatarUrl}
@@ -157,7 +166,7 @@ export default function EditProfile() {
                 {/* <Badge className="bg-accent text-primary hover:text-accent hover:cursor-pointer">Membership Tier</Badge> */}
             </div>
             <div className="container bg-[#cbd5e1] h-0.5 w-full mt-4 md:w-11/12 rounded-full"></div>
-            <form onSubmit={handleSubmit} className="w-80 text-white mt-4 md:">
+            <form onSubmit={handleSubmit} className="w-80 text-white mt-4">
                 <Label className="ml-2" htmlFor="displayname">Display Name</Label>
                 <Input className="mt-1 mb-2.5" type="text" id="displayname" placeholder="Display Name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} disabled={isLoading} />
                 <Label className="ml-2" htmlFor="email">Email</Label>
@@ -168,8 +177,14 @@ export default function EditProfile() {
                 <Input className="mt-1 mb-2.5" type="text" id="lastname" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} disabled={isLoading} />
                 <Label className="ml-2" htmlFor="phoneNumber">Phone Number</Label>
                 <Input className="mt-1 mb-2.5" type="tel" id="phoneNumber" placeholder="512-459-2222" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={isLoading} />
+                <Label className="ml-2" htmlFor="residenceType">Residence Type</Label>
+                <Input className="mt-1 mb-2.5" type="text" id="residenceType" placeholder="Enter residence type" value={residenceType} onChange={(e) => setResidenceType(e.target.value)} disabled={isLoading} />
                 <Label className="ml-2" htmlFor="streetAddress">Street Address</Label>
-                <Input className="mt-1 mb-2.5" type="text" id="streetAddress" placeholder="8467 Any Street, Houston, TX, 12345" value={streetAddress} onChange={(e) => setStreetAddress(e.target.value)} disabled={isLoading} />
+                <Input className="mt-1 mb-2.5" type="text" id="streetAddress" placeholder="8467 Main Street" value={streetAddress} onChange={(e) => setStreetAddress(e.target.value)} disabled={isLoading} />
+                <Label className="ml-2" htmlFor="city">City</Label>
+                <Input className="mt-1 mb-2.5" type="text" id="city" placeholder="Houston" value={city} onChange={(e) => setCity(e.target.value)} disabled={isLoading} />
+                <Label className="ml-2" htmlFor="state">State</Label>
+                <Input className="mt-1 mb-2.5" type="text" id="state" placeholder="TX" value={state} onChange={(e) => setState(e.target.value)} disabled={isLoading} />
                 <Label className="ml-2" htmlFor="zipCode">Zip Code</Label>
                 <Input className="mt-1 mb-2.5" type="text" id="zipCode" placeholder="12345" value={zipCode} onChange={(e) => setZipCode(e.target.value)} disabled={isLoading} />
                 {error && <p className="text-accent mt-2">{error}</p>}

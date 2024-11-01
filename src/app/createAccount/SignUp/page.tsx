@@ -129,7 +129,7 @@ export default function SignUp() {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${window.location.origin}/auth/callback`,
+                    emailRedirectTo: 'https://tinytreesfarm.vercel.app/FirstLogIn',
                     data: {
                         phone: formattedPhone,  // Store in user metadata
                         signUpDate: new Date().toISOString(),

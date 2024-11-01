@@ -11,12 +11,10 @@ interface OrderDetails {
     item: string;
     tokenRedemption: string;
     phoneNumber: string;
-    residenceType: string;
     deliveryStreetAddress: string;
     deliveryZipcode: string;
     deliveryMethod: string;
     paymentMethod: string;
-    cashDetails: string;
 }
 
 interface Order {
@@ -27,7 +25,7 @@ interface Order {
     total_amount: number;
 }
 
-export default function OrderConfirmation() {
+export default function Orders() {
     const [displayName, setDisplayName] = useState<string>('Loading...');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [orders, setOrders] = useState<Order[]>([]);
@@ -113,11 +111,9 @@ export default function OrderConfirmation() {
                                     <p><strong>Item: </strong> {details.item || 'N/A'}</p>
                                     {details.tokenRedemption && <p><strong>Token Redemption:</strong> {details.tokenRedemption}</p>}
                                     {details.phoneNumber && <p><strong>Phone: </strong> {details.phoneNumber}</p>}
-                                    {details.residenceType && <p><strong>Residence Type: </strong> {details.residenceType}</p>}
                                     {details.deliveryStreetAddress && <p><strong>Address: </strong> {details.deliveryStreetAddress}, {details.deliveryZipcode}</p>}
                                     {details.deliveryMethod && <p><strong>Delivery Method: </strong> {details.deliveryMethod}</p>}
                                     {details.paymentMethod && <p><strong>Payment Method: </strong> {details.paymentMethod}</p>}
-                                    {details.cashDetails && <p><strong>Cash Details: </strong> {details.cashDetails}</p>}
                                     <p><strong>Status: </strong> {order.status}</p>
                                     <p><strong>Total: </strong> ${order.total_amount ? order.total_amount.toFixed(2) : 'N/A'}</p>
                                 </li>
