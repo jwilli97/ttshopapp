@@ -88,24 +88,24 @@ export function DispatchTable({ orders, onEditOrder }: DispatchTableProps) {
                             <TableCell>{order.address_line_2}</TableCell>
                             <TableCell>{order.city}</TableCell>
                             <TableCell>TX</TableCell>
-                            <TableCell>{order.zip}</TableCell>
+                            <TableCell>{order.zipcode}</TableCell>
                             <TableCell>United States</TableCell>
-                            <TableCell>{order.eat}</TableCell>
-                            <TableCell>{order.lat}</TableCell>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
                             <TableCell>5 minutes</TableCell>
-                            <TableCell>{order.driver_notes}</TableCell>
+                            <TableCell></TableCell>
                             <TableCell>NA</TableCell>
                             <TableCell>{order.full_name}</TableCell>
                             <TableCell>Delivery</TableCell>
                             <TableCell>Auto</TableCell>
-                            <TableCell>{order.proof_of_delivery}</TableCell>
-                            <TableCell>{order.email_address}</TableCell>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
                             <TableCell>{order.phone_number}</TableCell>
                             <TableCell>{order.id}</TableCell>
-                            <TableCell>{order.package_count}</TableCell>
-                            <TableCell>{order.products}</TableCell>
-                            <TableCell>{order.seller_website}</TableCell>
-                            <TableCell>{order.driver}</TableCell>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
