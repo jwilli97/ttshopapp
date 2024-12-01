@@ -10,6 +10,7 @@ export interface Order {
     delivery_notes: string;
     cash_details: string;
     street_address: string;
+    address_line_2: string;
     city: string;
     state: string;
     zipcode: string;
