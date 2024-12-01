@@ -8,14 +8,14 @@ interface DispatchTableProps {
 }
 
 export function DispatchTable({ orders, onEditOrder }: DispatchTableProps) {
-    const exportToCSV = () => {
-        const headers = [
-            'Order ID', 'Unit/Customer Name', 'Street Address', 'Address Line 2',
-            'City', 'State', 'Zip', 'Country', 'EAT', 'LAT', 'Time at Stop',
-            'Driver Notes', 'Size', 'Recipient Name', 'Type of Stop', 'Order',
-            'Proof of Delivery', 'Email Address', 'Phone Number', 'ID',
-            'Package Count', 'Products', 'Seller Website', 'Driver'
-        ];
+    // const exportToCSV = () => {
+    //     const headers = [
+    //         'Order ID', 'Unit/Customer Name', 'Street Address', 'Address Line 2',
+    //         'City', 'State', 'Zip', 'Country', 'EAT', 'LAT', 'Time at Stop',
+    //         'Driver Notes', 'Size', 'Recipient Name', 'Type of Stop', 'Order',
+    //         'Proof of Delivery', 'Email Address', 'Phone Number', 'ID',
+    //         'Package Count', 'Products', 'Seller Website', 'Driver'
+    //     ];
 
         // const csvRows = [
         //     headers,
@@ -47,7 +47,7 @@ export function DispatchTable({ orders, onEditOrder }: DispatchTableProps) {
 
     return (
         <div>
-            <Button onClick={exportToCSV} className="mb-4 float-right">
+            <Button className="mb-4 float-right">
                 Export to CSV (coming soon)
             </Button>
             <Table>
