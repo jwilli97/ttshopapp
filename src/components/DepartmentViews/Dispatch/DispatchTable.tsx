@@ -17,38 +17,38 @@ export function DispatchTable({ orders, onEditOrder }: DispatchTableProps) {
             'Package Count', 'Products', 'Seller Website', 'Driver'
         ];
 
-        const csvRows = [
-            headers,
-            ...orders.map(order => [
-                order.id, order.full_name, order.street_address, order.address_line_2,
-                order.city, order.state, order.zipcode, order.country, order.eat,
-                order.lat, order.time_at_stop, order.driver_notes, order.size,
-                order.recipient_name, order.type_of_stop, order.order_auto,
-                order.proof_of_delivery, order.email_address, order.phone_number,
-                order.id, order.package_count, order.products, order.seller_website,
-                order.driver
-            ])
-        ];
+        // const csvRows = [
+        //     headers,
+        //     ...orders.map(order => [
+        //         order.id, order.full_name, order.street_address, order.address_line_2,
+        //         order.city, order.state, order.zipcode, order.country, order.eat,
+        //         order.lat, order.time_at_stop, order.driver_notes, order.size,
+        //         order.recipient_name, order.type_of_stop, order.order_auto,
+        //         order.proof_of_delivery, order.email_address, order.phone_number,
+        //         order.id, order.package_count, order.products, order.seller_website,
+        //         order.driver
+        //     ])
+        // ];
 
-        const csvString = csvRows
-            .map(row => row.map(cell => `"${cell || ''}"`).join(','))
-            .join('\n');
+    //     const csvString = csvRows
+    //         .map(row => row.map(cell => `"${cell || ''}"`).join(','))
+    //         .join('\n');
 
-        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', 'dispatch_orders.csv');
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+    //     const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    //     const link = document.createElement('a');
+    //     const url = URL.createObjectURL(blob);
+    //     link.setAttribute('href', url);
+    //     link.setAttribute('download', 'dispatch_orders.csv');
+    //     link.style.visibility = 'hidden';
+    //     document.body.appendChild(link);
+    //     link.click();
+    //     document.body.removeChild(link);
+    // };
 
     return (
         <div>
             <Button onClick={exportToCSV} className="mb-4 float-right">
-                Export to CSV
+                Export to CSV (coming soon)
             </Button>
             <Table>
                 <TableHeader>
