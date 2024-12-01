@@ -49,17 +49,17 @@ export default function AdminLogin() {
           <h1 className="text-4xl mb-8">ADMIN LOGIN</h1>
         </div>
         <div className="grid w-full max-w-sm items center gap-2 mb-4">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">EMAIL</Label>
           <Input type="text" id="email" autoComplete="email" placeholder="mikewazowski@aol.com" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div className="grid w-full max-w-sm items center gap-2 mb-6">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">PASSWORD</Label>
           <Input type="password" id="password" placeholder="*******" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
         { error && (<div className="flex flex-row text-accent font-thin text-sm"><ErrorIcon /> {error}</div>)}
         <div>
           <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" type="submit" disabled={isLoading}>
-            {isLoading ? 'Loading...' : 'Login'}
+            {isLoading ? 'Loading...' : 'LOGIN'}
           </Button>
         </div>
       </div>

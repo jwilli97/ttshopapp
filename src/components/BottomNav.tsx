@@ -14,7 +14,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { icon: <Home className="h-6 w-6" />, label: "Home", href: "/dashboard" },
   { icon: <Image className="h-6 w-6" />, label: "Gallery", href: "/Gallery" },
-  { icon: <ShoppingBag className="h-6 w-6" />, label: "Orders", href: "/Order" },
+  { icon: <ShoppingBag className="h-6 w-6" />, label: "Orders", href: "/Order/Confirmation" },
   { icon: <HelpCircle className="h-6 w-6" />, label: "Support", href: "/Support" },
 ];
 

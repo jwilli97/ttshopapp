@@ -1,22 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { supabase } from "@/lib/supabaseClient";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import BottomNav from '@/components/BottomNav';
-import LogOutButton from '@/components/logoutButton';
+import { Button } from "@/components/ui/button";
+import BottomNav from "@/components/BottomNav";
+import LogOutButton from "@/components/logoutButton";
 
 interface OrderDetails {
     item: string;
     tokenRedemption: string;
     phoneNumber: string;
-    residenceType: string;
     deliveryStreetAddress: string;
     deliveryZipcode: string;
     deliveryMethod: string;
     paymentMethod: string;
-    cashDetails: string;
 }
 
 interface Order {
@@ -27,7 +27,7 @@ interface Order {
     total_amount: number;
 }
 
-export default function OrderConfirmation() {
+export default function Orders() {
     const [displayName, setDisplayName] = useState<string>('Loading...');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [orders, setOrders] = useState<Order[]>([]);
@@ -100,32 +100,32 @@ export default function OrderConfirmation() {
                 </div>
             </header>
 
-            <main className='flex h-screen w-full flex-col items-center px-4 py-6 relative'>
-                <h1 className="text-2xl font-bold mb-4">Your Orders</h1>
-                {orders.length > 0 ? (
-                    <ul className="w-full max-w-2xl space-y-4">
-                        {orders.map((order) => {
-                            const details = parseOrderDetails(order.order_details);
+            <main className="flex h-screen w-full flex-col items-center px-4 py-6 relative">
+            <div className="mb-6 animate-wiggle">
+                    <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo"  />
+                </div>
+                <h1 className="text-2xl font-bold">Order Confirmation</h1>
+                <p className="mt-4 mb-4 text-center">Your order is currently being processed. <br /> Please check back later for status updates.</p>
+                {orders.length > 0 && (
+                    <div className="border p-4 rounded-lg shadow w-full max-w-2xl">
+                        <p className="font-semibold">Order #{orders[0].id}</p>
+                        <p><span className="font-bold">Date: </span> {new Date(orders[0].created_at).toLocaleDateString()}</p>
+                        {(() => {
+                            const details = parseOrderDetails(orders[0].order_details);
                             return (
-                                <li key={order.id} className="border p-4 rounded-lg shadow">
-                                    <p className="font-semibold">Order #{order.id}</p>
-                                    <p><strong>Date: </strong> {new Date(order.created_at).toLocaleDateString()}</p>
+                                <>
                                     <p><strong>Item: </strong> {details.item || 'N/A'}</p>
                                     {details.tokenRedemption && <p><strong>Token Redemption:</strong> {details.tokenRedemption}</p>}
                                     {details.phoneNumber && <p><strong>Phone: </strong> {details.phoneNumber}</p>}
-                                    {details.residenceType && <p><strong>Residence Type: </strong> {details.residenceType}</p>}
                                     {details.deliveryStreetAddress && <p><strong>Address: </strong> {details.deliveryStreetAddress}, {details.deliveryZipcode}</p>}
                                     {details.deliveryMethod && <p><strong>Delivery Method: </strong> {details.deliveryMethod}</p>}
                                     {details.paymentMethod && <p><strong>Payment Method: </strong> {details.paymentMethod}</p>}
-                                    {details.cashDetails && <p><strong>Cash Details: </strong> {details.cashDetails}</p>}
-                                    <p><strong>Status: </strong> {order.status}</p>
-                                    <p><strong>Total: </strong> ${order.total_amount ? order.total_amount.toFixed(2) : 'N/A'}</p>
-                                </li>
+                                    <p><strong>Status: </strong> {orders[0].status}</p>
+                                    <p><strong>Total: </strong> ${orders[0].total_amount ? orders[0].total_amount.toFixed(2) : 'N/A'}</p>
+                                </>
                             );
-                        })}
-                    </ul>
-                ) : (
-                    <p>You have no orders yet.</p>
+                        })()}
+                    </div>
                 )}
             </main>
 

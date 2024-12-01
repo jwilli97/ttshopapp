@@ -17,6 +17,7 @@ import { useUser } from '@supabase/auth-helpers-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface OrderDetails {
   item: string;
@@ -80,6 +81,17 @@ export default function NewOrder() {
   const [zipcode, setZipcode] = useState('');
   const [showTokenShop, setShowTokenShop] = useState(false);
   const user = useUser();
+  const [showAddressDialog, setShowAddressDialog] = useState(false);
+  const [newAddress, setNewAddress] = useState({
+    streetAddress: '',
+    city: '',
+    state: '',
+    zipcode: '',
+    residenceType: '',
+    saveAsDefault: false
+  });
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
 
   const steps = [
     {
@@ -189,10 +201,129 @@ export default function NewOrder() {
               disabled
             />
             <div className="flex justify-between mt-1">
-              <Button size="sm" className="text-primary bg-transparent hover:bg-primary hover:text-white" onClick={() => router.push('/Account/Edit')}>Select Other Address</Button>
+              <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="text-primary bg-transparent hover:bg-primary hover:text-white">
+                    Use Other Address
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Enter Delivery Address</DialogTitle>
+                    <DialogDescription>
+                      Enter a new delivery address for this order.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="street">Street Address</Label>
+                      <Input
+                        id="street"
+                        value={newAddress.streetAddress}
+                        onChange={(e) => setNewAddress({ ...newAddress, streetAddress: e.target.value })}
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <Label htmlFor="city">City</Label>
+                        <Input
+                          id="city"
+                          value={newAddress.city}
+                          onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="state">State</Label>
+                        <Input
+                          id="state"
+                          value={newAddress.state}
+                          onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="zipcode">ZIP Code</Label>
+                        <Input
+                          id="zipcode"
+                          value={newAddress.zipcode}
+                          onChange={(e) => setNewAddress({ ...newAddress, zipcode: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="residenceType">Residence Type</Label>
+                      <Input
+                        id="residenceType"
+                        placeholder="House, Apartment, etc."
+                        value={newAddress.residenceType}
+                        onChange={(e) => setNewAddress({ ...newAddress, residenceType: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter className="flex justify-between space-x-2">
+                    <Button variant="outline" onClick={async () => {
+                      if (!userId) return;
+
+                      // Update both order details and Supabase profile
+                      setOrderDetails(prev => ({
+                        ...prev,
+                        deliveryStreetAddress: newAddress.streetAddress,
+                        deliveryCity: newAddress.city,
+                        deliveryState: newAddress.state,
+                        deliveryZipcode: newAddress.zipcode,
+                        deliveryResidenceType: newAddress.residenceType,
+                      }));
+
+                      // Update local state variables
+                      setStreetAddress(newAddress.streetAddress);
+                      setCity(newAddress.city);
+                      setState(newAddress.state);
+                      setZipcode(newAddress.zipcode);
+                      setResidenceType(newAddress.residenceType);
+
+                      // Update profile in Supabase
+                      await supabase
+                        .from('profiles')
+                        .update({
+                          street_address: newAddress.streetAddress,
+                          city: newAddress.city,
+                          state: newAddress.state,
+                          zipcode: newAddress.zipcode,
+                          residence_type: newAddress.residenceType,
+                        })
+                        .eq('user_id', userId);
+
+                      setShowAddressDialog(false);
+                    }}>
+                      Set as Default
+                    </Button>
+                    <Button onClick={() => {
+                      // Update order details with new address (one-time use)
+                      setOrderDetails(prev => ({
+                        ...prev,
+                        deliveryStreetAddress: newAddress.streetAddress,
+                        deliveryCity: newAddress.city,
+                        deliveryState: newAddress.state,
+                        deliveryZipcode: newAddress.zipcode,
+                        deliveryResidenceType: newAddress.residenceType,
+                      }));
+
+                      // Update local state variables for display
+                      setStreetAddress(newAddress.streetAddress);
+                      setCity(newAddress.city);
+                      setState(newAddress.state);
+                      setZipcode(newAddress.zipcode);
+                      setResidenceType(newAddress.residenceType);
+
+                      setShowAddressDialog(false);
+                    }}>
+                      Use Once
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
-          <p className="text-sm mt-4 font-bold text-gray-500">Delivery Time Frame: 7:30pm - 9:30pm</p>
+          <p className="text-sm mt-4 font-bold text-gray-500">Estimated Time Frame: 7:30pm - 9:30pm</p>
         </div>
       ),
       nextStep: () => 'paymentMethod',
@@ -312,6 +443,8 @@ export default function NewOrder() {
             setState(profileData.state);
             setZipcode(profileData.zipcode);
             setPhoneNumber(profileData.phone_number);
+            setFirstName(profileData.first_name);
+            setLastName(profileData.last_name);
 
             //autofill orders with user profile data
             setOrderDetails((prev) => ({
@@ -360,6 +493,7 @@ export default function NewOrder() {
       const orderData = {
         user_id: userId,
         display_name: displayName,
+        full_name: `${firstName} ${lastName}`.trim(),
         order_details: orderDetails,
         token_redemption: orderDetails.tokenRedemption,
         phone_number: orderDetails.phoneNumber,
