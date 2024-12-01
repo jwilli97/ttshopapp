@@ -43,7 +43,7 @@ export function SupportView() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Today's Orders</CardTitle>
+                    <CardTitle>Current Orders</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <SupportTable orders={orders} onEditOrder={() => {}} />

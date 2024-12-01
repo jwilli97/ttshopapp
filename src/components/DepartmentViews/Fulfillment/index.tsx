@@ -43,7 +43,7 @@ export function FulfillmentView() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Today's Orders</CardTitle>
+                    <CardTitle>Current Orders</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <FulfillmentTable orders={orders} onEditOrder={() => {}} />

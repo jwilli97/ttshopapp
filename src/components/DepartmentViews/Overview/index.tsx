@@ -43,7 +43,7 @@ export function Overview() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Today's Orders</CardTitle>
+                    <CardTitle>Current Orders</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <OverviewTable orders={orders} onEditOrder={() => {}} />
