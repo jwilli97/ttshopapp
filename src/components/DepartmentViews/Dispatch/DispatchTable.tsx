@@ -21,7 +21,7 @@ export function DispatchTable({ orders, onEditOrder }: DispatchTableProps) {
             headers,
             ...orders.map(order => [
                 order.id, order.full_name, order.street_address, order.address_line_2,
-                order.city, order.state, order.zip, order.country, order.eat,
+                order.city, order.state, order.zipcode, order.country, order.eat,
                 order.lat, order.time_at_stop, order.driver_notes, order.size,
                 order.recipient_name, order.type_of_stop, order.order_auto,
                 order.proof_of_delivery, order.email_address, order.phone_number,
