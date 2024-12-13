@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import BackButton from "@/components/backButton";
 
 export default function ConnectAccount() {
     const router = useRouter();
@@ -82,6 +83,7 @@ export default function ConnectAccount() {
 
     return (
         <div className="flex h-screen w-full flex-col items-center justify-center px-4 py-12">
+            <BackButton />
             <div className="mb-10 animate-wiggle">
                 <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo" />
             </div>

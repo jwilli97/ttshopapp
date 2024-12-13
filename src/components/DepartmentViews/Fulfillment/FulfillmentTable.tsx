@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-
 interface OrdersTableProps {
     orders: Order[];
     onEditOrder: (order: Order) => void;
@@ -57,6 +56,8 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
     const [editingOrder, setEditingOrder] = useState<Order | null>(null)
     const { toast } = useToast()
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [changedFields, setChangedFields] = useState<Set<keyof Order>>(new Set());
     
     const handleSort = (column: SortColumn) => {
         if (column === sortColumn) {
@@ -115,43 +116,77 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
         setIsEditDialogOpen(true)
     }
 
+    const validateOrder = (order: Order) => {
+        const errors: string[] = [];
+        
+        if (!order.status) errors.push("Status is required");
+        if (!order.total) errors.push("Total is required");
+        if (!order.street_address) errors.push("Street address is required");
+        if (!order.zipcode) errors.push("Zipcode is required");
+        
+        return errors;
+    }
+
+    const handleFieldChange = (field: keyof Order, value: any) => {
+        setEditingOrder(prev => prev ? {
+            ...prev,
+            [field]: value
+        } : null);
+        setChangedFields(prev => new Set(prev.add(field)));
+    }
+
     const handleSaveEdit = async () => {
         if (editingOrder) {
+            // Validate the order
+            const validationErrors = validateOrder(editingOrder);
+            if (validationErrors.length > 0) {
+                toast({
+                    variant: "destructive",
+                    title: "Validation Error",
+                    description: validationErrors.join(", "),
+                });
+                return;
+            }
+
+            setIsUpdating(true);
+            const previousOrders = [...orders];
+
+            // Optimistic update
+            setOrders(orders.map((order) => 
+                order.id === editingOrder.id ? editingOrder : order
+            ));
+            setIsEditDialogOpen(false);
+
             try {
-                // Update order in Supabase
-                const { data, error } = await supabase
-                .from('orders')
-                .update({
-                    status: editingOrder.status,
-                    order_details: editingOrder.order_details,
-                })
-                .eq('id', editingOrder.id)
+                // Only update changed fields
+                const updates = Array.from(changedFields).reduce((acc, field) => ({
+                    ...acc,
+                    [field]: editingOrder[field]
+                }), {});
 
-                if (error) throw error
+                const { error } = await supabase
+                    .from('orders')
+                    .update(updates)
+                    .eq('id', editingOrder.id);
 
-                // Update local state
-                setOrders(orders.map((order) => (order.id === editingOrder.id ? editingOrder : order)))
-                
-                setIsEditDialogOpen(false)
-                setEditingOrder(null)
+                if (error) throw error;
 
                 toast({
                     title: "Order updated",
                     description: "The order has been successfully updated.",
-                    action: (
-                        <ToastAction altText="Dismiss">Dismiss</ToastAction>
-                    ),
-                })
+                });
             } catch (error) {
-                console.error("Error updating order:", error)
+                // Revert changes if update fails
+                setOrders(previousOrders);
+                setIsEditDialogOpen(true);
                 toast({
                     variant: "destructive",
-                    title: "Uh oh! Something went wrong.",
-                    description: "There was a problem updating the order.",
-                    action: (
-                        <ToastAction altText="Try again">Try again</ToastAction>
-                    ),
-                })
+                    title: "Update failed",
+                    description: "Changes have been reverted. Please try again.",
+                });
+            } finally {
+                setIsUpdating(false);
+                setChangedFields(new Set());
             }
         }
     }
@@ -209,14 +244,16 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                 <Label htmlFor="status" className="text-right">Status</Label>
                                 <Select
                                     value={editingOrder.status}
-                                    onValueChange={(value) => setEditingOrder({ ...editingOrder, status: value as Order['status'] })}
+                                    onValueChange={(value) => handleFieldChange('status', value)}
                                 >
                                     <SelectTrigger className="col-span-3">
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="pending">Received</SelectItem>
                                         <SelectItem value="in progress">In Progress</SelectItem>
+                                        <SelectItem value="ready for pickup">Ready for Pickup</SelectItem>
+                                        <SelectItem value="out for delivery">Out for Delivery</SelectItem>
                                         <SelectItem value="completed">Completed</SelectItem>
                                         <SelectItem value="cancelled">Cancelled</SelectItem>
                                     </SelectContent>
@@ -236,7 +273,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                 <Input
                                     id="token_redemption"
                                     value={editingOrder.token_redemption}
-                                    onChange={(e) => setEditingOrder({ ...editingOrder, token_redemption: e.target.value })}
+                                    onChange={(e) => handleFieldChange('token_redemption', e.target.value)}
                                     className="col-span-3"
                                 />
                             </div>
@@ -245,7 +282,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                 <Input
                                     id="total"
                                     value={editingOrder.total}
-                                    onChange={(e) => setEditingOrder({ ...editingOrder, total: e.target.value })}
+                                    onChange={(e) => handleFieldChange('total', e.target.value)}
                                     className="col-span-3"
                                 />
                             </div>
@@ -254,7 +291,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                 <Input
                                     id="street_address"
                                     value={editingOrder.street_address}
-                                    onChange={(e) => setEditingOrder({ ...editingOrder, street_address: e.target.value })}
+                                    onChange={(e) => handleFieldChange('street_address', e.target.value)}
                                     className="col-span-3"
                                 />
                             </div>
@@ -263,7 +300,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                 <Input
                                     id="address_line_2"
                                     value={editingOrder.address_line_2}
-                                    onChange={(e) => setEditingOrder({ ...editingOrder, address_line_2: e.target.value })}
+                                    onChange={(e) => handleFieldChange('address_line_2', e.target.value)}
                                     className="col-span-3"
                                 />
                             </div>
@@ -272,16 +309,29 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                 <Input
                                     id="zipcode"
                                     value={editingOrder.zipcode}
-                                    onChange={(e) => setEditingOrder({ ...editingOrder, zipcode: e.target.value })}
+                                    onChange={(e) => handleFieldChange('zipcode', e.target.value)}
                                     className="col-span-3"
                                 />
                             </div>
-                            {/* Add more fields as needed */}
+                            {/* Add more fields here as needed */}
                         </div>
                     )}
                     <DialogFooter>
-                        <Button onClick={() => setIsEditDialogOpen(false)} variant="outline">Cancel</Button>
-                        <Button onClick={handleSaveEdit}>Save changes</Button>
+                        <Button 
+                            onClick={() => {
+                                setIsEditDialogOpen(false);
+                                setChangedFields(new Set());
+                            }} 
+                            variant="outline"
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            onClick={handleSaveEdit} 
+                            disabled={isUpdating || changedFields.size === 0}
+                        >
+                            {isUpdating ? "Saving..." : "Save changes"}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

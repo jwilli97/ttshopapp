@@ -108,11 +108,11 @@ export default function NewOrder() {
           />
         </div>
       ),
-      nextStep: () => 'deliveryInfo',
+      nextStep: () => 'deliveryAndPayment',
     },
     {
-      id: 'deliveryInfo',
-      title: "Confirm your delivery information:",
+      id: 'deliveryAndPayment',
+      title: "Delivery & Payment Details",
       content: (
         <div>
           <p className="font-bold mb-2">Delivery Method</p>
@@ -139,7 +139,8 @@ export default function NewOrder() {
               <Label htmlFor="r3">Pickup</Label>
             </div>
           </RadioGroup>
-          <div>
+
+          <div className="mb-6">
             <p className="font-bold mb-1">Delivery Address</p>
             <div>
               <Input 
@@ -191,175 +192,40 @@ export default function NewOrder() {
               <p className="mt-2 font-bold">Residence Type</p>
               <Input className="bg-gray-200 text-black" type="text" placeholder="Enter residence type" value={residenceType} onChange={(e) => setOrderDetails(prev => ({ ...prev, deliveryResidenceType: e.target.value }))} disabled />
             </div>
-            <p className="mt-2 font-bold">Delivery Instructions</p>
-            <Textarea 
-              className="bg-gray-200 text-black mt-2"
-              placeholder="Delivery Notes"
-              value={orderDetails.deliveryNotes}
-              onChange={(e) => setOrderDetails({ ...orderDetails, deliveryNotes: e.target.value })}
-              rows={2}
-              disabled
-            />
-            <div className="flex justify-between mt-1">
-              <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
-                <DialogTrigger asChild>
-                  <Button size="sm" className="text-primary bg-transparent hover:bg-primary hover:text-white">
-                    Use Other Address
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Enter Delivery Address</DialogTitle>
-                    <DialogDescription>
-                      Enter a new delivery address for this order.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="street">Street Address</Label>
-                      <Input
-                        id="street"
-                        value={newAddress.streetAddress}
-                        onChange={(e) => setNewAddress({ ...newAddress, streetAddress: e.target.value })}
-                      />
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <Label htmlFor="city">City</Label>
-                        <Input
-                          id="city"
-                          value={newAddress.city}
-                          onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="state">State</Label>
-                        <Input
-                          id="state"
-                          value={newAddress.state}
-                          onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="zipcode">ZIP Code</Label>
-                        <Input
-                          id="zipcode"
-                          value={newAddress.zipcode}
-                          onChange={(e) => setNewAddress({ ...newAddress, zipcode: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="residenceType">Residence Type</Label>
-                      <Input
-                        id="residenceType"
-                        placeholder="House, Apartment, etc."
-                        value={newAddress.residenceType}
-                        onChange={(e) => setNewAddress({ ...newAddress, residenceType: e.target.value })}
-                      />
-                    </div>
+
+            <div className="mt-6">
+              <p className="font-bold mb-2">Payment Method</p>
+              <RadioGroup 
+                defaultValue={orderDetails.paymentMethod} 
+                onValueChange={(value) => setOrderDetails({ ...orderDetails, paymentMethod: value })}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Venmo" id="p1" />
+                  <Label htmlFor="p1">Venmo</Label>
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Cash" id="p2" />
+                    <Label htmlFor="p2">Cash</Label>
                   </div>
-                  <DialogFooter className="flex justify-between space-x-2">
-                    <Button variant="outline" onClick={async () => {
-                      if (!userId) return;
-
-                      // Update both order details and Supabase profile
-                      setOrderDetails(prev => ({
-                        ...prev,
-                        deliveryStreetAddress: newAddress.streetAddress,
-                        deliveryCity: newAddress.city,
-                        deliveryState: newAddress.state,
-                        deliveryZipcode: newAddress.zipcode,
-                        deliveryResidenceType: newAddress.residenceType,
-                      }));
-
-                      // Update local state variables
-                      setStreetAddress(newAddress.streetAddress);
-                      setCity(newAddress.city);
-                      setState(newAddress.state);
-                      setZipcode(newAddress.zipcode);
-                      setResidenceType(newAddress.residenceType);
-
-                      // Update profile in Supabase
-                      await supabase
-                        .from('profiles')
-                        .update({
-                          street_address: newAddress.streetAddress,
-                          city: newAddress.city,
-                          state: newAddress.state,
-                          zipcode: newAddress.zipcode,
-                          residence_type: newAddress.residenceType,
-                        })
-                        .eq('user_id', userId);
-
-                      setShowAddressDialog(false);
-                    }}>
-                      Set as Default
-                    </Button>
-                    <Button onClick={() => {
-                      // Update order details with new address (one-time use)
-                      setOrderDetails(prev => ({
-                        ...prev,
-                        deliveryStreetAddress: newAddress.streetAddress,
-                        deliveryCity: newAddress.city,
-                        deliveryState: newAddress.state,
-                        deliveryZipcode: newAddress.zipcode,
-                        deliveryResidenceType: newAddress.residenceType,
-                      }));
-
-                      // Update local state variables for display
-                      setStreetAddress(newAddress.streetAddress);
-                      setCity(newAddress.city);
-                      setState(newAddress.state);
-                      setZipcode(newAddress.zipcode);
-                      setResidenceType(newAddress.residenceType);
-
-                      setShowAddressDialog(false);
-                    }}>
-                      Use Once
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
-          <p className="text-sm mt-4 font-bold text-gray-500">Estimated Time Frame: 7:30pm - 9:30pm</p>
-        </div>
-      ),
-      nextStep: () => 'paymentMethod',
-    },
-    {
-      id: 'paymentMethod',
-      title: "Select your payment method",
-      content: (
-        <div>
-          <RadioGroup 
-            defaultValue={orderDetails.paymentMethod} 
-            onValueChange={(value) => setOrderDetails({ ...orderDetails, paymentMethod: value })}
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Venmo" id="p1" />
-              <Label htmlFor="p1">Venmo</Label>
-            </div>
-            <div className="flex flex-col space-y-2">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Cash" id="p2" />
-                <Label htmlFor="p2">Cash</Label>
-              </div>
-              {orderDetails.deliveryMethod === 'Contactless' && orderDetails.paymentMethod === 'Cash' && (
-                <Textarea
-                  className="bg-white text-black"
-                  placeholder="Please specify where you will leave the cash and if you need change..."
-                  value={orderDetails.cashDetails || ''}
-                  onChange={(e) => setOrderDetails({ ...orderDetails, cashDetails: e.target.value })}
-                  rows={2}
-                />
+                  {orderDetails.deliveryMethod === 'Contactless' && orderDetails.paymentMethod === 'Cash' && (
+                    <Textarea
+                      className="bg-white text-black"
+                      placeholder="Please specify where you will leave the cash and if you need change..."
+                      value={orderDetails.cashDetails || ''}
+                      onChange={(e) => setOrderDetails({ ...orderDetails, cashDetails: e.target.value })}
+                      rows={2}
+                    />
+                  )}
+                </div>
+              </RadioGroup>
+              {orderDetails.deliveryMethod === 'Contactless' && orderDetails.paymentMethod === 'Venmo' && (
+                <p className="text-red-500 text-sm mt-4">Prepayment required for Venmo & contactless delivery</p>
               )}
             </div>
-          </RadioGroup>
-          {orderDetails.deliveryMethod === 'Contactless' && orderDetails.paymentMethod === 'Venmo' && (
-            <p className="text-red-500 text-sm mt-4">Prepayment required for Venmo & contactless delivery</p>
-          )}
+            
+            <p className="text-sm mt-4 font-bold text-gray-500">Estimated Time Frame: 7:30pm - 9:30pm</p>
+          </div>
         </div>
       ),
       nextStep: () => 'confirmation',
@@ -505,7 +371,7 @@ export default function NewOrder() {
         delivery_method: orderDetails.deliveryMethod,
         delivery_notes: orderDetails.deliveryNotes,
         payment_method: orderDetails.paymentMethod,
-        status: 'pending',
+        status: 'received',
         // Only include cash_details if payment method is Cash
         ...(orderDetails.paymentMethod === 'Cash' && { cash_details: orderDetails.cashDetails || '' })
       };
@@ -515,8 +381,6 @@ export default function NewOrder() {
         .insert(orderData);
 
       if (error) throw error;
-
-      console.log("Order submitted:", data);
 
       // If a reward was selected, redeem it after the order is submitted
       if (orderDetails.tokenRedemption) {
@@ -618,22 +482,12 @@ export default function NewOrder() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="bg-background">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <div className="flex items-center space-x-4 cursor-pointer" onClick={() => router.push('/Account')}>
-            <Avatar>
-              <AvatarImage src={avatarUrl} alt="Profile Picture" />
-              <AvatarFallback className="text-2xl">TT</AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="text-xl font-semibold">{displayName}</p>
-              <p className="text-sm text-gray-500 hover:text-gray-700">View Account</p>
-            </div>
-          </div>
-          <LogOutButton />
+        <div className="flex mt-8 items-center justify-center"> 
+          <h1 className="text-4xl text-[#FFFDD0] font-bold">ORDER</h1>
         </div>
       </header>
 
-      <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+      <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 mt-4">
         <div className="max-w-xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="px-6 py-8">
             <div className="mb-6">
@@ -655,25 +509,18 @@ export default function NewOrder() {
             <div className="mb-8">{currentStep.content}</div>
             <div className="flex justify-between">
               {currentStepIndex > 0 && (
-                <Button onClick={handlePrevious} variant="outline">
-                  <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+                <Button className="bg-primary text-white" onClick={handlePrevious} variant="outline">
+                  <ChevronLeft className="mr-1 h-4 w-4" /> Back
                 </Button>
               )}
               {currentStep.id === 'confirmation' ? (
                 <>
-                  <Button 
-                    onClick={() => setCurrentStepIndex(0)} 
-                    variant="outline"
-                    className="mx-2"
-                  >
-                    Edit Order
-                  </Button>
-                  <Button onClick={handleNext}>
+                  <Button onClick={handleNext} className="bg-primary text-white">
                     Submit Order
                   </Button>
                 </>
               ) : (
-                <Button onClick={handleNext} className={currentStepIndex === 0 ? "ml-auto" : ""}>
+                <Button onClick={handleNext} className={`${currentStepIndex === 0 ? "ml-auto" : ""} text-white`}>
                   Next <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               )}
@@ -698,15 +545,16 @@ export default function NewOrder() {
                           <CardTitle className="text-sm font-medium">
                             {item.name}
                           </CardTitle>
-                          <Badge variant="secondary">{item.cost} Tokens</Badge>
-                        </CardHeader>
-                        <CardContent>
                           <Button
                             onClick={() => handleRewardClaim(item.id)}
                             disabled={loyaltyBalance === null || loyaltyBalance < item.cost}
+                            size="sm"
                           >
                             Claim Reward
                           </Button>
+                        </CardHeader>
+                        <CardContent>
+                          <Badge variant="secondary">{item.cost} Tokens</Badge>
                         </CardContent>
                       </Card>
                     ))}
@@ -722,7 +570,7 @@ export default function NewOrder() {
             </div>
           </div>
         </div>
-        <div className="mt-8">
+        <div className="mt-8 mb-20">
           {menuUrl && (
             <Image 
               src={menuUrl} 

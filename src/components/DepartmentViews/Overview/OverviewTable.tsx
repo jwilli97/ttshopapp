@@ -174,7 +174,6 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
                         <TableHead>Residence Type</TableHead>
                         <TableHead>Delivery Time Frame</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -193,15 +192,12 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
                             <TableCell>{order.residence_type}</TableCell>
                             <TableCell>{order.delivery_time_frame}</TableCell>
                             <TableCell>{getStatusBadge(order.status)}</TableCell>
-                            <TableCell>
-                                <Button size="sm" className="mr-2" onClick={() => handleEditOrder(order)}>Edit</Button>
-                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
 
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            {/* <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Edit Order</DialogTitle>
@@ -227,8 +223,10 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="pending">Received</SelectItem>
                                         <SelectItem value="in progress">In Progress</SelectItem>
+                                        <SelectItem value="out for delivery">Out for Delivery</SelectItem>
+                                        <SelectItem value="ready for pickup">Ready for Pickup</SelectItem>
                                         <SelectItem value="completed">Completed</SelectItem>
                                         <SelectItem value="cancelled">Cancelled</SelectItem>
                                     </SelectContent>
@@ -270,7 +268,6 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
                                     className="col-span-3"
                                 />
                             </div>
-                            {/* Add more fields as needed */}
                         </div>
                     )}
                     <DialogFooter>
@@ -278,7 +275,7 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
                         <Button onClick={handleSaveEdit}>Save changes</Button>
                     </DialogFooter>
                 </DialogContent>
-            </Dialog>
+            </Dialog> */}
         </div>
     );
 }

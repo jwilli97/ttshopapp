@@ -61,7 +61,7 @@ export default function AvatarSelectionModal({
             />
             <AvatarFallback className="text-2xl">TT</AvatarFallback>
           </Avatar>
-          <Button variant="outline" size={"sm"} className="text-white">Edit Profile Picture</Button>
+          <Button variant="outline" size={"sm"} className="text-white">Select Profile Picture</Button>
         </div>
       </DialogTrigger>
       <DialogContent>

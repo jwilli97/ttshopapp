@@ -16,8 +16,8 @@ export interface Order {
     zipcode: string;
     residence_type: string;
     delivery_time_frame: string;
-    total: string;
-    status: "processing" | "awaiting confirmation" | "preparing your order" | "order en route" | "completed" | "cancelled";
+    total: number;
+    status: "received" | "processing" | "awaiting confirmation" | "preparing your order" | "out for delivery" | "completed" | "cancelled";
 }
 
 export interface SummaryCardProps {

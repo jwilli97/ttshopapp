@@ -12,6 +12,7 @@ import ErrorIcon from "@/components/icons/errorIcon";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
 import Link from "next/link";
+import BackButton from "@/components/backButton";
 
 export default function NewAccount() {
   const [email, setEmail] = useState('');
@@ -135,32 +136,15 @@ export default function NewAccount() {
 
   return (
     <div className="flex h-screen w-full flex-col items-center text-white justify-center px-4 py-12">
+      <BackButton />
       <div className="mb-10 animate-wiggle">
         <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo" />
       </div>
       <div>
-        <h1 className="text-4xl mb-8">Create Your Account</h1>
+        <h1 className="text-4xl mb-8">Sign Up</h1>
       </div>
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <div className="flex flex-col place-items-center">
-          <div className="flex flex-col mb-4 w-3/4">
-            <Label htmlFor="phoneNumber" className="mb-2">Phone Number</Label>
-            <InputMask 
-              mask="(999)-999-9999"
-              value={phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1)-$2-$3')}
-              onChange={handlePhoneChange}
-            >
-              {(inputProps: any) => (
-                <Input 
-                  {...inputProps}
-                  type="tel" 
-                  id="phoneNumber" 
-                  autoComplete="tel" 
-                  placeholder="(123)-555-5555"
-                />
-              )}
-            </InputMask>
-          </div>
           <div className="flex flex-col mb-4 w-3/4">
             <Label htmlFor="email" className="mb-2">Email</Label>
             <Input type="text" id="email" autoComplete="email" placeholder="email@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -189,13 +173,13 @@ export default function NewAccount() {
               ))}
             </div>
           )}
-          <div>
-            <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" type="submit" disabled={isLoading}>
-              {isLoading ? 'Loading...' : 'Continue'}
+          <div className="w-3/4">
+            <Button className="bg-primary hover:bg-primary/75 w-full mt-6" type="submit" disabled={isLoading}>
+              {isLoading ? 'Loading...' : 'Send Verification Link'}
             </Button>
           </div>
-          <div>
-            <Button size="lg" variant={"ghost"} className="hover:bg-accent/50 w-72 h-11 mt-3" onClick={() => router.push('/')}>
+          <div className="w-3/4">
+            <Button size="lg" variant={"ghost"} className="hover:bg-accent/50 w-full h-11 mt-3" onClick={() => router.push('/')}>
               Back
             </Button>
           </div>
@@ -203,4 +187,4 @@ export default function NewAccount() {
       </form>
     </div>
   );
-};
+}

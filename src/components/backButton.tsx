@@ -1,21 +1,16 @@
 import { useRouter } from "next/navigation";
-import BackIcon from "@/components/icons/backIcon";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const BackButton = () => {
     const router = useRouter();
 
-    const handleBack = () => {
-        router.back();
-    };
-
     return (
-        <Button className="bg-background hover:bg-background" onClick={handleBack}>
-            <span className="flex flex-row items-center font-thin">
-                <BackIcon className="mr-2" />
-                BACK
-            </span>
-        </Button>
+        <button 
+            onClick={() => router.back()} 
+            className="absolute top-4 left-4 text-white hover:text-gray-300"
+        >
+            <ArrowLeft size={24} />
+        </button>
     );
 }
 

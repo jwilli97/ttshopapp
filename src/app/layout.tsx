@@ -6,8 +6,8 @@ import "./globals.css";
 const jakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Tiny Trees Shop",
-  description: "Tiny Trees for Happy Friends",
+  title: "Tiny Trees Farm",
+  description: "Tiny Trees Farm",
 };
 
 export default function RootLayout({

@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Overview } from "@/components/DepartmentViews/Overview";
 import { DispatchView } from "@/components/DepartmentViews/Dispatch";
 import { FulfillmentView } from "@/components/DepartmentViews/Fulfillment";
 import { SupportView } from "@/components/DepartmentViews/Support";
-import { MenuView } from "@/components/DepartmentViews/MenuView";
 
-type Department = "overview" | "fulfillment" | "dispatch" | "support" | "menu";
+type Department = "overview" | "fulfillment" | "dispatch" | "support";
 
 export default function AdminDashboard() {
     const [currentDepartment, setCurrentDepartment] = useState<Department>("overview");
@@ -18,7 +16,6 @@ export default function AdminDashboard() {
         { id: "fulfillment", label: "Fulfillment" },
         { id: "dispatch", label: "Dispatch" },
         { id: "support", label: "Support" },
-        { id: "menu", label: "Menu" },
     ];
 
     return (
@@ -26,9 +23,9 @@ export default function AdminDashboard() {
             {/* Navigation */}
             <nav className="bg-white shadow-md">
                 <div className="container mx-auto px-4">
-                    <div className="flex items-center h-16">
-                        <Image src="/tinytreelogo.png" alt="Tiny Trees Logo" width={40} height={40} />
-                        <div className="font-semibold ml-2 text-xl">Tiny Trees</div>
+                    <div className="flex items-center justify-between h-16">
+                        <div className="font-semibold text-xl">Admin Dashboard [TEST]</div>
+                        {/* Add any other nav items like user profile, logout, etc. */}
                     </div>
                 </div>
             </nav>
@@ -59,7 +56,6 @@ export default function AdminDashboard() {
                 {currentDepartment === "fulfillment" && <FulfillmentView />}
                 {currentDepartment === "dispatch" && <DispatchView />}
                 {currentDepartment === "support" && <SupportView />}
-                {currentDepartment === "menu" && <MenuView />}
             </main>
         </div>
     );

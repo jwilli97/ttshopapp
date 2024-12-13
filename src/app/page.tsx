@@ -42,11 +42,11 @@ export default function Login() {
   return (
     <form onSubmit={handleSubmit}>
       <div className="flex h-screen w-full flex-col items-center justify-center px-4 py-12">
-        <div className="mb-10 animate-wiggle">
-          <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo"  />
+        <div className="mb-6">
+          <Image src="/new_TT_logo.png" width={115} height={115} alt="Welcome Logo"  />
         </div>
         <div>
-          <h1 className="text-white text-4xl mb-8 ">Welcome to Tiny Trees</h1>
+          <h1 className="text-white font-semibold text-4xl mb-8 ">Welcome!</h1>
         </div>
         <div className="grid w-full max-w-sm text-white items-center gap-2 mb-4">
           <Label htmlFor="email">Email</Label>
@@ -72,12 +72,7 @@ export default function Login() {
             Create Account
           </Button>
         </div>
-        {/* <div>
-          <Button size="lg" variant={"ghost"} className="text-white hover:bg-primary/50 w-72 h-11 mt-3" onClick={() => router.push('/Admin')}>
-            Admin
-          </Button>
-        </div> */}
       </div>
     </form>
   );
-};
+}

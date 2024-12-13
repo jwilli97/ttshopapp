@@ -45,7 +45,7 @@ export default function FirstLogIn() {
             </div>
             <div className="flex flex-col place-items-center mb-8">
                 <h1 className="text-4xl">Thanks for signing up!</h1>
-                <p>Please sign in to complete your account</p>
+                <p>Please sign in to create your account</p>
             </div>
             <form onSubmit={handleSubmit}>
                 <div className="grid w-full max-w-sm items center gap-2 mb-4">

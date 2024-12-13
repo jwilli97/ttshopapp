@@ -7,6 +7,7 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config } from "@fortawesome/fontawesome-svg-core";
 // import TinyTokenShop from "@/components/TinyTokenShop";
 import TokenShop from "@/components/TokenShop";
+import TopNav from "@/components/topNav";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -104,41 +105,30 @@ export default function Dashboard() {
     return (
         <ProtectedRoute>
             <div className="flex h-screen w-full flex-col items-center px-4 py-6 relative">
-                <div className="flex flex-row items-center w-full md:w-11/12 justify-between">
-                    <div className="flex flex-row items-center cursor-pointer" onClick={() => router.push('/Account')}>
-                        <Avatar>
-                            <AvatarImage src={avatarUrl} alt="Profile Picture" /> {/* || "profile_pics/profileNug7.png" */}
-                            <AvatarFallback className="text-2xl">TT</AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col justify-left md:items-start ml-4" onClick={() => router.push('/Account')}>
-                            <p className="text-2xl font-semibold mt-2 mb-1 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">{displayName}</p>
-                            <p className="text-white text-sm mt-0.5 text-center hover:font-bold cursor-pointer">View Account</p>
-                        </div>
-                    </div>
-                    <LogOutButton />
+                <div className="w-full">
+                    <TopNav />
                 </div>
-                <div className="flex flex-col w-full items-center mt-6">
-                    <div className="container bg-[#cbd5e1] h-0.5 w-full md:w-11/12 mb-3 rounded-full"></div>
+                <div className="flex flex-col w-full items-center">
+                    <div className="container bg-[#cbd5e1]/25 h-0.5 w-full md:w-11/12 mb-3 rounded-full"></div>
                     <TokenShop loyaltyBalance={loyaltyBalance} /> {/* Renders the TinyTokenShop component, which displays the tiny tokens and shop menu */}
-                    <div className="container bg-[#cbd5e1] h-0.5 w-full md:w-11/12 mt-3 rounded-full"></div>
-                    <div className="mt-3 mb-36 w-full">
-                        {/* {menuUrl && <Image src={menuUrl} width={500} height={500} priority alt="Current Menu" />} */}
+                    <div className="container bg-[#cbd5e1]/25 h-0.5 w-full md:w-11/12 mt-3  rounded-full"></div>
+                    <div className="mt-6 mb-36 w-full">
                         {menuUrl && (
-                            <div style={{ position: 'relative', width: '100%', height: '300px', paddingTop: '66.67%' }}>
+                            <div className="w-full mx-auto" style={{ position: 'relative', height: '500px', paddingTop: '100%' }}>
                                 <Image
                                     src={menuUrl}
                                     alt="Current Menu"
                                     fill
                                     priority
                                     style={{ objectFit: 'contain' }}
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw"
                                 />
                             </div>
                         )}
                     </div>
                 </div>
                 <div className="fixed bottom-14 left-0 w-full flex justify-center pb-6 px-4 z-50">
-                    <Button className="bg-primary hover:bg-primary/75 w-full md:w-72 h-11 shadow-lg" onClick={() => router.push('/Order')}> 
+                    <Button className="text-white text-lg bg-primary hover:bg-primary/75 w-full md:w-72 h-11 shadow-lg" onClick={() => router.push('/Order')}> 
                         Place Order
                     </Button>
                 </div>

@@ -13,16 +13,11 @@ export default function Pending() {
                 <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo"  />
             </div>
             <div>
-                <h1 className="text-4xl mb-6">Thank you!</h1>
+                <h1 className="text-4xl mb-6">Thanks for signing up!</h1>
             </div>
             <div className="flex flex-col items-center">
-                <p className=" text-md mb-8 text-center px-3">Your account is pending verification. <br /> Please check your email for a verification link.</p>
-            </div>
-            <div>
-                <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" onClick={() => router.push('/')}>
-                    Home
-                </Button>
+                <p className=" text-md mb-8 text-center px-3">Please click the link sent to your email to start setting up your account.</p>
             </div>
         </div>
     );
-};
+}

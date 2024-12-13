@@ -12,6 +12,7 @@ import Link from "next/link";
 import ErrorIcon from "@/components/icons/errorIcon";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
+import BackButton from "@/components/backButton";
 
 export default function SignUp() {
     const [email, setEmail] = useState('');
@@ -163,6 +164,7 @@ export default function SignUp() {
 
     return (
         <div className="flex h-screen w-full flex-col items-center text-white justify-center px-4 py-12">
+            <BackButton />
             <div className="mb-10 animate-wiggle">
                 <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo"  />
             </div>
