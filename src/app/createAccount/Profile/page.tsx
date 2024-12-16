@@ -38,32 +38,38 @@ export default function CreateProfile() {
     const fetchUserProfile = async () => {
         setIsLoading(true);
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .single();
-                
-                if (error) throw error;
-    
-                if (data) {
-                    setDisplayName(data.display_name || '');
-                    setEmail(data.email || '');
-                    setFirstName(data.first_name || '');
-                    setLastName(data.last_name || '');
-                    setPhoneNumber(data.phone_number || '');
-                    setAvatarUrl(data.avatar_url || '');
-                    setBirthday(data.birthday || '');
-                }
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            
+            if (authError) {
+                throw new Error(`Authentication error: ${authError.message}`);
             }
-        } catch (error: unknown) {
+
+            if (!user) {
+                throw new Error('No authenticated user found');
+            }
+
+            const { data, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+            
+            if (profileError) {
+                throw new Error(`Profile error: ${profileError.message}`);
+            }
+
+            if (data) {
+                setDisplayName(data.display_name || '');
+                setEmail(data.email || '');
+                setFirstName(data.first_name || '');
+                setLastName(data.last_name || '');
+                setPhoneNumber(data.phone_number || '');
+                setAvatarUrl(data.avatar_url || '');
+                setBirthday(data.birthday || '');
+            }
+        } catch (error: any) {
             console.error('Error fetching profile:', error);
-            setError('Failed to load profile. Please try again.');
-            if (error instanceof Error) {
-                console.error('Error details:', error.message);
-            }
+            setError(error?.message || 'Failed to load profile. Please try again.');
         } finally {
             setIsLoading(false);
         }
