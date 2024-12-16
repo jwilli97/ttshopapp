@@ -40,8 +40,8 @@ export default function FirstLogIn() {
 
     return (
         <div className="flex h-screen w-full flex-col items-center text-white justify-center px-4 py-12">
-            <div className="mb-10 animate-wiggle">
-                <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo" />
+            <div className="mb-10">
+                <Image src="/new_TT_logo.png" width={115} height={115} alt="Welcome Logo" />
             </div>
             <div className="flex flex-col place-items-center mb-8">
                 <h1 className="text-4xl">Thanks for signing up!</h1>
@@ -65,4 +65,4 @@ export default function FirstLogIn() {
             </form>
         </div>
     );
-};
+}
