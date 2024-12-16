@@ -18,7 +18,7 @@ export default function ComingSoonGallery() {
           Gallery Coming Soon
         </h1>
         <p className="mt-3 max-w-md mx-auto text-base text-white sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-          We're working hard to bring you an amazing photo gallery of our products.<br />Stay tuned for updates!
+          We are working hard to bring you an amazing photo gallery of our products.<br />Stay tuned for updates!
         </p>
       </div>
     </div>
