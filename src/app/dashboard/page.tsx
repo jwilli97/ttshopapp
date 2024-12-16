@@ -2,17 +2,13 @@
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useState, useEffect } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import '@fortawesome/fontawesome-svg-core/styles.css';
-import { config } from "@fortawesome/fontawesome-svg-core";
-// import TinyTokenShop from "@/components/TinyTokenShop";
 import TokenShop from "@/components/TokenShop";
 import TopNav from "@/components/topNav";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
-import LogOutButton from "@/components/logoutButton";
 import BottomNav from "@/components/BottomNav";
 import Intercom from '@intercom/messenger-js-sdk';
 import { ClipLoader } from "react-spinners";
@@ -62,6 +58,18 @@ export default function Dashboard() {
                             email: data.email,
                             created_at: data.created_at,
                         });
+                        
+                        // Add custom CSS to adjust Intercom position
+                        const style = document.createElement('style');
+                        style.innerHTML = `
+                            #intercom-container {
+                                bottom: 50px !important;
+                            }
+                            .intercom-lightweight-app-launcher {
+                                bottom: 50px !important;
+                            }
+                        `;
+                        document.head.appendChild(style);
                         
                         // Fetch loyalty balance using Square Loyalty ID
                         if (data.square_loyalty_id) {
@@ -128,7 +136,7 @@ export default function Dashboard() {
                     </div>
                 </div>
                 <div className="fixed bottom-14 left-0 w-full flex justify-center pb-6 px-4 z-50">
-                    <Button className="text-white text-lg bg-primary hover:bg-primary/75 w-full md:w-72 h-11 shadow-lg" onClick={() => router.push('/Order')}> 
+                    <Button className="text-white text-lg hover:bg-primary bg-primary w-full md:w-72 h-11 shadow-lg" onClick={() => router.push('/Order')}> 
                         Place Order
                     </Button>
                 </div>

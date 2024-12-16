@@ -38,48 +38,47 @@ export function MenuView() {
             setIsLoading(true);
             setError(null);
             
+            console.log("Starting upload process...");
+
             // Check file size (e.g., 5MB limit)
             if (selectedFile.size > 5 * 1024 * 1024) {
                 throw new Error('File size too large. Please upload a file smaller than 5MB.');
             }
 
+            // Use a fixed filename
+            const fileName = 'current_menu.png';
+            console.log("Attempting to upload as:", fileName);
+
             // Upload file to Supabase storage
             const { data: uploadData, error: uploadError } = await supabase.storage
                 .from('menus')
-                .upload(`menu-${Date.now()}.${selectedFile.name.split('.').pop()}`, selectedFile, {
+                .upload(fileName, selectedFile, {
                     cacheControl: '3600',
-                    upsert: true
+                    upsert: true  // This will replace the existing file
                 });
 
             if (uploadError) {
+                console.error("Upload error:", uploadError);
                 throw new Error(`Upload error: ${uploadError.message}`);
             }
 
-            if (!uploadData) {
-                throw new Error('Upload failed: No data received');
-            }
+            console.log("Upload successful, getting public URL...");
 
             // Get public URL for the uploaded file
             const { data: { publicUrl } } = supabase.storage
                 .from('menus')
-                .getPublicUrl(uploadData.path);
+                .getPublicUrl(fileName);
 
-            // Update the menu URL in the database
-            const { data: updateData, error: updateError } = await supabase
-                .from('settings')
-                .update({ value: publicUrl })
-                .eq('key', 'menu_url');
+            console.log("Got public URL:", publicUrl);
 
-            if (updateError) {
-                throw new Error(`Database update error: ${updateError.message}`);
-            }
-
-            // Update local state
+            // Update local state with the new URL
             setMenuUrl(publicUrl);
             setSelectedFile(null);
+
+            console.log("Upload process completed successfully");
             
         } catch (error) {
-            console.error("Error uploading menu:", error);
+            console.error("Error in upload process:", error);
             setError(error instanceof Error ? error.message : "Failed to upload menu. Please try again.");
         } finally {
             setIsLoading(false);
@@ -88,26 +87,40 @@ export function MenuView() {
 
     return (
         <div className="p-4 space-y-4">
-            <div className="space-y-2 flex flex-row items-center">
+            <div className="space-y-2 flex flex-row items-center gap-2">
                 <Input 
                     type="file" 
                     accept="image/*"
                     onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                    disabled={isLoading}
                 />
                 <Button 
                     onClick={handleFileUpload}
-                    disabled={!selectedFile}
+                    disabled={!selectedFile || isLoading}
                 >
-                    Upload New Menu
+                    {isLoading ? 'Uploading...' : 'Upload New Menu'}
                 </Button>
             </div>
+            
+            {error && (
+                <div className="text-red-500 text-sm">
+                    {error}
+                </div>
+            )}
+
             <div className="border rounded-lg p-4">
                 <h2 className="text-lg font-semibold mb-4">Current Menu</h2>
-                <img 
-                    src={menuUrl} 
-                    alt="Current Menu"
-                    className="w-full h-auto"
-                />
+                {menuUrl ? (
+                    <img 
+                        src={menuUrl} 
+                        alt="Current Menu"
+                        className="w-full h-auto"
+                    />
+                ) : (
+                    <div className="text-gray-500">
+                        No menu uploaded yet
+                    </div>
+                )}
             </div>
         </div>
     );

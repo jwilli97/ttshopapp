@@ -12,11 +12,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import BottomNav from "@/components/BottomNav";
 import LogOutButton from "@/components/logoutButton";
-import { ChevronRight, ChevronLeft, Coins } from "lucide-react";
+import { ChevronRight, ChevronLeft, Coins, X } from "lucide-react";
 import { useUser } from '@supabase/auth-helpers-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import Intercom from '@intercom/messenger-js-sdk';
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface OrderDetails {
@@ -32,6 +33,7 @@ interface OrderDetails {
   deliveryNotes: string;
   paymentMethod: string;
   cashDetails?: string;
+  total: number | null;
 }
 
 interface TinyTokenShopItem {
@@ -41,12 +43,27 @@ interface TinyTokenShopItem {
 }
 
 const tokenShopItems: TinyTokenShopItem[] = [
-  { id: 1, name: 'Mystery Preroll', cost: 200 },
-  { id: 2, name: 'Mystery Light Depth Eighth', cost: 400 },
-  { id: 3, name: 'Blind 6 Joint Pack', cost: 800 },
-  { id: 4, name: 'Blind Edibles Box', cost: 1000 },
-  { id: 5, name: 'Mystery Pen', cost: 1500 },
+  { id: 1, name: 'Holiday Joint', cost: 2 },
+  { id: 2, name: 'Top Shelf Eighth', cost: 7 },
+  { id: 3, name: 'Moonrock Blunt', cost: 8 },
+  { id: 4, name: '5 Pack Infused Joints', cost: 12 },
+  { id: 5, name: 'Kurvana Pen', cost: 15 },
+  { id: 6, name: 'Stizzy Battery/Pod Set', cost: 18 },
+  { id: 7, name: 'Sampler Pack', cost: 21 },
 ]
+
+const formatPhoneNumber = (phoneNumber: string) => {
+  // Remove all non-numeric characters
+  const cleaned = phoneNumber.replace(/\D/g, '');
+  
+  // Check if the number has exactly 10 digits
+  if (cleaned.length === 10) {
+    return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+  }
+  
+  // Return original if not 10 digits
+  return phoneNumber;
+};
 
 export default function NewOrder() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -58,6 +75,7 @@ export default function NewOrder() {
   const [deliveryNotes, setDeliveryNotes] = useState<string>('');
   const [residenceType, setResidenceType] = useState<string>('');
   const [streetAddress, setStreetAddress] = useState<string>('Loading...');
+  const [addressLine2, setAddressLine2] = useState<string>('');
   const [city, setCity] = useState<string>('Loading...');
   const [state, setState] = useState<string>('Loading...');
   const [avatarUrl, setAvatarUrl] = useState('');
@@ -77,6 +95,7 @@ export default function NewOrder() {
     deliveryNotes: '',
     paymentMethod: '',
     cashDetails: '',
+    total: null,
   })
   const [zipcode, setZipcode] = useState('');
   const [showTokenShop, setShowTokenShop] = useState(false);
@@ -92,6 +111,7 @@ export default function NewOrder() {
   });
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
+  const [preferredDeliveryMethod, setPreferredDeliveryMethod] = useState<string>('Handoff');
 
   const steps = [
     {
@@ -108,145 +128,214 @@ export default function NewOrder() {
           />
         </div>
       ),
-      nextStep: () => 'deliveryAndPayment',
+      nextStep: () => 'deliveryAndConfirmation',
     },
     {
-      id: 'deliveryAndPayment',
-      title: "Delivery & Payment Details",
+      id: 'deliveryAndConfirmation',
+      title: "Review & Confirm Order",
       content: (
-        <div>
-          <p className="font-bold mb-2">Delivery Method</p>
-          <RadioGroup 
-            className="mb-4"
-            defaultValue={orderDetails.deliveryMethod} 
-            onValueChange={(value) => {
-              setOrderDetails({ ...orderDetails, deliveryMethod: value });
-              if (value === 'Contactless') {
-                setOrderDetails(prev => ({ ...prev, paymentMethod: 'Venmo' }));
-              }
-            }}
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Contactless" id="r1" />
-              <Label htmlFor="r1">Contactless</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Handoff" id="r2" />
-              <Label htmlFor="r2">Handoff</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Pickup" id="r3" />
-              <Label htmlFor="r3">Pickup</Label>
-            </div>
-          </RadioGroup>
-
-          <div className="mb-6">
-            <p className="font-bold mb-1">Delivery Address</p>
-            <div>
-              <Input 
-                className="bg-gray-200 text-black"
-                type="text" 
-                placeholder="Enter a new address" 
-                value={streetAddress}
-                onChange={(e) => {
-                  setStreetAddress(e.target.value);
-                  setOrderDetails(prev => ({
-                    ...prev,
-                    deliveryStreetAddress: e.target.value
-                  }));
-                }}
-                disabled
-              />
-              <div className="flex flex-row">
-                <Input 
-                  className="bg-gray-200 text-black" 
-                  type="text" 
-                  placeholder="City" 
-                  value={city} 
-                  onChange={(e) => {
-                    setCity(e.target.value);
-                    setOrderDetails(prev => ({ ...prev, deliveryCity: e.target.value }));
-                  }} 
-                  disabled
-                />
-                <Input 
-                  className="bg-gray-200 text-black" 
-                  type="text" 
-                  placeholder="State" 
-                  value={state} 
-                  onChange={(e) => {
-                    setState(e.target.value);
-                    setOrderDetails(prev => ({ ...prev, deliveryState: e.target.value }));
-                  }} 
-                  disabled
-                />
-                <Input 
-                  className="bg-gray-200 text-black" 
-                  type="text" 
-                  placeholder="ZIP Code" 
-                  value={zipcode} 
-                  onChange={(e) => setOrderDetails(prev => ({ ...prev, deliveryZipcode: e.target.value }))} 
-                  disabled
-                />
-              </div>
-              <p className="mt-2 font-bold">Residence Type</p>
-              <Input className="bg-gray-200 text-black" type="text" placeholder="Enter residence type" value={residenceType} onChange={(e) => setOrderDetails(prev => ({ ...prev, deliveryResidenceType: e.target.value }))} disabled />
-            </div>
-
-            <div className="mt-6">
-              <p className="font-bold mb-2">Payment Method</p>
-              <RadioGroup 
-                defaultValue={orderDetails.paymentMethod} 
-                onValueChange={(value) => setOrderDetails({ ...orderDetails, paymentMethod: value })}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Venmo" id="p1" />
-                  <Label htmlFor="p1">Venmo</Label>
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Cash" id="p2" />
-                    <Label htmlFor="p2">Cash</Label>
-                  </div>
-                  {orderDetails.deliveryMethod === 'Contactless' && orderDetails.paymentMethod === 'Cash' && (
-                    <Textarea
-                      className="bg-white text-black"
-                      placeholder="Please specify where you will leave the cash and if you need change..."
-                      value={orderDetails.cashDetails || ''}
-                      onChange={(e) => setOrderDetails({ ...orderDetails, cashDetails: e.target.value })}
-                      rows={2}
-                    />
-                  )}
-                </div>
-              </RadioGroup>
-              {orderDetails.deliveryMethod === 'Contactless' && orderDetails.paymentMethod === 'Venmo' && (
-                <p className="text-red-500 text-sm mt-4">Prepayment required for Venmo & contactless delivery</p>
-              )}
-            </div>
-            
-            <p className="text-sm mt-4 font-bold text-gray-500">Estimated Time Frame: 7:30pm - 9:30pm</p>
+        <div className="space-y-6">
+          {/* Order Items */}
+          <div className="border border-gray-300 rounded-lg p-4 bg-gray-100">
+            <h3 className="font-bold mb-2">Order Items</h3>
+            <p>{orderDetails.item}</p>
+            {orderDetails.tokenRedemption && (
+              <p className="mt-2">
+                <span className="font-semibold">Token Redemption: </span>
+                {orderDetails.tokenRedemption}
+              </p>
+            )}
           </div>
-        </div>
-      ),
-      nextStep: () => 'confirmation',
-    },
-    {
-      id: 'confirmation',
-      title: "Confirm your order details:",
-      content: (
-        <div className="space-y-1">
-          <p className="font-bold">Order Details: {orderDetails.item}</p>
-          {orderDetails.tokenRedemption && (
-            <p className="font-bold">Token Redemption: {orderDetails.tokenRedemption}</p>
-          )}
-          <p className="font-bold">Phone Number: {orderDetails.phoneNumber}</p>
-          <p className="font-bold">Delivery Address: {orderDetails.deliveryStreetAddress}, {orderDetails.deliveryCity}, {orderDetails.deliveryState} {orderDetails.deliveryZipcode}</p>
-          <p className="font-bold">Residence Type: {orderDetails.deliveryResidenceType}</p>
-          <p className="font-bold">Delivery Method: {orderDetails.deliveryMethod}</p>
-          <p className="font-bold">Payment Method: {orderDetails.paymentMethod}</p>
-          {orderDetails.paymentMethod === 'Cash' && orderDetails.cashDetails && (
-            <p className="font-bold">Cash Details: {orderDetails.cashDetails}</p>
-          )}
+
+          {/* Delivery Information */}
+          <div>
+            <h3 className="font-bold mb-2">Delivery Address</h3>
+            <p>{orderDetails.deliveryStreetAddress}, {orderDetails.deliveryCity}, {orderDetails.deliveryState} {orderDetails.deliveryZipcode}</p>
+            <p className="mt-1"><span className="font-semibold">Residence Type: </span>{orderDetails.deliveryResidenceType}</p>
+            <p className="mt-1"><span className="font-semibold">Delivery Method: </span>{orderDetails.deliveryMethod}</p>
+            <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="ghost" className="mt-2 text-primary">
+                  Edit Address
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="text-white">Enter New Delivery Address</DialogTitle>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="absolute right-0 top-0 rounded-sm"
+                    onClick={() => setShowAddressDialog(false)}
+                  >
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Close</span>
+                  </Button>
+                </DialogHeader>
+                <div className="flex flex-col gap-4">
+                  <Input 
+                    type="text" 
+                    placeholder="Street Address" 
+                    onChange={(e) => setStreetAddress(e.target.value)}
+                  />
+                  <Input 
+                    type="text" 
+                    placeholder="Address Line 2" 
+                    onChange={(e) => setAddressLine2(e.target.value)}
+                  />
+                  <div className="flex flex-row gap-2">
+                    <Input 
+                      type="text" 
+                      placeholder="City" 
+                      onChange={(e) => setCity(e.target.value)}
+                    />
+                    <Input 
+                      type="text" 
+                      placeholder="State" 
+                      onChange={(e) => setState(e.target.value)}
+                    />
+                    <Input 
+                      type="text" 
+                      placeholder="ZIP Code" 
+                      onChange={(e) => setZipcode(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2 text-white">
+                    <Label>Residence Type</Label>
+                    <RadioGroup 
+                      defaultValue={residenceType}
+                      onValueChange={(value) => setResidenceType(value)}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="House" id="house" />
+                        <Label htmlFor="house">House/Townhouse</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Apartment" id="apartment" />
+                        <Label htmlFor="apartment">Apartment/Highrise</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <div className="flex mt-2 gap-2 justify-between">
+                    <Button 
+                      className="text-primary border-primary"
+                      variant="outline"
+                      onClick={async () => {
+                        // Update only the current order details
+                        setOrderDetails(prev => ({
+                          ...prev,
+                          deliveryStreetAddress: streetAddress,
+                          deliveryCity: city,
+                          deliveryState: state,
+                          deliveryZipcode: zipcode,
+                          deliveryResidenceType: residenceType
+                        }));
+                        setShowAddressDialog(false);
+                      }}
+                    >
+                      Use Once
+                    </Button>
+                    <Button 
+                      onClick={async () => {
+                        try {
+                          // Update both order details and user profile in Supabase
+                          const { error } = await supabase
+                            .from('profiles')
+                            .update({
+                              street_address: streetAddress,
+                              city: city,
+                              state: state,
+                              zipcode: zipcode,
+                              residence_type: residenceType
+                            })
+                            .eq('user_id', userId);
+
+                          if (error) throw error;
+
+                          setOrderDetails(prev => ({
+                            ...prev,
+                            deliveryStreetAddress: streetAddress,
+                            deliveryCity: city,
+                            deliveryState: state,
+                            deliveryZipcode: zipcode,
+                            deliveryResidenceType: residenceType
+                          }));
+
+                          // Update local state
+                          setStreetAddress(streetAddress);
+                          setCity(city);
+                          setState(state);
+                          setZipcode(zipcode);
+                          setResidenceType(residenceType);
+
+                          setShowAddressDialog(false);
+                          alert('Default address updated successfully!');
+                        } catch (error) {
+                          console.error('Error updating default address:', error);
+                          alert('Failed to update default address. Please try again.');
+                        }
+                      }}
+                    >
+                      Set as Default
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* Delivery Method */}
+          <div>
+            
+          </div>
+
+          {/* Estimated Time */}
+          <div>
+            <p className="font-bold text-gray-500">Estimated Time Frame: 7:30pm - 9:30pm</p>
+          </div>
+
+          {/* Phone Number */}
+          <div>
+            <h3 className="font-bold mb-2">Phone Number</h3>
+            <p>{formatPhoneNumber(orderDetails.phoneNumber)}</p>
+          </div>
+
+          {/* Total and Payment */}
+          <div>
+            <h3 className="font-bold mb-2">Total</h3>
+            <p className="text-xl mb-4">{orderDetails.total === null ? 'Pending' : `$${orderDetails.total}`}</p>
+            
+            <h3 className="font-bold mb-2">Payment Method</h3>
+            <RadioGroup 
+              defaultValue={orderDetails.paymentMethod} 
+              onValueChange={(value) => setOrderDetails({ ...orderDetails, paymentMethod: value })}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="Venmo" id="p1" />
+                <Label htmlFor="p1">Venmo</Label>
+              </div>
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Cash" id="p2" />
+                  <Label htmlFor="p2">Cash</Label>
+                </div>
+                {orderDetails.deliveryMethod === 'Contactless' && orderDetails.paymentMethod === 'Cash' && (
+                  <Textarea
+                    className="bg-white text-black"
+                    placeholder="Please specify where you will leave the cash and if you need change..."
+                    value={orderDetails.cashDetails || ''}
+                    onChange={(e) => setOrderDetails({ ...orderDetails, cashDetails: e.target.value })}
+                    rows={2}
+                  />
+                )}
+              </div>
+            </RadioGroup>
+            {orderDetails.deliveryMethod === 'Contactless' && orderDetails.paymentMethod === 'Venmo' && (
+              <p className="text-red-500 text-sm mt-4">Prepayment required for Venmo & contactless delivery</p>
+            )}
+          </div>
         </div>
       ),
       nextStep: () => null,
@@ -261,7 +350,6 @@ export default function NewOrder() {
     if (nextStepIndex !== -1) {
       setCurrentStepIndex(nextStepIndex);
     } else {
-      // Handle case when there's no next step (e.g., submit order)
       handleSubmit();
     }
   };
@@ -298,6 +386,27 @@ export default function NewOrder() {
           }
 
           if (profileData) {
+            // Initialize Intercom with user data
+            Intercom({
+              app_id: 'cdcmnvsm',
+              user_id: profileData.user_id,
+              name: profileData.display_name,
+              email: profileData.email,
+              created_at: profileData.created_at,
+            });
+            
+            // Add custom CSS for Intercom positioning
+            const style = document.createElement('style');
+            style.innerHTML = `
+              #intercom-container {
+                bottom: 50px !important;
+              }
+              .intercom-lightweight-app-launcher {
+                bottom: 50px !important;
+              }
+            `;
+            document.head.appendChild(style);
+
             console.log('User profile:', profileData);
             setUserId(profileData.user_id); // Make sure this is set correctly
             setDisplayName(profileData.display_name);
@@ -311,6 +420,7 @@ export default function NewOrder() {
             setPhoneNumber(profileData.phone_number);
             setFirstName(profileData.first_name);
             setLastName(profileData.last_name);
+            setPreferredDeliveryMethod(profileData.delivery_method || 'handoff');
 
             //autofill orders with user profile data
             setOrderDetails((prev) => ({
@@ -322,6 +432,7 @@ export default function NewOrder() {
               deliveryState: profileData.state,
               deliveryZipcode: profileData.zipcode,
               deliveryNotes: profileData.delivery_notes,
+              deliveryMethod: profileData.delivery_method || 'handoff',
             }));
             
             if (profileData.square_loyalty_id) {
@@ -373,7 +484,8 @@ export default function NewOrder() {
         payment_method: orderDetails.paymentMethod,
         status: 'received',
         // Only include cash_details if payment method is Cash
-        ...(orderDetails.paymentMethod === 'Cash' && { cash_details: orderDetails.cashDetails || '' })
+        ...(orderDetails.paymentMethod === 'Cash' && { cash_details: orderDetails.cashDetails || '' }),
+        total: orderDetails.total,
       };
 
       const { data, error } = await supabase
@@ -474,16 +586,13 @@ export default function NewOrder() {
 
     // Close the token shop dialog
     setShowTokenShop(false);
-
-    // Show success message
-    alert(`${selectedItem.name} added to your order. It will be redeemed when you submit the order.`);
   };
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="bg-background">
-        <div className="flex mt-8 items-center justify-center"> 
-          <h1 className="text-4xl text-[#FFFDD0] font-bold">ORDER</h1>
+        <div className="flex mt-10 items-center justify-center"> 
+          <h1 className="text-4xl text-white font-bold">Order</h1>
         </div>
       </header>
 
@@ -513,7 +622,7 @@ export default function NewOrder() {
                   <ChevronLeft className="mr-1 h-4 w-4" /> Back
                 </Button>
               )}
-              {currentStep.id === 'confirmation' ? (
+              {currentStep.id === 'deliveryAndConfirmation' ? (
                 <>
                   <Button onClick={handleNext} className="bg-primary text-white">
                     Submit Order
@@ -533,33 +642,35 @@ export default function NewOrder() {
                     Token Shop
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
                   <DialogHeader>
-                    <DialogTitle>Token Shop</DialogTitle>
-                    <DialogDescription className="text-black">Redeem your tokens for rewards</DialogDescription>
+                    <DialogTitle className="text-white mt-2 text-2xl">Token Shop</DialogTitle>
+                    <p className="text-white text-md">Redeem your tokens for rewards</p>
                   </DialogHeader>
-                  <div className="grid gap-4 py-4">
+                  <div className="grid gap-4">
                     {tokenShopItems.map((item) => (
                       <Card key={item.id}>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                          <CardTitle className="text-sm font-medium">
-                            {item.name}
-                          </CardTitle>
-                          <Button
-                            onClick={() => handleRewardClaim(item.id)}
-                            disabled={loyaltyBalance === null || loyaltyBalance < item.cost}
-                            size="sm"
-                          >
-                            Claim Reward
-                          </Button>
-                        </CardHeader>
-                        <CardContent>
-                          <Badge variant="secondary">{item.cost} Tokens</Badge>
-                        </CardContent>
+                        <div className="flex flex-row justify-between items-center p-4">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-col text-sm font-medium text-white">
+                              <Badge variant="secondary" className="bg-accent">{item.cost} Tokens</Badge>
+                              <p>{item.name}</p>
+                            </div>
+                          </div>
+                          <div>
+                            <Button
+                              onClick={() => handleRewardClaim(item.id)}
+                              disabled={loyaltyBalance === null || loyaltyBalance < item.cost}
+                              size="sm"
+                            >
+                              Claim Reward
+                            </Button>
+                          </div>
+                        </div>
                       </Card>
                     ))}
                   </div>
-                  <DialogFooter className="relative">
+                  <DialogFooter className="sticky bottom-0 bg-transparent z-10 pt-4">
                     <div className="flex justify-center">
                       <Button onClick={() => setShowTokenShop(false)}>Close</Button>
                     </div>

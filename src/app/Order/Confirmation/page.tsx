@@ -37,26 +37,45 @@ interface Order {
 }
 
 interface StatusStepProps {
-    icon: React.ReactNode
     label: string
     isCompleted: boolean
     isActive: boolean
+    isLast?: boolean
 }
 
-function StatusStep({ icon, label, isCompleted, isActive }: StatusStepProps) {
+function StatusStep({ label, isCompleted, isActive, isLast = false }: StatusStepProps) {
     return (
-      <div className="flex flex-col items-center">
-        <div className={`rounded-full p-2 ${
-          isCompleted ? 'bg-primary' : isActive ? 'bg-accent' : 'bg-gray-300'
-        }`}>
-          {icon}
+        <div className="flex items-center">
+            <div className="relative">
+                {/* Circle */}
+                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center
+                    ${isCompleted 
+                        ? 'border-accent bg-accent text-black' 
+                        : isActive 
+                            ? 'border-white text-white' 
+                            : 'border-gray-300'
+                    }`}
+                >
+                    {isCompleted && (
+                        <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                    )}
+                </div>
+                
+                {/* Label */}
+                <span className={`absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap text-sm
+                    ${isCompleted ? 'text-accent' : isActive ? 'text-white' : 'text-gray-200'}`}
+                >
+                    {label}
+                </span>
+            </div>
+
+            {/* Connecting Line */}
+            {!isLast && (
+                <div className={`w-24 h-0.5 ${isCompleted ? 'bg-accent' : 'bg-gray-300'}`} />
+            )}
         </div>
-        <p className={`mt-2 text-sm font-medium ${
-          isCompleted ? 'text-primary' : isActive ? 'text-accent' : 'text-gray-500'
-        }`}>
-          {label}
-        </p>
-      </div>
     );
 }
 
@@ -150,39 +169,42 @@ export default function Orders() {
             </header>
 
             <main className="flex h-screen w-full flex-col items-center px-4 py-6 relative">
-                <div className="mb-6 animate-wiggle">
-                    <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo"  />
+                <div className="mb-6">
+                    <Image src="/Delivery_Logo.png" width={275} height={275} alt="Welcome Logo"  />
                 </div>
-                <h1 className="text-3xl text-[#FFFDD0] font-bold">Order Confirmation</h1>
+                <h1 className="text-4xl text-white font-bold">Current Order</h1>
                 
                 {isLoading ? (
-                    <p className="text-gray-500 mt-4">Loading orders...</p>
+                    <p className="text-white mt-4">Loading orders...</p>
                 ) : orders.length > 0 ? (
                     <>
-                        <div className="flex flex-col items-center py-6">
-                            <div className="flex flex-row space-x-16 items-center">
+                        <div className="flex flex-col items-center py-8">
+                            <div className="flex items-center">
                                 <StatusStep
-                                    icon={<CheckCircle2 className="h-6 w-6" />}
                                     label="Order Received"
                                     isCompleted={['preparing your order', 'in progress', 'ready for pickup', 'out for delivery'].includes(orders[0].status)}
                                     isActive={orders[0].status === 'received'}
                                 />
                                 <StatusStep
-                                    icon={<Clock className="h-6 w-6" />}
-                                    label="Preparing Your Order"
+                                    label="Preparing"
                                     isCompleted={['out for delivery'].includes(orders[0].status)}
                                     isActive={['preparing your order', 'in progress'].includes(orders[0].status)}
                                 />
                                 <StatusStep
-                                    icon={<Truck className="h-6 w-6" />}
                                     label="Out for Delivery"
-                                    isCompleted={['completed', 'cancelled'].includes(orders[0].status)}
+                                    isCompleted={['completed'].includes(orders[0].status)}
                                     isActive={orders[0].status === 'out for delivery'}
+                                />
+                                <StatusStep
+                                    label="Delivered"
+                                    isCompleted={['completed'].includes(orders[0].status)}
+                                    isActive={false}
+                                    isLast={true}
                                 />
                             </div>
                         </div>
 
-                        <div className="container bg-white p-4 rounded-lg shadow w-full max-w-2xl">
+                        <div className="container bg-white p-4 rounded-lg shadow w-full mt-8 mb-16 max-w-2xl">
                             <p className="font-semibold">Order #{orders[0].id}</p>
                             <p><span className="font-bold">Date: </span> {new Date(orders[0].created_at).toLocaleDateString()}</p>
                             {(() => {
@@ -196,7 +218,7 @@ export default function Orders() {
                                         {details.deliveryMethod && <p><strong>Delivery Method: </strong> {details.deliveryMethod}</p>}
                                         {details.paymentMethod && <p><strong>Payment Method: </strong> {details.paymentMethod}</p>}
                                         <p><strong>Status: </strong>{orders[0].status}</p>
-                                        <p><strong>Total: </strong>{orders[0].total}</p>
+                                        <p><strong>Total: </strong>${orders[0].total}</p>
                                     </>
                                 );
                             })()}

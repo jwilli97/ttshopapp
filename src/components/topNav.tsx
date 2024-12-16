@@ -1,11 +1,11 @@
-import Image from "next/image"
+import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
 import { ChevronRight } from "lucide-react"
 
 export default function TopNav() {
+    const router = useRouter();
     const [displayName, setDisplayName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [avatarUrl, setAvatarUrl] = useState('');
@@ -44,15 +44,27 @@ export default function TopNav() {
         fetchData();
     }, []);
 
+    const handleNavigateToAccount = () => {
+        router.push('/Account');
+    };
+
     return (
         <nav className="flex items-center pr-4 pl-4 pb-4">
             <div className="flex items-center space-x-4">
-                <Avatar className="h-20 w-20">
+                <Avatar 
+                    className="h-20 w-20 cursor-pointer"
+                    onClick={handleNavigateToAccount}
+                >
                     <AvatarImage src={avatarUrl} alt="@user" />
                     <AvatarFallback>U</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
-                    <span className="text-4xl text-primary font-semibold">{displayName}</span>
+                    <span 
+                        className="text-4xl text-primary font-semibold cursor-pointer"
+                        onClick={handleNavigateToAccount}
+                    >
+                        {displayName}
+                    </span>
                     <div className="flex text-xl items-center text-white">
                         <span>{streetAddress}</span>
                         <ChevronRight className="h-5 w-5" />

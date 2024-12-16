@@ -18,19 +18,22 @@ interface ShopItem {
 };
 
 const shopItems: ShopItem[] = [
-    { id: 1, name: 'Joint', cost: 200 },
-    { id: 2, name: 'Light Depth Eighth', cost: 400 },
-    { id: 3, name: '6 Joint Pack', cost: 800 },
-    { id: 4, name: 'Designer Eighth', cost: 1000 },
-    { id: 5, name: 'Stiiizy Pen', cost: 1500 }
+  { id: 1, name: 'Holiday Joint', cost: 2 },
+  { id: 2, name: 'Top Shelf Eighth', cost: 7 },
+  { id: 3, name: 'Moonrock Blunt', cost: 8 },
+  { id: 4, name: '5 Pack Infused Joints', cost: 12 },
+  { id: 5, name: 'Kurvana Pen', cost: 15 },
+  { id: 6, name: 'Stizzy Battery/Pod Set', cost: 18 },
+  { id: 7, name: 'Sampler Pack', cost: 21 },
 ];
 
+const maxValue = 50;
+const tickValues = Array.from({ length: 11 }, (_, i) => i * 5); // Creates [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
 
 const TokenShop: React.FC<TinyTokenShopProps> = ({ loyaltyBalance }: TinyTokenShopProps) => {
-
   const [isShopOpen, setIsShopOpen] = useState(false);
 
-  const progressPercentage = loyaltyBalance !== null ? Math.min((loyaltyBalance / 2000) * 100, 2000) : 0;
+  const progressPercentage = loyaltyBalance !== null ? Math.min((loyaltyBalance / maxValue) * 100, 100) : 0;
 
   const toggleShop = () => setIsShopOpen(!isShopOpen);
 
@@ -45,15 +48,15 @@ const TokenShop: React.FC<TinyTokenShopProps> = ({ loyaltyBalance }: TinyTokenSh
             </div>
             <Progress value={progressPercentage} className="w-full [&>div]:bg-accent bg-muted/45 backdrop-blur-sm rounded-full border border-muted/10" />
             <div className="relative w-full h-2 mt-1">
-                {shopItems.map((item) => {
-                    const tickPosition = (item.cost / 2000) * 100;
+                {tickValues.map((value) => {
+                    const tickPosition = (value / maxValue) * 100;
                     return (
                         <div
-                            key={item.id}
+                            key={value}
                             className="absolute transform -translate-x-1/2"
                             style={{ left: `${tickPosition}%` }}
                         >
-                            <span className="text-xs text-white">{item.cost}</span>
+                            <span className="text-xs text-white">{value}</span>
                         </div>
                     );
                 })}
