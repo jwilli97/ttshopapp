@@ -53,15 +53,11 @@ export default function CreateProfile() {
             }
 
             console.log('Fetching profile for user:', user.id);
-            const profileQuery = supabase
+            const { data, error: profileError } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('user_id', user.id)
-                .single();
-
-            console.log('Profile query:', profileQuery);
-            
-            const { data, error: profileError } = await profileQuery;
+                .maybeSingle();
             
             console.log('Profile data:', data);
             console.log('Profile error:', profileError);
@@ -72,12 +68,14 @@ export default function CreateProfile() {
 
             if (data) {
                 setDisplayName(data.display_name || '');
-                setEmail(data.email || '');
+                setEmail(user.email || '');
                 setFirstName(data.first_name || '');
                 setLastName(data.last_name || '');
                 setPhoneNumber(data.phone_number || '');
                 setAvatarUrl(data.avatar_url || '');
                 setBirthday(data.birthday || '');
+            } else {
+                setEmail(user.email || '');
             }
         } catch (error: any) {
             console.error('Detailed error information:', {
