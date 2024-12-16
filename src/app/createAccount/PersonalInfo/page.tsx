@@ -77,9 +77,18 @@ export default function PersonalInfo() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('Form submission started');
         setIsLoading(true);
         setError('');
         
+        // Log current values
+        console.log('Current values:', {
+            perferredStrain,
+            replacementPreference,
+            displayName,
+            avatarUrl
+        });
+
         // Clear previous errors
         setFieldErrors({
             replacementPreference: '',
@@ -168,7 +177,7 @@ export default function PersonalInfo() {
                 />
                 <Label htmlFor="perferredStrain">Preferred Strain</Label>
                 <div className="mt-1 mb-4">
-                    <Select>
+                    <Select onValueChange={setPerferredStrain} value={perferredStrain}>
                         <SelectTrigger>
                             <SelectValue placeholder="" />
                         </SelectTrigger>
@@ -181,7 +190,7 @@ export default function PersonalInfo() {
                 </div>
                 <Label htmlFor="replacementPreference">Replacement Preference</Label>
                 <div className="mt-1">
-                    <Select>
+                    <Select onValueChange={setReplacementPreference} value={replacementPreference}>
                         <SelectTrigger>
                             <SelectValue placeholder="" />
                         </SelectTrigger>
