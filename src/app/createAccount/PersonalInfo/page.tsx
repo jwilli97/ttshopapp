@@ -89,44 +89,37 @@ export default function PersonalInfo() {
             avatarUrl
         });
 
-        // Clear previous errors
-        setFieldErrors({
-            replacementPreference: '',
-        });
-
-        // Validate fields
-        let hasErrors = false;
-        const newErrors = { ...fieldErrors };
-
-        if (!replacementPreference.trim()) {
-            newErrors.replacementPreference = 'Replacement Preference is required';
-            hasErrors = true;
-        }
-
-        if (hasErrors) {
-            setFieldErrors(newErrors);
-            setIsLoading(false);
-            return;
-        }
-
         try {
-
             const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { error } = await supabase
-                    .from('profiles')
-                    .upsert({
-                        perferred_strain: perferredStrain,
-                        replacement_preference: replacementPreference,
-                        updated_at: new Date()
-                    }, {
-                        onConflict: 'user_id'
-                    });
-                
-                if (error) throw error;
-                
-                router.push('/createAccount/DeliveryInfo');
+            console.log('Current user:', user); // Debug log
+
+            if (!user) {
+                throw new Error('No authenticated user found');
             }
+
+            const updateData = {
+                user_id: user.id, // Add this line
+                perferred_strain: perferredStrain,
+                replacement_preference: replacementPreference,
+                display_name: displayName,
+                avatar_url: avatarUrl,
+                updated_at: new Date().toISOString()
+            };
+
+            console.log('Updating with data:', updateData); // Debug log
+
+            const { data, error } = await supabase
+                .from('profiles')
+                .upsert(updateData)
+                .select();
+            
+            if (error) {
+                console.error('Supabase error:', error); // More detailed error logging
+                throw error;
+            }
+
+            console.log('Update successful:', data); // Debug log
+            router.push('/createAccount/DeliveryInfo');
         } catch (error) {
             console.error('Error updating profile:', error);
             setError('Failed to create profile. Please try again.');
