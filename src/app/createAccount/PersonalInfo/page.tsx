@@ -17,7 +17,7 @@ export default function PersonalInfo() {
 
     const [displayName, setDisplayName] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
-    const [perferredStrain, setPerferredStrain] = useState('');
+    const [strainPreference, setStrainPreference] = useState('');
     const [replacementPreference, setReplacementPreference] = useState('');
     const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
     const [selectedAvatar, setSelectedAvatar] = useState('');
@@ -60,7 +60,7 @@ export default function PersonalInfo() {
                 if (data) {
                     setDisplayName(data.display_name || '');
                     setAvatarUrl(data.avatar_url || '');
-                    setPerferredStrain(data.perferred_strain || '');
+                    setStrainPreference(data.strain_preference || '');
                     setReplacementPreference(data.replacement_preference || '');
                 }
             }
@@ -83,7 +83,7 @@ export default function PersonalInfo() {
         
         // Log current values
         console.log('Current values:', {
-            perferredStrain,
+            strainPreference,
             replacementPreference,
             displayName,
             avatarUrl
@@ -98,8 +98,8 @@ export default function PersonalInfo() {
             }
 
             const updateData = {
-                user_id: user.id, // Add this line
-                perferred_strain: perferredStrain,
+                user_id: user.id,
+                strain_preference: strainPreference,
                 replacement_preference: replacementPreference,
                 display_name: displayName,
                 avatar_url: avatarUrl,
@@ -168,9 +168,9 @@ export default function PersonalInfo() {
                     disabled={isLoading}
                     required 
                 />
-                <Label htmlFor="perferredStrain">Preferred Strain</Label>
+                <Label htmlFor="strainPreference">Preferred Strain</Label>
                 <div className="mt-1 mb-4">
-                    <Select onValueChange={setPerferredStrain} value={perferredStrain}>
+                    <Select onValueChange={setStrainPreference} value={strainPreference}>
                         <SelectTrigger>
                             <SelectValue placeholder="" />
                         </SelectTrigger>
