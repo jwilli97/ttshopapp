@@ -93,6 +93,7 @@ export default function CreateProfile() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('Form submission started');
         setIsLoading(true);
         setError('');
         
@@ -138,6 +139,7 @@ export default function CreateProfile() {
         }
 
         try {
+            console.log('Making Square API request...');
             // search for square customer ID
             const squareResponse = await fetch('/api/searchSquareAccount', {
                 method: 'POST',
@@ -145,10 +147,13 @@ export default function CreateProfile() {
                 body: JSON.stringify({ phoneNumber }),
             });
             const squareData = await squareResponse.json();
-            console.log('squareData:', squareData);
+            console.log('Square API response:', squareData);
 
             const { data: { user } } = await supabase.auth.getUser();
+            console.log('Current user:', user);
+
             if (user) {
+                console.log('Updating profile in Supabase...');
                 const { error } = await supabase
                     .from('profiles')
                     .upsert({
@@ -166,14 +171,12 @@ export default function CreateProfile() {
                         onConflict: 'user_id'
                     });
                 
-                if (error) throw error;
-                
-                // Update local avatarUrl state if a new avatar was selected
-                if (selectedAvatar) {
-                    setAvatarUrl(selectedAvatar);
-                    setSelectedAvatar(''); // Reset selectedAvatar after updating
+                if (error) {
+                    console.error('Supabase error:', error);
+                    throw error;
                 }
                 
+                console.log('Profile updated successfully, redirecting...');
                 router.push('/PersonalInfo');
             }
         } catch (error) {
