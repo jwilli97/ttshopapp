@@ -212,8 +212,7 @@ export default function CreateProfile() {
                     id="email" 
                     placeholder="" 
                     value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    disabled
+                    onChange={(e) => setEmail(e.target.value)}
                 />
                 {fieldErrors.email && (
                     <p className="text-red-500 text-sm mt-1 mb-2">{fieldErrors.email}</p>
