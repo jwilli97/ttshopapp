@@ -78,8 +78,20 @@ export default function DeliveryInfo() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('Form submission started');
         setIsLoading(true);
         setError('');
+
+        console.log('Current values:', {
+            residenceType,
+            streetAddress,
+            addressLine2,
+            city,
+            state,
+            zipCode,
+            deliveryMethod,
+            deliveryNotes
+        });
 
         setFieldErrors({
             streetAddress: '',
@@ -125,6 +137,7 @@ export default function DeliveryInfo() {
                 const { error } = await supabase
                     .from('profiles')
                     .upsert({
+                        user_id: user.id,
                         residence_type: residenceType,
                         street_address: streetAddress,
                         address_line_2: addressLine2,
@@ -133,13 +146,17 @@ export default function DeliveryInfo() {
                         zipcode: zipCode,
                         delivery_method: deliveryMethod,
                         delivery_notes: deliveryNotes,
-                        updated_at: new Date()
+                        updated_at: new Date().toISOString()
                     }, {
                         onConflict: 'user_id'
                     });
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('Supabase error:', error);
+                    throw error;
+                }
                 
+                console.log('Update successful');
                 router.push('/dashboard');
             }
         } catch (error) {
