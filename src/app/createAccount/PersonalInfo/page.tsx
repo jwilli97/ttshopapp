@@ -54,7 +54,7 @@ export default function PersonalInfo() {
                     .from('profiles')
                     .select('*')
                     .eq('user_id', user.id)
-                    .single();
+                    .maybeSingle();
                 
                 if (error) throw error;
     
