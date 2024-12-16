@@ -178,7 +178,7 @@ export default function CreateProfile() {
                 }
                 
                 console.log('Profile updated successfully, redirecting...');
-                router.push('/PersonalInfo');
+                router.push('/createAccount/PersonalInfo');
             }
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -224,9 +224,6 @@ export default function CreateProfile() {
                     disabled={isLoading}
                     required 
                 />
-                {formData.firstName && (
-                    <p className="text-red-500 text-sm mt-1 mb-2">{formData.firstName}</p>
-                )}
                 <Label className="ml-2" htmlFor="lastname">Last Name</Label>
                 <Input 
                     className={`mt-1 mb-2.5 ${formData.lastName ? '' : 'border-red-500'}`}
@@ -238,9 +235,6 @@ export default function CreateProfile() {
                     disabled={isLoading}
                     required 
                 />
-                {formData.lastName && (
-                    <p className="text-red-500 text-sm mt-1 mb-2">{formData.lastName}</p>
-                )}
                 <Label className="ml-2" htmlFor="email">Email</Label>
                 <Input 
                     className={`mt-1 mb-2.5 ${formData.email ? '' : 'border-red-500'}`}
@@ -250,9 +244,6 @@ export default function CreateProfile() {
                     value={formData.email} 
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
-                {formData.email && (
-                    <p className="text-red-500 text-sm mt-1 mb-2">{formData.email}</p>
-                )}
                 <Label className="ml-2" htmlFor="phoneNumber">Phone Number</Label>
                 <Input 
                     className={`mt-1 mb-2.5 ${formData.phoneNumber ? '' : 'border-red-500'}`}
@@ -264,9 +255,6 @@ export default function CreateProfile() {
                     disabled={isLoading}
                     required 
                 />
-                {formData.phoneNumber && (
-                    <p className="text-red-500 text-sm mt-1 mb-2">{formData.phoneNumber}</p>
-                )}
                 <Label htmlFor="birthday">Birthday</Label>
                 <Input 
                     className="mb-2.5 mt-1 text-white [&::-webkit-calendar-picker-indicator]:filter-primary [&::-webkit-calendar-picker-indicator]:order-first" 
