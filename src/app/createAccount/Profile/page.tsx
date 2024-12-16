@@ -8,27 +8,29 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabaseClient";
 
+interface FormData {
+  displayName: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  birthday: string;
+  avatarUrl: string;
+}
+
 export default function CreateProfile() {
 
-    const [displayName, setDisplayName] = useState('');
-    const [email, setEmail] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [birthday, setBirthday] = useState('');
-    const [avatarUrl, setAvatarUrl] = useState('');
-    const [selectedAvatar, setSelectedAvatar] = useState('');
-    const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [fieldErrors, setFieldErrors] = useState({
+    const [formData, setFormData] = useState<FormData>({
         displayName: '',
         email: '',
         firstName: '',
         lastName: '',
         phoneNumber: '',
-        birthday: ''
+        birthday: '',
+        avatarUrl: ''
     });
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState('');
     const router = useRouter();
 
     useEffect(() => {
@@ -67,15 +69,25 @@ export default function CreateProfile() {
             }
 
             if (data) {
-                setDisplayName(data.display_name || '');
-                setEmail(user.email || '');
-                setFirstName(data.first_name || '');
-                setLastName(data.last_name || '');
-                setPhoneNumber(data.phone_number || '');
-                setAvatarUrl(data.avatar_url || '');
-                setBirthday(data.birthday || '');
+                setFormData({
+                    displayName: data.display_name || '',
+                    email: user.email || '',
+                    firstName: data.first_name || '',
+                    lastName: data.last_name || '',
+                    phoneNumber: data.phone_number || '',
+                    birthday: data.birthday || '',
+                    avatarUrl: data.avatar_url || ''
+                });
             } else {
-                setEmail(user.email || '');
+                setFormData({
+                    displayName: '',
+                    email: user.email || '',
+                    firstName: '',
+                    lastName: '',
+                    phoneNumber: '',
+                    birthday: '',
+                    avatarUrl: ''
+                });
             }
         } catch (error: any) {
             console.error('Detailed error information:', {
@@ -97,43 +109,33 @@ export default function CreateProfile() {
         setIsLoading(true);
         setError('');
         
-        // Clear previous errors
-        setFieldErrors({
-            displayName: '',
-            email: '',
-            firstName: '',
-            lastName: '',
-            phoneNumber: '',
-            birthday: ''
-        });
-
         // Validate fields
         let hasErrors = false;
-        const newErrors = { ...fieldErrors };
+        const newErrors = { ...formData };
         
-        if (!displayName.trim()) {
+        if (!formData.displayName.trim()) {
             newErrors.displayName = 'Display name is required';
             hasErrors = true;
         }
-        if (!email.trim()) {
+        if (!formData.email.trim()) {
             newErrors.email = 'Email is required';
             hasErrors = true;
         }
-        if (!firstName.trim()) {
+        if (!formData.firstName.trim()) {
             newErrors.firstName = 'First name is required';
             hasErrors = true;
         }
-        if (!lastName.trim()) {
+        if (!formData.lastName.trim()) {
             newErrors.lastName = 'Last name is required';
             hasErrors = true;
         }
-        if (!phoneNumber.trim()) {
+        if (!formData.phoneNumber.trim()) {
             newErrors.phoneNumber = 'Phone number is required';
             hasErrors = true;
         }
 
         if (hasErrors) {
-            setFieldErrors(newErrors);
+            setFormData(newErrors);
             setIsLoading(false);
             return;
         }
@@ -144,7 +146,7 @@ export default function CreateProfile() {
             const squareResponse = await fetch('/api/searchSquareAccount', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phoneNumber }),
+                body: JSON.stringify({ phoneNumber: formData.phoneNumber }),
             });
             const squareData = await squareResponse.json();
             console.log('Square API response:', squareData);
@@ -158,12 +160,11 @@ export default function CreateProfile() {
                     .from('profiles')
                     .upsert({
                         user_id: user.id,
-                        display_name: displayName,
-                        email: email,
-                        first_name: firstName,
-                        last_name: lastName,
-                        phone_number: phoneNumber,
-                        avatar_url: selectedAvatar || avatarUrl,
+                        display_name: formData.displayName,
+                        email: formData.email,
+                        first_name: formData.firstName,
+                        last_name: formData.lastName,
+                        phone_number: formData.phoneNumber,
                         square_customer_id: squareData.customerId,
                         square_loyalty_id: squareData.loyaltyId,
                         updated_at: new Date()
@@ -190,6 +191,16 @@ export default function CreateProfile() {
         }
     };
 
+    const validateEmail = (email: string) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    };
+
+    const validatePhoneNumber = (phone: string) => {
+        const re = /^\+?[\d\s-]{10,}$/;
+        return re.test(phone);
+    };
+
     return (
         <div className="flex h-screen flex-col items-center px-4 py-12 mb-30">
             <div className="flex flex-col items-center">
@@ -204,57 +215,57 @@ export default function CreateProfile() {
                 <p className="text-xl font-semibold mt-2 mb-1">Personal</p>
                 <Label className="ml-2" htmlFor="firstname">First Name</Label>
                 <Input 
-                    className={`mt-1 mb-2.5 ${fieldErrors.firstName ? 'border-red-500' : ''}`}
+                    className={`mt-1 mb-2.5 ${formData.firstName ? '' : 'border-red-500'}`}
                     type="text" 
                     id="firstname" 
                     placeholder="" 
-                    value={firstName} 
-                    onChange={(e) => setFirstName(e.target.value)} 
+                    value={formData.firstName} 
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} 
                     disabled={isLoading}
                     required 
                 />
-                {fieldErrors.firstName && (
-                    <p className="text-red-500 text-sm mt-1 mb-2">{fieldErrors.firstName}</p>
+                {formData.firstName && (
+                    <p className="text-red-500 text-sm mt-1 mb-2">{formData.firstName}</p>
                 )}
                 <Label className="ml-2" htmlFor="lastname">Last Name</Label>
                 <Input 
-                    className={`mt-1 mb-2.5 ${fieldErrors.lastName ? 'border-red-500' : ''}`}
+                    className={`mt-1 mb-2.5 ${formData.lastName ? '' : 'border-red-500'}`}
                     type="text" 
                     id="lastname" 
                     placeholder="" 
-                    value={lastName} 
-                    onChange={(e) => setLastName(e.target.value)} 
+                    value={formData.lastName} 
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} 
                     disabled={isLoading}
                     required 
                 />
-                {fieldErrors.lastName && (
-                    <p className="text-red-500 text-sm mt-1 mb-2">{fieldErrors.lastName}</p>
+                {formData.lastName && (
+                    <p className="text-red-500 text-sm mt-1 mb-2">{formData.lastName}</p>
                 )}
                 <Label className="ml-2" htmlFor="email">Email</Label>
                 <Input 
-                    className={`mt-1 mb-2.5 ${fieldErrors.email ? 'border-red-500' : ''}`}
+                    className={`mt-1 mb-2.5 ${formData.email ? '' : 'border-red-500'}`}
                     type="email" 
                     id="email" 
                     placeholder="" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={formData.email} 
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
-                {fieldErrors.email && (
-                    <p className="text-red-500 text-sm mt-1 mb-2">{fieldErrors.email}</p>
+                {formData.email && (
+                    <p className="text-red-500 text-sm mt-1 mb-2">{formData.email}</p>
                 )}
                 <Label className="ml-2" htmlFor="phoneNumber">Phone Number</Label>
                 <Input 
-                    className={`mt-1 mb-2.5 ${fieldErrors.phoneNumber ? 'border-red-500' : ''}`}
+                    className={`mt-1 mb-2.5 ${formData.phoneNumber ? '' : 'border-red-500'}`}
                     type="tel" 
                     id="phoneNumber" 
                     placeholder="" 
-                    value={phoneNumber} 
-                    onChange={(e) => setPhoneNumber(e.target.value)} 
+                    value={formData.phoneNumber} 
+                    onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} 
                     disabled={isLoading}
                     required 
                 />
-                {fieldErrors.phoneNumber && (
-                    <p className="text-red-500 text-sm mt-1 mb-2">{fieldErrors.phoneNumber}</p>
+                {formData.phoneNumber && (
+                    <p className="text-red-500 text-sm mt-1 mb-2">{formData.phoneNumber}</p>
                 )}
                 <Label htmlFor="birthday">Birthday</Label>
                 <Input 
@@ -264,8 +275,8 @@ export default function CreateProfile() {
                     } as React.CSSProperties}
                     type="date" 
                     id="birthday" 
-                    value={birthday} 
-                    onChange={(e) => setBirthday(e.target.value)}
+                    value={formData.birthday} 
+                    onChange={(e) => setFormData({ ...formData, birthday: e.target.value })}
                     onKeyDown={(e) => e.preventDefault()}
                     onClick={(e) => e.currentTarget.showPicker()}
                 />
