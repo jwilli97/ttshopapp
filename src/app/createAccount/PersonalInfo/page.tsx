@@ -17,7 +17,6 @@ export default function PersonalInfo() {
 
     const [displayName, setDisplayName] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
-    const [birthday, setBirthday] = useState('');
     const [perferredStrain, setPerferredStrain] = useState('');
     const [replacementPreference, setReplacementPreference] = useState('');
     const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
@@ -61,7 +60,6 @@ export default function PersonalInfo() {
                 if (data) {
                     setDisplayName(data.display_name || '');
                     setAvatarUrl(data.avatar_url || '');
-                    setBirthday(data.birthday || '');
                     setPerferredStrain(data.perferred_strain || '');
                     setReplacementPreference(data.replacement_preference || '');
                 }
@@ -109,7 +107,6 @@ export default function PersonalInfo() {
                 const { error } = await supabase
                     .from('profiles')
                     .upsert({
-                        birthday: birthday,
                         perferred_strain: perferredStrain,
                         replacement_preference: replacementPreference,
                         updated_at: new Date()
@@ -119,7 +116,7 @@ export default function PersonalInfo() {
                 
                 if (error) throw error;
                 
-                router.push('/DeliveryInfo');
+                router.push('/createAccount/DeliveryInfo');
             }
         } catch (error) {
             console.error('Error updating profile:', error);
