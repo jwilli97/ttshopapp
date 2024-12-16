@@ -25,7 +25,7 @@ export default function ComingSoonGallery() {
         <p className="mt-3 max-w-md mx-auto text-base text-white sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
           We are working hard to bring you an amazing photo gallery of our products.<br />Stay tuned for updates!
         </p>
-        <Button onClick={() => router.push('/dashboard')}>
+        <Button className='mt-4' onClick={() => router.push('/dashboard')}>
           Home
         </Button>
       </div>
