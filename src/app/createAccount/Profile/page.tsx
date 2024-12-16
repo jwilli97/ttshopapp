@@ -38,8 +38,12 @@ export default function CreateProfile() {
     const fetchUserProfile = async () => {
         setIsLoading(true);
         try {
+            console.log('Starting profile fetch...');
             const { data: { user }, error: authError } = await supabase.auth.getUser();
             
+            console.log('Auth user:', user);
+            console.log('Auth error:', authError);
+
             if (authError) {
                 throw new Error(`Authentication error: ${authError.message}`);
             }
@@ -48,12 +52,20 @@ export default function CreateProfile() {
                 throw new Error('No authenticated user found');
             }
 
-            const { data, error: profileError } = await supabase
+            console.log('Fetching profile for user:', user.id);
+            const profileQuery = supabase
                 .from('profiles')
                 .select('*')
                 .eq('user_id', user.id)
                 .single();
+
+            console.log('Profile query:', profileQuery);
             
+            const { data, error: profileError } = await profileQuery;
+            
+            console.log('Profile data:', data);
+            console.log('Profile error:', profileError);
+
             if (profileError) {
                 throw new Error(`Profile error: ${profileError.message}`);
             }
@@ -68,7 +80,13 @@ export default function CreateProfile() {
                 setBirthday(data.birthday || '');
             }
         } catch (error: any) {
-            console.error('Error fetching profile:', error);
+            console.error('Detailed error information:', {
+                error: error,
+                message: error?.message,
+                stack: error?.stack,
+                name: error?.name,
+                code: error?.code
+            });
             setError(error?.message || 'Failed to load profile. Please try again.');
         } finally {
             setIsLoading(false);
