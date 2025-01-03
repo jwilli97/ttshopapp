@@ -120,12 +120,13 @@ export default function NewOrder() {
       content: (
         <div>
           <Textarea
-            className="bg-gray-200 text-black"
+            className="bg-gray-200 text-black placeholder:text-gray-600"
             placeholder="Enter the items you want to order..."
             value={orderDetails.item}
             onChange={(e) => setOrderDetails({ ...orderDetails, item: e.target.value })}
             rows={3}
           />
+          <p className="text-black text-sm text-center mt-1">Please note that we have a $100 minimum order requirement.</p>
         </div>
       ),
       nextStep: () => 'deliveryAndConfirmation',
@@ -134,7 +135,7 @@ export default function NewOrder() {
       id: 'deliveryAndConfirmation',
       title: "Review & Confirm Order",
       content: (
-        <div className="space-y-6">
+        <div className="space-y-6 text-black">
           {/* Order Items */}
           <div className="border border-gray-300 rounded-lg p-4 bg-gray-100">
             <h3 className="font-bold mb-2">Order Items</h3>
@@ -199,6 +200,27 @@ export default function NewOrder() {
                       placeholder="ZIP Code" 
                       onChange={(e) => setZipcode(e.target.value)}
                     />
+                  </div>
+
+                  <div>
+                    <Label>Delivery Method</Label>
+                    <RadioGroup 
+                      defaultValue={orderDetails.deliveryMethod}
+                      onValueChange={(value) => setOrderDetails({ ...orderDetails, deliveryMethod: value })}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Handoff" id="handoff" />
+                        <Label htmlFor="handoff">Handoff</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Contactless" id="contactless" />
+                        <Label htmlFor="contactless">Contactless</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Pickup" id="pickup" />
+                        <Label htmlFor="pickup">Pickup</Label>
+                      </div>
+                    </RadioGroup>
                   </div>
                   
                   <div className="space-y-2 text-white">
@@ -614,8 +636,10 @@ export default function NewOrder() {
                 Step {currentStepIndex + 1} of {steps.length}
               </p>
             </div>
-            <h2 className="text-2xl font-bold mb-6">{currentStep.title}</h2>
-            <div className="mb-8">{currentStep.content}</div>
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-6 text-black">{currentStep.title}</h2>
+              <div className="mb-8 text-black">{currentStep.content}</div>
+            </div>
             <div className="flex justify-between">
               {currentStepIndex > 0 && (
                 <Button className="bg-primary text-white" onClick={handlePrevious} variant="outline">

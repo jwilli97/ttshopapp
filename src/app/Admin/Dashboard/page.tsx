@@ -28,7 +28,7 @@ export default function AdminDashboard() {
                 <div className="container mx-auto px-4">
                     <div className="flex items-center h-16">
                         <Image src="/tinytreelogo.png" alt="Tiny Trees Logo" width={40} height={40} />
-                        <div className="font-semibold ml-2 text-xl">Tiny Trees</div>
+                        <div className="ml-2 font-semibold text-2xl text-primary">Tiny Trees</div>
                     </div>
                 </div>
             </nav>
@@ -43,8 +43,8 @@ export default function AdminDashboard() {
                                 onClick={() => setCurrentDepartment(dept.id as Department)}
                                 className={`px-4 py-2 rounded-md transition-colors ${
                                     currentDepartment === dept.id
-                                        ? "bg-primary text-white"
-                                        : "bg-gray-100 hover:bg-gray-200"
+                                        ? "bg-background text-white"
+                                        : "bg-gray-500 hover:bg-primary"
                                 }`}
                             >
                                 {dept.label}

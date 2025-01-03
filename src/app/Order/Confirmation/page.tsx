@@ -47,8 +47,8 @@ function StatusStep({ label, isCompleted, isActive, isLast = false }: StatusStep
     return (
         <div className="flex items-center">
             <div className="relative">
-                {/* Circle */}
-                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center
+                {/* Circle - made slightly smaller */}
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center
                     ${isCompleted 
                         ? 'border-accent bg-accent text-black' 
                         : isActive 
@@ -57,23 +57,23 @@ function StatusStep({ label, isCompleted, isActive, isLast = false }: StatusStep
                     }`}
                 >
                     {isCompleted && (
-                        <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                        <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                     )}
                 </div>
                 
-                {/* Label */}
-                <span className={`absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap text-sm
+                {/* Label - made smaller with better spacing */}
+                <span className={`absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs
                     ${isCompleted ? 'text-accent' : isActive ? 'text-white' : 'text-gray-200'}`}
                 >
                     {label}
                 </span>
             </div>
 
-            {/* Connecting Line */}
+            {/* Connecting Line - made shorter */}
             {!isLast && (
-                <div className={`w-24 h-0.5 ${isCompleted ? 'bg-accent' : 'bg-gray-300'}`} />
+                <div className={`w-12 sm:w-24 h-0.5 ${isCompleted ? 'bg-accent' : 'bg-gray-300'}`} />
             )}
         </div>
     );
@@ -164,47 +164,47 @@ export default function Orders() {
 
     return (
         <div className="flex min-h-screen flex-col bg-background">
-            <header className="bg-background mt-4">
+            <header className="bg-background mt-2 sm:mt-4">
                 <TopNav />
             </header>
 
-            <main className="flex h-screen w-full flex-col items-center px-4 py-6 relative">
-                <div className="mb-6">
-                    <Image src="/Delivery_Logo.png" width={275} height={275} alt="Welcome Logo"  />
+            <main className="flex h-screen w-full flex-col items-center px-2 sm:px-4 py-4 sm:py-6 relative">
+                <div className="mb-4 sm:mb-6">
+                    <Image src="/Delivery_Logo.png" width={200} height={200} alt="Welcome Logo" className="w-48 sm:w-64" />
                 </div>
-                <h1 className="text-4xl text-white font-bold">Current Order</h1>
+                <h1 className="text-2xl sm:text-4xl text-white font-bold">Current Order</h1>
                 
                 {isLoading ? (
                     <p className="text-white mt-4">Loading orders...</p>
                 ) : orders.length > 0 ? (
                     <>
-                        <div className="flex flex-col items-center py-8">
+                        <div className="flex flex-col items-center py-4 sm:py-8">
                             <div className="flex items-center">
                                 <StatusStep
                                     label="Order Received"
-                                    isCompleted={['preparing your order', 'in progress', 'ready for pickup', 'out for delivery'].includes(orders[0].status)}
+                                    isCompleted={['processing', 'out for delivery'].includes(orders[0].status)}
                                     isActive={orders[0].status === 'received'}
                                 />
                                 <StatusStep
                                     label="Preparing"
                                     isCompleted={['out for delivery'].includes(orders[0].status)}
-                                    isActive={['preparing your order', 'in progress'].includes(orders[0].status)}
+                                    isActive={['processing'].includes(orders[0].status)}
                                 />
                                 <StatusStep
                                     label="Out for Delivery"
-                                    isCompleted={['completed'].includes(orders[0].status)}
+                                    isCompleted={['completed', 'cancelled'].includes(orders[0].status)}
                                     isActive={orders[0].status === 'out for delivery'}
                                 />
                                 <StatusStep
                                     label="Delivered"
-                                    isCompleted={['completed'].includes(orders[0].status)}
+                                    isCompleted={['completed', 'cancelled'].includes(orders[0].status)}
                                     isActive={false}
                                     isLast={true}
                                 />
                             </div>
                         </div>
 
-                        <div className="container bg-white p-4 rounded-lg shadow w-full mt-8 mb-16 max-w-2xl">
+                        <div className="container bg-white text-black p-3 sm:p-4 rounded-lg shadow w-full mt-4 sm:mt-8 mb-16 max-w-2xl text-sm sm:text-base">
                             <p className="font-semibold">Order #{orders[0].id}</p>
                             <p><span className="font-bold">Date: </span> {new Date(orders[0].created_at).toLocaleDateString()}</p>
                             {(() => {
@@ -222,9 +222,9 @@ export default function Orders() {
                                     </>
                                 );
                             })()}
-                            <div className="flex flex-row mt-4 justify-between">
-                                <Button variant="outline" className="text-primary border-primary bg-white" onClick={() => setShowCancelDialog(true)}>Cancel Order</Button>
-                                <Button>Edit Order</Button>
+                            <div className="flex flex-row mt-4 justify-between gap-2">
+                                <Button variant="outline" className="text-primary border-primary bg-white text-sm" onClick={() => setShowCancelDialog(true)}>Cancel Order</Button>
+                                <Button className="text-sm">Edit Order</Button>
                             </div>
                         </div>
                     </>

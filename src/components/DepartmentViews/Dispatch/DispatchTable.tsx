@@ -69,7 +69,7 @@ export function DispatchTable({ orders, onEditOrder }: DispatchTableProps) {
             </Button>
             <Table>
                 <TableHeader>
-                    <TableRow>
+                    <TableRow className="text-white">
                         <TableHead>Order ID</TableHead>
                         <TableHead>Unit/Customer Name</TableHead>
                         <TableHead>Street Address</TableHead>
@@ -98,7 +98,7 @@ export function DispatchTable({ orders, onEditOrder }: DispatchTableProps) {
                 </TableHeader>
                 <TableBody>
                     {orders.map((order) => (
-                        <TableRow key={order.id}>
+                        <TableRow className="text-gray-100" key={order.id}>
                             <TableCell>{order.id}</TableCell>
                             <TableCell>{order.full_name}</TableCell>
                             <TableCell>{order.street_address}</TableCell>

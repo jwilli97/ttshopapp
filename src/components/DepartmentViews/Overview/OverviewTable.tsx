@@ -161,24 +161,24 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Order ID</TableHead>
-                        <TableHead>Display Name</TableHead>
-                        <TableHead>Full Name</TableHead>
-                        <TableHead>Phone Number</TableHead>
-                        <TableHead>Order Details</TableHead>
-                        <TableHead>Total</TableHead>
-                        <TableHead>Payment Method</TableHead>
-                        <TableHead>Delivery Method</TableHead>
-                        <TableHead>Delivery Address</TableHead>
-                        <TableHead>Zipcode</TableHead>
-                        <TableHead>Residence Type</TableHead>
-                        <TableHead>Delivery Time Frame</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead className="text-white font-semibold">Order ID</TableHead>
+                        <TableHead className="text-white font-semibold">Display Name</TableHead>
+                        <TableHead className="text-white font-semibold">Full Name</TableHead>
+                        <TableHead className="text-white font-semibold">Phone Number</TableHead>
+                        <TableHead className="text-white font-semibold">Order Details</TableHead>
+                        <TableHead className="text-white font-semibold">Total</TableHead>
+                        <TableHead className="text-white font-semibold">Payment Method</TableHead>
+                        <TableHead className="text-white font-semibold">Delivery Method</TableHead>
+                        <TableHead className="text-white font-semibold">Delivery Address</TableHead>
+                        <TableHead className="text-white font-semibold">Zipcode</TableHead>
+                        <TableHead className="text-white font-semibold">Residence Type</TableHead>
+                        <TableHead className="text-white font-semibold">Delivery Time Frame</TableHead>
+                        <TableHead className="text-white font-semibold">Status</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {orders.map((order) => (
-                        <TableRow key={order.id}>
+                        <TableRow className="text-gray-100" key={order.id}>
                             <TableCell>{order.id}</TableCell>
                             <TableCell>{order.display_name}</TableCell>
                             <TableCell>{order.full_name}</TableCell>

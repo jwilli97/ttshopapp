@@ -24,15 +24,17 @@ type SortDirection = "asc" | "desc"
 const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
         case "pending":
-        return <Badge variant="secondary">{status}</Badge>
+            return <Badge variant="received">{status}</Badge>
         case "in progress":
-        return <Badge variant="default">{status}</Badge>
+            return <Badge variant="processing">{status}</Badge>
+        case "out for delivery":
+            return <Badge variant="outForDelivery">{status}</Badge>
         case "completed":
-        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-500">{status}</Badge>
+            return <Badge variant="completed">{status}</Badge>
         case "cancelled":
-        return <Badge variant="destructive">{status}</Badge>
+            return <Badge variant="cancelled">{status}</Badge>
         default:
-        return <Badge variant="default">{status}</Badge>
+            return <Badge variant="default">{status}</Badge>
     }
 }
 
@@ -196,19 +198,19 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Order ID</TableHead>
-                        <TableHead>Display Name</TableHead>
-                        <TableHead>Full Name</TableHead>
-                        <TableHead>Order Details</TableHead>
-                        <TableHead>Token Redemption</TableHead>
-                        <TableHead>Total</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
+                        <TableHead className="text-white font-semibold">Order ID</TableHead>
+                        <TableHead className="text-white font-semibold">Display Name</TableHead>
+                        <TableHead className="text-white font-semibold">Full Name</TableHead>
+                        <TableHead className="text-white font-semibold">Order Details</TableHead>
+                        <TableHead className="text-white font-semibold">Token Redemption</TableHead>
+                        <TableHead className="text-white font-semibold">Total</TableHead>
+                        <TableHead className="text-white font-semibold">Status</TableHead>
+                        <TableHead className="text-white font-semibold">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {orders.map((order) => (
-                        <TableRow key={order.id}>
+                        <TableRow className="text-gray-100" key={order.id}>
                             <TableCell>{order.id}</TableCell>
                             <TableCell>{order.display_name}</TableCell>
                             <TableCell>{order.full_name}</TableCell>
@@ -225,10 +227,10 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
             </Table>
 
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent>
+                <DialogContent className="text-white">
                     <DialogHeader>
                         <DialogTitle>Edit Order</DialogTitle>
-                        <DialogDescription>Make changes to the order details below.</DialogDescription>
+                        <DialogDescription className="text-white">Make changes to the order details below.</DialogDescription>
                     </DialogHeader>
                     {editingOrder && (
                         <div className="grid gap-4 py-4">
@@ -250,9 +252,8 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="pending">Received</SelectItem>
-                                        <SelectItem value="in progress">In Progress</SelectItem>
-                                        <SelectItem value="ready for pickup">Ready for Pickup</SelectItem>
+                                        <SelectItem value="received">Received</SelectItem>
+                                        <SelectItem value="processing">Processing</SelectItem>
                                         <SelectItem value="out for delivery">Out for Delivery</SelectItem>
                                         <SelectItem value="completed">Completed</SelectItem>
                                         <SelectItem value="cancelled">Cancelled</SelectItem>
@@ -279,13 +280,16 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
                                 <Label htmlFor="total" className="text-right">Total</Label>
-                                <Input
-                                    id="total"
-                                    value={editingOrder.total}
-                                    onChange={(e) => handleFieldChange('total', e.target.value)}
-                                    className="col-span-3"
-                                />
-                            </div>
+                                <div className="col-span-3 relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
+                                    <Input
+                                        id="total"
+                                        value={editingOrder.total}
+                                        onChange={(e) => handleFieldChange('total', e.target.value)}
+                                        className="pl-6"
+                                    />
+                                </div>
+                            </div>      
                             <div className="grid grid-cols-4 items-center gap-4">
                                 <Label htmlFor="street_address" className="text-right">Street Address</Label>
                                 <Input

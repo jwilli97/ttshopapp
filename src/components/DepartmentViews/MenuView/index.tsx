@@ -33,7 +33,6 @@ export function MenuView() {
 
     const handleFileUpload = async () => {
         if (!selectedFile) return;
-        
         try {
             setIsLoading(true);
             setError(null);
@@ -87,8 +86,9 @@ export function MenuView() {
 
     return (
         <div className="p-4 space-y-4">
-            <div className="space-y-2 flex flex-row items-center gap-2">
+            <div className="flex flex-row items-center gap-2">
                 <Input 
+                    className="text-white"
                     type="file" 
                     accept="image/*"
                     onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
@@ -108,7 +108,7 @@ export function MenuView() {
                 </div>
             )}
 
-            <div className="border rounded-lg p-4">
+            <div className="border bg-background rounded-lg p-4">
                 <h2 className="text-lg font-semibold mb-4">Current Menu</h2>
                 {menuUrl ? (
                     <img 

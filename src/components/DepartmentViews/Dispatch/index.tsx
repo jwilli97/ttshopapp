@@ -33,7 +33,7 @@ export function DispatchView() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Dispatch</CardTitle>
+                    <CardTitle className="text-white">Dispatch</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <DispatchTable orders={orders} onEditOrder={() => {}} />

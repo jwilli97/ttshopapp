@@ -17,8 +17,9 @@ export interface Order {
     residence_type: string;
     delivery_time_frame: string;
     total: number;
-    status: "received" | "processing" | "awaiting confirmation" | "preparing your order" | "out for delivery" | "completed" | "cancelled";
+    status: "received" | "processing" | "out for delivery" | "completed" | "cancelled";
 }
+//  "awaiting confirmation" | "preparing your order" |
 
 export interface SummaryCardProps {
     title: string;
