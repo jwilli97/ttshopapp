@@ -30,5 +30,6 @@ export type FormStep =
     | 'preferences'
     | 'complete'
     | 'email'
-    | 'verify';
+    | 'verify'
+    | 'personal';
     
