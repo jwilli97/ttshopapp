@@ -13,7 +13,7 @@ import ErrorIcon from "@/components/icons/errorIcon";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
 import BackButton from "@/components/backButton";
-import { cn } from "@/lib/utils";
+import { cn, formatPhoneNumber } from "@/lib/utils";
 
 export default function SignUp() {
     const [email, setEmail] = useState('');
