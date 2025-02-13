@@ -29,5 +29,6 @@ export type FormStep =
     | 'address'
     | 'preferences'
     | 'complete'
-    | 'email';
+    | 'email'
+    | 'verify';
     
