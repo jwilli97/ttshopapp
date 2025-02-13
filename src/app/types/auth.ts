@@ -28,5 +28,6 @@ export type FormStep =
     | 'profile'
     | 'address'
     | 'preferences'
-    | 'complete';
+    | 'complete'
+    | 'email';
     
