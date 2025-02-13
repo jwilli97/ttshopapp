@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import BottomNav from "@/components/BottomNav";
+import DeliveryInfo from "@/components/deliveryInfo";
 import LogOutButton from "@/components/logoutButton";
 import { ChevronRight, ChevronLeft, Coins, X } from "lucide-react";
 import { useUser } from '@supabase/auth-helpers-react';
@@ -315,7 +316,7 @@ export default function NewOrder() {
 
           {/* Estimated Time */}
           <div>
-            <p className="font-bold text-gray-500">Estimated Time Frame: 7:30pm - 9:30pm</p>
+            <DeliveryInfo zipcode={orderDetails.deliveryZipcode} />
           </div>
 
           {/* Phone Number */}
@@ -430,7 +431,7 @@ export default function NewOrder() {
             document.head.appendChild(style);
 
             console.log('User profile:', profileData);
-            setUserId(profileData.user_id); // Make sure this is set correctly
+            setUserId(profileData.user_id);
             setDisplayName(profileData.display_name);
             setAvatarUrl(profileData.avatar_url);
             setDeliveryNotes(profileData.delivery_notes);
@@ -444,7 +445,6 @@ export default function NewOrder() {
             setLastName(profileData.last_name);
             setPreferredDeliveryMethod(profileData.delivery_method || 'handoff');
 
-            //autofill orders with user profile data
             setOrderDetails((prev) => ({
               ...prev,
               phoneNumber: profileData.phone_number,
@@ -516,7 +516,6 @@ export default function NewOrder() {
 
       if (error) throw error;
 
-      // If a reward was selected, redeem it after the order is submitted
       if (orderDetails.tokenRedemption) {
         await redeemTokenReward();
       }
@@ -539,7 +538,6 @@ export default function NewOrder() {
 
     console.log('Attempting to redeem reward:', selectedItem);
 
-    // First, fetch the user's Square Loyalty ID
     const { data: userData, error: userError } = await supabase
       .from('profiles')
       .select('square_loyalty_id')
@@ -574,7 +572,6 @@ export default function NewOrder() {
     const redeemResult = await redeemResponse.json();
     console.log('Redeem result:', redeemResult);
     
-    // Update the loyalty balance
     setLoyaltyBalance(prevBalance => prevBalance !== null ? prevBalance - selectedItem.cost : null);
   };
 
@@ -606,7 +603,6 @@ export default function NewOrder() {
       tokenRedemption: `${selectedItem.name} (${selectedItem.cost} tokens)`,
     }));
 
-    // Close the token shop dialog
     setShowTokenShop(false);
   };
 
@@ -705,7 +701,7 @@ export default function NewOrder() {
             </div>
           </div>
         </div>
-        <div className="mt-8 mb-20">
+        {/* <div className="mt-8 mb-20">
           {menuUrl && (
             <Image 
               src={menuUrl} 
@@ -717,6 +713,18 @@ export default function NewOrder() {
               style={{ width: 'auto', height: 'auto' }}
             />
           )}
+        </div> */}
+        <div className="mt-6 mb-36 w-full">
+            <div className="w-full mx-auto" style={{ position: 'relative', height: '500px', paddingTop: '66.67%' }}>
+                <Image
+                    src="https://qrcgcustomers.s3-eu-west-1.amazonaws.com/account13454916/50370932_1.png?0.7927771912096631"
+                    alt="Current Menu"
+                    fill
+                    priority
+                    style={{ objectFit: 'contain' }}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+            </div>
         </div>
       </main>
       

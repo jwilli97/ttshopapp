@@ -13,6 +13,7 @@ import ErrorIcon from "@/components/icons/errorIcon";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
 import BackButton from "@/components/backButton";
+import { cn } from "@/lib/utils";
 
 export default function SignUp() {
     const [email, setEmail] = useState('');
@@ -175,25 +176,33 @@ export default function SignUp() {
                 <div className="flex flex-col place-items-center">
                     <div className="flex flex-col mb-4 w-3/4">
                         <Label htmlFor="phoneNumber" className="mb-2">Phone Number</Label>
-                        <InputMask 
-                            mask="(999)-999-9999"
-                            value={phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1)-$2-$3')}
+                        <Input 
+                            type="tel" 
+                            id="phoneNumber" 
+                            autoComplete="tel" 
+                            placeholder="(555) 555-5555"
+                            value={formatPhoneNumber(phoneNumber)}
                             onChange={handlePhoneChange}
-                        >
-                            {(inputProps : any) => (
-                                <Input 
-                                    {...inputProps}
-                                    type="tel" 
-                                    id="phoneNumber" 
-                                    autoComplete="tel" 
-                                    placeholder="(123)-555-5555"
-                                />
+                            className={cn(
+                                "transition-all duration-200",
+                                "text-white focus:border-primary"
                             )}
-                        </InputMask>
+                        />
                     </div>
                     <div className="flex flex-col mb-4 w-3/4">
                         <Label htmlFor="email" className="mb-2">Email</Label>
-                        <Input type="text" id="email" autoComplete="email" placeholder="email@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <Input 
+                            type="text" 
+                            id="email" 
+                            autoComplete="email" 
+                            placeholder="email@gmail.com" 
+                            value={email} 
+                            onChange={(e) => setEmail(e.target.value)}
+                            className={cn(
+                                "transition-all duration-200",
+                                "text-white focus:border-primary"
+                            )}
+                        />
                     </div>
                     <div className="flex flex-col mb-4 w-3/4">
                         <Label htmlFor="password" className="mb-2">Password</Label>

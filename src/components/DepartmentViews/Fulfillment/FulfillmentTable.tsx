@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Order } from "../types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import { ToastAction } from "@/components/ui/toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { X } from "lucide-react";
 
 interface OrdersTableProps {
     orders: Order[];
@@ -228,6 +229,10 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
 
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogContent className="text-white">
+                    <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                        <X className="h-4 w-4" />
+                        <span className="sr-only">Close</span>
+                    </DialogClose>
                     <DialogHeader>
                         <DialogTitle>Edit Order</DialogTitle>
                         <DialogDescription className="text-white">Make changes to the order details below.</DialogDescription>
@@ -264,7 +269,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                 <Label htmlFor="details" className="text-right">Items Ordered</Label>
                                 <Textarea
                                     id="details"
-                                    value={formatOrderDetails(editingOrder.order_details)}
+                                    value={formatOrderDetails(editingOrder.order_details || '')}
                                     onChange={(e) => setEditingOrder({ ...editingOrder, order_details: e.target.value })}
                                     className="col-span-3"
                                 />
@@ -273,7 +278,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                 <Label htmlFor="token_redemption" className="text-right">Token Redemption</Label>
                                 <Input
                                     id="token_redemption"
-                                    value={editingOrder.token_redemption}
+                                    value={editingOrder.token_redemption || ''}
                                     onChange={(e) => handleFieldChange('token_redemption', e.target.value)}
                                     className="col-span-3"
                                 />
@@ -284,7 +289,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                     <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
                                     <Input
                                         id="total"
-                                        value={editingOrder.total}
+                                        value={editingOrder.total || ''}
                                         onChange={(e) => handleFieldChange('total', e.target.value)}
                                         className="pl-6"
                                     />
@@ -294,7 +299,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                 <Label htmlFor="street_address" className="text-right">Street Address</Label>
                                 <Input
                                     id="street_address"
-                                    value={editingOrder.street_address}
+                                    value={editingOrder.street_address || ''}
                                     onChange={(e) => handleFieldChange('street_address', e.target.value)}
                                     className="col-span-3"
                                 />
@@ -303,7 +308,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                 <Label htmlFor="address_line_2" className="text-right">Address Line 2</Label>
                                 <Input
                                     id="address_line_2"
-                                    value={editingOrder.address_line_2}
+                                    value={editingOrder.address_line_2 || ''}
                                     onChange={(e) => handleFieldChange('address_line_2', e.target.value)}
                                     className="col-span-3"
                                 />
@@ -312,7 +317,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                 <Label htmlFor="zipcode" className="text-right">Zipcode</Label>
                                 <Input
                                     id="zipcode"
-                                    value={editingOrder.zipcode}
+                                    value={editingOrder.zipcode || ''}
                                     onChange={(e) => handleFieldChange('zipcode', e.target.value)}
                                     className="col-span-3"
                                 />

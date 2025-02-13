@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabaseClient";
+import { cn } from "@/lib/utils";
 
 interface FormData {
   displayName: string;
@@ -201,6 +202,13 @@ export default function CreateProfile() {
         return re.test(phone);
     };
 
+    const formatPhoneNumber = (phone: string) => {
+        if (!phone) return '';
+        const cleaned = phone.replace(/\D/g, '');
+        const formatted = cleaned.slice(0, 3) + '-' + cleaned.slice(3, 6) + '-' + cleaned.slice(6);
+        return formatted;
+    };
+
     return (
         <div className="flex h-screen flex-col items-center px-4 py-12 mb-30">
             <div className="flex flex-col items-center">
@@ -215,7 +223,11 @@ export default function CreateProfile() {
                 <p className="text-xl font-semibold mt-2 mb-1">Personal</p>
                 <Label className="ml-2" htmlFor="firstname">First Name</Label>
                 <Input 
-                    className={`mt-1 mb-2.5 ${formData.firstName ? '' : 'border-red-500'}`}
+                    className={cn(
+                        "mt-1 mb-2.5 transition-all duration-200",
+                        formData.firstName ? "border-primary" : "border-red-500",
+                        "text-white focus:border-primary"
+                    )}
                     type="text" 
                     id="firstname" 
                     placeholder="" 
@@ -246,11 +258,15 @@ export default function CreateProfile() {
                 />
                 <Label className="ml-2" htmlFor="phoneNumber">Phone Number</Label>
                 <Input 
-                    className={`mt-1 mb-2.5 ${formData.phoneNumber ? '' : 'border-red-500'}`}
+                    className={cn(
+                        "mt-1 mb-2.5 transition-all duration-200",
+                        formData.phoneNumber ? "border-primary" : "border-red-500",
+                        "text-white focus:border-primary"
+                    )}
                     type="tel" 
                     id="phoneNumber" 
-                    placeholder="" 
-                    value={formData.phoneNumber} 
+                    placeholder="(555) 555-5555" 
+                    value={formatPhoneNumber(formData.phoneNumber)} 
                     onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} 
                     disabled={isLoading}
                     required 

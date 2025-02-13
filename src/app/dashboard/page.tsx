@@ -120,7 +120,7 @@ export default function Dashboard() {
                     <div className="container bg-[#cbd5e1]/25 h-0.5 w-full md:w-11/12 mb-3 rounded-full"></div>
                     <TokenShop loyaltyBalance={loyaltyBalance} /> {/* Renders the TinyTokenShop component, which displays the tiny tokens and shop menu */}
                     <div className="container bg-[#cbd5e1]/25 h-0.5 w-full md:w-11/12 mt-3  rounded-full"></div>
-                    <div className="mt-6 mb-36 w-full">
+                    {/* <div className="mt-6 mb-36 w-full">
                         {menuUrl && (
                             <div className="w-full mx-auto" style={{ position: 'relative', height: '500px', paddingTop: '100%' }}>
                                 <Image
@@ -133,6 +133,18 @@ export default function Dashboard() {
                                 />
                             </div>
                         )}
+                    </div> */}
+                    <div className="mt-6 mb-36 w-full">
+                        <div className="w-full mx-auto" style={{ position: 'relative', height: '500px', paddingTop: '66.67%' }}>
+                            <Image
+                                src="https://qrcgcustomers.s3-eu-west-1.amazonaws.com/account13454916/50370932_1.png?0.7927771912096631"
+                                alt="Current Menu"
+                                fill
+                                priority
+                                style={{ objectFit: 'contain' }}
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            />
+                        </div>
                     </div>
                 </div>
                 <div className="fixed bottom-14 left-0 w-full flex justify-center pb-6 px-4 z-50">

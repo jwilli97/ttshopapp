@@ -39,7 +39,7 @@ const TokenShop: React.FC<TinyTokenShopProps> = ({ loyaltyBalance }: TinyTokenSh
 
   return (
     <div className="w-full max-w-md mx-auto pb-4 pr-4 pl-4 bg-background text-white rounded-lg">
-        <div>
+        <div className="animate-in motion-preset-confetti motion-duration-1500">
         <span className="flex items-center text-2xl font-bold"><CoinIcon />{loyaltyBalance}</span>
         </div>
         <div className="mb-6">

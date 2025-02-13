@@ -38,6 +38,9 @@ export default function AvatarSelectionModal({
         '/profile_pics/profileNug7.png',
         '/profile_pics/profileNug8.png',
         '/profile_pics/profileNug9.png',
+        '/profile_pics/profileNug10.png',
+        '/profile_pics/profileNug11.png',
+        '/profile_pics/profileNug12.png',
     ];
 
     const handleAvatarSelect = (avatar: string) => {
@@ -61,7 +64,7 @@ export default function AvatarSelectionModal({
             />
             <AvatarFallback className="text-2xl">TT</AvatarFallback>
           </Avatar>
-          <Button variant="outline" size={"sm"} className="text-white">Select Profile Picture</Button>
+          <Button variant="outline" size={"sm"} className="text-white">Choose your Bud</Button>
         </div>
       </DialogTrigger>
       <DialogContent>
@@ -71,7 +74,7 @@ export default function AvatarSelectionModal({
             Select one of the following Buds to be your profile picture. You can change this anytime in the account settings.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid grid-cols-3 place-items-center gap-4 py-4">
+        <div className="grid grid-cols-4 place-items-center gap-4 py-4">
           {predefinedAvatars.map((avatar, index) => (
             <Avatar
               key={index}

@@ -38,6 +38,9 @@ export default function PersonalInfo() {
         '/profile_pics/profileNug7.png',
         '/profile_pics/profileNug8.png',
         '/profile_pics/profileNug9.png',
+        '/profile_pics/profileNug10.png',
+        '/profile_pics/profileNug11.png',
+        '/profile_pics/profileNug12.png',
     ];
 
     useEffect(() => {
@@ -146,19 +149,21 @@ export default function PersonalInfo() {
                 <p className="text-white text-lg">Step 2 of 3</p>
             </div>
             <div className="container bg-[#cbd5e1] h-0.5 w-full mt-4 md:w-11/12 rounded-full"></div>
+            
+            <div className="flex flex-col mb-2 mt-4 items-center w-full">
+                <AvatarSelectionModal 
+                    avatarUrl={avatarUrl}
+                    onAvatarSelect={handleAvatarSelect}
+                    onSelect={handleAvatarSelect}
+                    onClose={() => setIsAvatarModalOpen(false)}
+                    onOpenChange={setIsAvatarModalOpen}
+                    isOpen={isAvatarModalOpen}
+                    avatars={predefinedAvatars}
+                />
+            </div>
+
             <form onSubmit={handleSubmit} className="w-80 text-white mt-4">
                 <p className="text-xl font-semibold mb-2">Profile</p>
-                <div className="flex flex-col mb-4 items-center w-full">
-                    <AvatarSelectionModal 
-                        avatarUrl={avatarUrl}
-                        onAvatarSelect={handleAvatarSelect}
-                        onSelect={handleAvatarSelect}
-                        onClose={() => setIsAvatarModalOpen(false)}
-                        onOpenChange={setIsAvatarModalOpen}
-                        isOpen={isAvatarModalOpen}
-                        avatars={predefinedAvatars}
-                    />
-                </div>
                 <Label className="ml-2" htmlFor="displayname">Display Name</Label>
                 <Input 
                     className='mt-1 mb-2.5'

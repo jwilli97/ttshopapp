@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import ErrorIcon from "@/components/icons/errorIcon";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
+import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
 
@@ -15,6 +17,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -40,39 +43,70 @@ export default function Login() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="flex h-screen w-full flex-col items-center justify-center px-4 py-12">
-        <div className="mb-6">
-          <Image src="/new_TT_logo.png" width={115} height={115} alt="Welcome Logo"  />
+    <div className="flex h-screen w-full flex-col items-center justify-center px-4 py-12">
+      <form onSubmit={handleSubmit} className="w-full">
+        <div className="flex w-full flex-col items-center justify-center px-4 pt-8 pb-4">
+          <div className="mb-6">
+            <Image src="/new_TT_logo.png" width={115} height={115} alt="Welcome Logo"  />
+          </div>
+          <div>
+            <h1 className="text-white font-semibold text-4xl mb-8 ">Welcome to Tiny Trees!</h1>
+          </div>
+          <div className="grid w-full max-w-sm text-white items-center gap-2 mb-2">
+            <Label htmlFor="email">Email</Label>
+            <Input type="text" id="email" autoComplete="email" placeholder="mikewazowski@aol.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          <div className="grid w-full max-w-sm text-white items-center gap-2 mb-4">
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Input 
+                type={showPassword ? "text" : "password"}
+                id="password" 
+                placeholder="*******" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+          </div>
+          { error && (<div className="flex flex-row text-red-500 font-thin text-sm"><ErrorIcon /> {error}</div>)}
+          <div className="w-full max-w-sm">
+            <Button size="lg" className="bg-primary hover:bg-primary/75 w-full mt-4" type="submit" disabled={isLoading}>
+              {isLoading ? 'Loading...' : 'Login'}
+            </Button>
+          </div>
+          <div>
+            <Link 
+              href="/ForgotPassword" 
+              className="block text-sm text-accent mt-2 text-center py-2"
+            >
+              Forgot Password?
+            </Link>
+          </div>
+          <div>
+            <Link 
+              href="/createAccount" 
+              className="block text-sm text-center py-2"
+            >
+              Create Account
+            </Link>
+          </div>
+          <div>
+            <Link 
+              href="/passcode"
+              className="block text-sm text-primary font-bold text-center py-2 mt-8"
+            >
+              Or Login with Passcode
+            </Link>
+          </div>
         </div>
-        <div>
-          <h1 className="text-white font-semibold text-4xl mb-8 ">Welcome!</h1>
-        </div>
-        <div className="grid w-full max-w-sm text-white items-center gap-2 mb-4">
-          <Label htmlFor="email">Email</Label>
-          <Input type="text" id="email" autoComplete="email" placeholder="mikewazowski@aol.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <div className="grid w-full max-w-sm text-white items-center gap-2 mb-6">
-          <Label htmlFor="password">Password</Label>
-          <Input type="password" id="password" placeholder="*******" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
-        { error && (<div className="flex flex-row text-red-500 font-thin text-sm"><ErrorIcon /> {error}</div>)}
-        <div>
-          <Button size="lg" className="bg-primary hover:bg-primary/75 w-72 h-11 mt-6" type="submit" disabled={isLoading}>
-            {isLoading ? 'Loading...' : 'Login'}
-          </Button>
-        </div>
-        <div>
-          <Button size="lg" variant={"ghost"} className="text-accent hover:bg-accent/50 w-72 h-11 mt-4" onClick={() => router.push('/ForgotPassword')}>
-            Forgot Password?
-          </Button>
-        </div>
-        <div>
-          <Button size="lg" variant={"ghost"} className="text-white hover:bg-accent/50 w-72 h-11 mt-3" onClick={() => router.push('/createAccount')}>
-            Create Account
-          </Button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }

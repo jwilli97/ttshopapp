@@ -39,16 +39,9 @@ export default function ConnectAccount() {
         try {
             const supaResponse = await fetch('/api/checkSupaAccount', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phoneNumber: formattedPhoneNumber }),
             });
-
-            if (!supaResponse.ok) {
-                throw new Error(`HTTP error! status: ${supaResponse.status}`);
-            }
-
             const supaData = await supaResponse.json();
 
             if (supaData.exists) {
@@ -58,16 +51,9 @@ export default function ConnectAccount() {
 
             const squareResponse = await fetch('/api/checkAccount', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phoneNumber: formattedPhoneNumber }),
             });
-
-            if (!squareResponse.ok) {
-                throw new Error(`HTTP error! status: ${squareResponse.status}`);
-            }
-
             const squareData = await squareResponse.json();
 
             if (squareData.exists) {
