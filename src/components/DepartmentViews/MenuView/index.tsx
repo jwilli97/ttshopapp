@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabaseClient";
+import Image from 'next/image'
 
 export function MenuView() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -111,10 +112,11 @@ export function MenuView() {
             <div className="border bg-background rounded-lg p-4">
                 <h2 className="text-lg font-semibold mb-4">Current Menu</h2>
                 {menuUrl ? (
-                    <img 
+                    <Image 
                         src={menuUrl} 
                         alt="Current Menu"
-                        className="w-full h-auto"
+                        width={500}
+                        height={300}
                     />
                 ) : (
                     <div className="text-gray-500">

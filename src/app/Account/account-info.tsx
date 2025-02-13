@@ -249,7 +249,7 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
                 <CardTitle className="text-2xl font-bold text-white bg-primary p-2 rounded-lg">
                   Delivery Details
                 </CardTitle>
-                <p className="text-muted-foreground text-sm ml-4">Where we'll deliver your orders</p>
+                <p className="text-muted-foreground text-sm ml-4">Where we&apos;ll deliver your orders</p>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
