@@ -35,9 +35,9 @@ export function ProfileForm({ onSubmit, onBack }: ProfileFormProps) {
   const [selectedAvatar, setSelectedAvatar] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [formData, setFormData] = useState({
-    username: '',
-    favoriteStrain: '',
-    favoriteStrainType: ''
+    display_name: '',
+    favorite_strain: '',
+    favorite_strain_type: ''
   })
 
   const handleAvatarSelect = (avatarUrl: string) => {
@@ -85,14 +85,14 @@ export function ProfileForm({ onSubmit, onBack }: ProfileFormProps) {
 
           <Input
             placeholder="Username"
-            value={formData.username}
-            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            value={formData.display_name}
+            onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
             required
           />
 
           <Select
-            value={formData.favoriteStrain}
-            onValueChange={(value) => setFormData({ ...formData, favoriteStrain: value })}
+            value={formData.favorite_strain}
+            onValueChange={(value) => setFormData({ ...formData, favorite_strain: value })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Favorite strain" />
@@ -105,8 +105,8 @@ export function ProfileForm({ onSubmit, onBack }: ProfileFormProps) {
           </Select>
 
           <Select
-            value={formData.favoriteStrainType}
-            onValueChange={(value) => setFormData({ ...formData, favoriteStrainType: value })}
+            value={formData.favorite_strain_type}
+            onValueChange={(value) => setFormData({ ...formData, favorite_strain_type: value })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Favorite strain type" />

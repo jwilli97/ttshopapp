@@ -10,6 +10,9 @@ export interface UserProfile {
     birthday?: string;
     created_at?: string;
     updated_at?: string;
+    username?: string;
+    favorite_strain?: string;
+    favorite_strain_type?: string;
 }
 
 export interface DeliveryAddress {
