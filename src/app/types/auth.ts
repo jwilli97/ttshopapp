@@ -18,7 +18,7 @@ export interface DeliveryAddress {
     state: string;
     zipCode: string;
     buildingType?: string;
-    deliveryMethod?: 'handoff' | 'dropoff';
+    deliveryMethod?: 'handoff' | 'dropoff' | 'pickup';
     deliveryInstructions?: string;
     instructions?: string;
 }
