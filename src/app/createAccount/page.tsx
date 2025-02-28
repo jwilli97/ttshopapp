@@ -583,7 +583,7 @@ export default function CreateAccount() {
               <h1 className="text-4xl text-white mb-8">Create Your Account</h1>
               <p className="text-white text-center mb-8">
                 Please enter your email address to create an account.
-                You'll receive a verification link to confirm your email.
+                You&apos;ll receive a verification link to confirm your email.
               </p>
             </div>
             <EmailVerificationForm onSubmit={handleEmailSubmit} isLoading={isLoading} error={error} />
@@ -599,7 +599,7 @@ export default function CreateAccount() {
             <div className="flex flex-col items-center justify-center">
               <h1 className="text-4xl text-white mb-8">Verify Your Email</h1>
               <p className="text-white text-center mb-8">
-                We've sent a verification link to your email.
+                We&apos;ve sent a verification link to your email. <br />
                 Click the link in the email or enter the verification code below.
               </p>
             </div>
@@ -621,7 +621,7 @@ export default function CreateAccount() {
             <div className="flex flex-col items-center justify-center">
               <h1 className="text-4xl text-white mb-8">Create Your Profile</h1>
               <p className="text-white text-center mb-8">
-                Let's set up your profile information.
+                Let&apos;s set up your profile information.
               </p>
             </div>
             <ProfileForm onSubmit={handleProfileSubmit} isLoading={isLoading} error={error} />
@@ -657,7 +657,7 @@ export default function CreateAccount() {
               <Image src="/tinytreelogo.png" width={115} height={115} alt="Welcome Logo" />
             </div>
             <div className="flex flex-col items-center justify-center">
-              <h1 className="text-4xl text-white mb-8">Delivery Address</h1>
+              <h1 className="text-4xl text-white mb-8">Delivery Information</h1>
               <p className="text-white text-center mb-8">
                 Please provide your delivery address.
               </p>
