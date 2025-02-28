@@ -42,6 +42,7 @@ export function PersonalForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
+    // testing check
     // Basic validation
     if (!formData.firstName.trim()) {
       setFormError('First name is required');
