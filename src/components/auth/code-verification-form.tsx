@@ -1,105 +1,72 @@
 'use client';
 
 import { useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from "@/components/ui/input-otp";
-import { ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 interface CodeVerificationFormProps {
-  email: string;
   onSubmit: (code: string) => void;
-  onBack: () => void;
+  onResend: () => Promise<void>;
+  error?: string | null;
+  isLoading?: boolean;
 }
 
-export function CodeVerificationForm({ email, onSubmit, onBack }: CodeVerificationFormProps) {
-  const router = useRouter();
-  const [code, setCode] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const supabase = createClientComponentClient()
+export function CodeVerificationForm({ 
+  onSubmit, 
+  onResend,
+  error: parentError = null,
+  isLoading = false 
+}: CodeVerificationFormProps) {
+  const [code, setCode] = useState('');
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [isResending, setIsResending] = useState(false);
+  
+  // Use the error from parent if provided, otherwise use local error
+  const error = parentError || localError;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+    e.preventDefault();
+    setLocalError(null);
 
     try {
       if (!code || code.length !== 6) {
-        setError('Please enter a valid 6-digit code')
-        return
+        setLocalError('Please enter a valid 6-digit code');
+        return;
       }
 
-      const { data, error } = await supabase.auth.verifyOtp({
-        email,
-        token: code,
-        type: 'magiclink'
-      })
-
-      if (error) {
-        console.log('Verification error:', error)
-        if (error.message.includes('expired')) {
-          setError('The verification code has expired. Please request a new code.')
-        } else if (error.message.includes('invalid')) {
-          setError('Invalid verification code. Please check and try again.')
-        } else {
-          setError(error.message)
-        }
-        return
-      }
-
-      console.log('Verification successful:', data)
-      onSubmit(code)
+      // Let the parent component handle the verification logic
+      onSubmit(code);
     } catch (error) {
-      console.error('Error:', error)
-      setError('An unexpected error occurred. Please try again.')
-    } finally {
-      setLoading(false)
+      console.error('Error:', error);
+      setLocalError('An unexpected error occurred. Please try again.');
     }
-  }
+  };
 
   const handleResendCode = async () => {
     try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: email,
-      })
-      if (error) throw error
+      setIsResending(true);
+      await onResend();
       // Optionally add a success toast/message here
     } catch (error) {
-      console.error('Error resending code:', error)
+      console.error('Error resending code:', error);
+      setLocalError('Failed to resend code. Please try again.');
+    } finally {
+      setIsResending(false);
     }
-  }
+  };
 
   const handleSkip = () => {
     // Skip verification entirely in development
     if (process.env.NODE_ENV === 'development') {
-      onSubmit('SKIPPED')
+      onSubmit('SKIPPED');
     }
-  }
+  };
 
   return (
-    <div className="space-y-6 w-full max-w-sm mx-auto">
-      <div className="flex items-center">
-        <button onClick={onBack} className="p-2">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        
-      </div>
-      <div>
-      <h1 className="text-xl font-semibold ml-2">CREATE ACCOUNT</h1>
-      </div>
-      
-      <div className="h-2 bg-gray-100 rounded">
-        <div className="h-full w-2/6 bg-primary rounded" />
-      </div>
-
+    <div className="w-full max-w-md">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <h2 className="text-sm font-medium">VERIFY EMAIL</h2>
-          <p className="text-sm text-gray-300">Code sent to: {email}</p>
-          <div className="flex justify-center py-8">
+        <div className="space-y-4">
+          <div className="flex justify-center py-4">
             <InputOTP 
               value={code} 
               onChange={(value) => setCode(value)}
@@ -118,37 +85,40 @@ export function CodeVerificationForm({ email, onSubmit, onBack }: CodeVerificati
               </InputOTPGroup>
             </InputOTP>
           </div>
-          <button
-            type="button"
-            onClick={handleResendCode}
-            className="text-primary text-sm"
-          >
-            Resend code
-          </button>
+          
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={handleResendCode}
+              className="text-primary text-sm hover:underline"
+              disabled={isResending}
+            >
+              {isResending ? 'Sending...' : 'Resend verification code'}
+            </button>
+          </div>
+          
           {error && (
             <p className="text-red-500 text-sm mt-2">{error}</p>
           )}
         </div>
 
-        <div className="fixed bottom-12 left-0 right-0 space-y-2 max-w-sm mx-auto">
-          <Button
-            type="submit"
-            className="w-full bg-primary"
-            disabled={loading}
-          >
-            NEXT
-          </Button>
+        <Button
+          type="submit"
+          className="w-full bg-primary hover:bg-primary/75 h-11 mt-6"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Verifying...' : 'Verify Code'}
+        </Button>
 
-          {process.env.NODE_ENV === 'development' && (
-            <Button
-              type="button"
-              onClick={handleSkip}
-              className="w-full bg-gray-200 hover:bg-gray-300 text-black"
-            >
-              SKIP VERIFICATION (DEV ONLY)
-            </Button>
-          )}
-        </div>
+        {process.env.NODE_ENV === 'development' && (
+          <Button
+            type="button"
+            onClick={handleSkip}
+            className="w-full bg-gray-200 hover:bg-gray-300 text-black mt-2"
+          >
+            Skip Verification (Dev Only)
+          </Button>
+        )}
       </form>
     </div>
   );

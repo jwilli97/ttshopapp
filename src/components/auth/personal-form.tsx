@@ -1,123 +1,160 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { UserProfile } from '@/app/types/auth';
+import { Label } from '@/components/ui/label';
 
 interface PersonalFormProps {
   onSubmit: (data: Partial<UserProfile>) => void;
-  onBack: () => void;
+  isLoading?: boolean;
+  error?: string;
+  initialEmail?: string;
+  initialPhoneNumber?: string;
 }
 
-export function PersonalForm({ onSubmit, onBack }: PersonalFormProps) {
+export function PersonalForm({ 
+  onSubmit, 
+  isLoading = false, 
+  error = '',
+  initialEmail = '',
+  initialPhoneNumber = ''
+}: PersonalFormProps) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     birthday: '',
-    password: '',
-    confirmPassword: ''
+    phoneNumber: initialPhoneNumber || '',
+    email: initialEmail || '',
   })
-  const [error, setError] = useState('')
+  const [formError, setFormError] = useState('')
+
+  // Update form data if initialEmail or initialPhoneNumber changes
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      phoneNumber: initialPhoneNumber || prev.phoneNumber,
+      email: initialEmail || prev.email
+    }));
+  }, [initialEmail, initialPhoneNumber]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
-      return
+    
+    // Basic validation
+    if (!formData.firstName.trim()) {
+      setFormError('First name is required');
+      return;
     }
-    const { confirmPassword, ...submitData } = formData
-    onSubmit(submitData)
+    
+    if (!formData.lastName.trim()) {
+      setFormError('Last name is required');
+      return;
+    }
+    
+    if (!formData.birthday) {
+      setFormError('Birthday is required');
+      return;
+    }
+    
+    // Clear any previous errors
+    setFormError('');
+    
+    // Submit the form data
+    onSubmit(formData);
   }
 
   return (
-    <div className="space-y-6 w-full max-w-sm mx-auto">
-      <div className="flex items-center">
-        <button onClick={onBack} className="p-2">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        
-      </div>
-      <div>
-      <h1 className="text-xl font-semibold ml-2">CREATE ACCOUNT</h1>
-      </div>
-      
-      <div className="h-2 bg-gray-100 rounded">
-        <div className="h-full w-4/6 bg-primary rounded" />
-      </div>
-
+    <div className="w-full max-w-md">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
-          <h2 className="text-sm font-medium">PERSONAL</h2>
-          
-          <Input
-            placeholder="First name"
-            value={formData.firstName}
-            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-            required
-          />
-
-          <Input
-            placeholder="Last name"
-            value={formData.lastName}
-            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-            required
-          />
-
-          <Input
-            type="date"
-            placeholder="Birthday"
-            value={formData.birthday}
-            onChange={(e) => setFormData({ ...formData, birthday: e.target.value })}
-            required
-          />
-
-          <Input
-            type="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            required
-          />
-
-          <Input
-            type="password"
-            placeholder="Confirm password"
-            value={formData.confirmPassword}
-            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-            required
-          />
-
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-
-          <div className="space-y-2 text-sm text-gray-300">
-            <p>Password must contain:</p>
-            <ul className="list-none space-y-1">
-              <li>• 8 characters minimum</li>
-              <li>• Letters</li>
-              <li>• Numbers</li>
-              <li>• Special character</li>
-            </ul>
+          <div className="space-y-2">
+            <Label htmlFor="firstName" className="text-white">
+              First Name
+            </Label>
+            <Input
+              id="firstName"
+              placeholder="First name"
+              value={formData.firstName}
+              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+              required
+              className="text-white"
+            />
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="lastName" className="text-white">
+              Last Name
+            </Label>
+            <Input
+              id="lastName" 
+              placeholder="Last name"
+              value={formData.lastName}
+              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+              required
+              className="text-white"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-white">
+              Email
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="Email address"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              required
+              className="text-white"
+              disabled={!!initialEmail}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-white">
+              Phone Number
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="555-555-5555"
+              value={formData.phoneNumber}
+              onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+              required
+              className="text-white"
+              disabled={!!initialPhoneNumber}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="birthday" className="text-white">
+              Birthday
+            </Label>
+            <Input
+              id="birthday"
+              type="date"
+              placeholder="Birthday"
+              value={formData.birthday}
+              onChange={(e) => setFormData({ ...formData, birthday: e.target.value })}
+              required
+              className="text-white"
+            />
+          </div>
+
+          {formError && <p className="text-red-500 text-sm">{formError}</p>}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
         </div>
 
-        <div className="fixed bottom-12 left-1/2 -translate-x-1/2 w-full max-w-sm space-y-2">
-          <Button
-            type="submit"
-            className="w-full bg-primary"
-          >
-            NEXT
-          </Button>
-          <Button
-            type="button"
-            onClick={() => onSubmit({})}
-            className="w-full bg-gray-200 hover:bg-gray-300 text-black"
-          >
-            SKIP VERIFICATION (DEV ONLY)
-          </Button>
-        </div>
+        <Button
+          type="submit"
+          className="w-full bg-primary hover:bg-primary/75 h-11 mt-6"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Loading...' : 'Continue'}
+        </Button>
       </form>
     </div>
   );

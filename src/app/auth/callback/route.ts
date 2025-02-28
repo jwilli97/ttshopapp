@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
+  const redirectParam = requestUrl.searchParams.get('redirect')
 
   if (code) {
     const cookieStore = cookies()
@@ -13,11 +14,14 @@ export async function GET(request: Request) {
     // Exchange the code for a session
     await supabase.auth.exchangeCodeForSession(code)
 
-    // Get the URL to redirect to after verification
-    const redirectTo = `${requestUrl.origin}/createAccount/FirstLogIn`
+    // Check if we have a specific redirect parameter
+    if (redirectParam === 'profile') {
+      // User came from the account creation flow, redirect to profile setup
+      return NextResponse.redirect(`${requestUrl.origin}/CreateAccount?step=profile`)
+    }
 
-    // Return redirect response that works on both web and mobile
-    return NextResponse.redirect(redirectTo)
+    // Default redirect for normal email verification
+    return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
   }
 
   // Handle error case

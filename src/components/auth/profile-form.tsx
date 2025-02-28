@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,10 +8,12 @@ import { ArrowLeft, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { UserProfile } from '@/app/types/auth';
 import AvatarSelectionModal from "@/components/AvatarSelectionModal";
+import { getSupabaseClient } from '@/lib/supabaseClient';
 
 interface ProfileFormProps {
   onSubmit: (data: Partial<UserProfile>) => void;
-  onBack: () => void;
+  isLoading?: boolean;
+  error?: string;
 }
 
 const predefinedAvatars = [
@@ -29,111 +31,170 @@ const predefinedAvatars = [
     '/profile_pics/profileNug12.png',
 ];
 
-export function ProfileForm({ onSubmit, onBack }: ProfileFormProps) {
+export function ProfileForm({ onSubmit, isLoading = false, error = '' }: ProfileFormProps) {
   const router = useRouter();
+  const supabase = getSupabaseClient();
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [formData, setFormData] = useState({
     display_name: '',
-    favorite_strain: '',
-    favorite_strain_type: ''
-  })
+    strain_preference: '',
+    replacement_preference: '',
+    avatar_url: ''
+  });
+  const [userEmail, setUserEmail] = useState('');
+  const [formIsLoading, setFormIsLoading] = useState(false);
+
+  // Try to fetch user data on component mount
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        // Get current session
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          if (session.user.email) {
+            setUserEmail(session.user.email);
+          }
+          
+          // Try to fetch existing profile data if any
+          const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+            
+          if (data) {
+            // Explicitly cast each field to string to avoid type errors
+            const display_name = typeof data.display_name === 'string' ? data.display_name : '';
+            const strain_preference = typeof data.strain_preference === 'string' ? data.strain_preference : '';
+            const replacement_preference = typeof data.replacement_preference === 'string' ? data.replacement_preference : '';
+            const avatar_url = typeof data.avatar_url === 'string' ? data.avatar_url : '';
+            
+            // Pre-fill form with existing data
+            setFormData({
+              display_name,
+              strain_preference,
+              replacement_preference,
+              avatar_url
+            });
+            
+            if (avatar_url) {
+              setAvatarUrl(avatar_url);
+              setSelectedAvatar(avatar_url);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    
+    getUserData();
+  }, []);
 
   const handleAvatarSelect = (avatarUrl: string) => {
     setSelectedAvatar(avatarUrl);
     setAvatarUrl(avatarUrl);
-};
+    setFormData({ ...formData, avatar_url: avatarUrl });
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('profileFormData', JSON.stringify(formData));
-    onSubmit(formData);
-  }
+    setFormIsLoading(true);
+    
+    try {
+      // Save the form data to local storage for the flow
+      localStorage.setItem('profileFormData', JSON.stringify({...formData, avatar_url: avatarUrl}));
+      
+      // Submit the data to the parent component
+      onSubmit({...formData, avatar_url: avatarUrl});
+    } catch (error) {
+      console.error('Error saving profile:', error);
+    } finally {
+      setFormIsLoading(false);
+    }
+  };
 
   return (
-    <div className="space-y-6 w-full max-w-sm mx-auto">
-      <div className="flex items-center">
-        <button onClick={onBack} className="p-2">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        
-      </div>
-      <div>
-      <h1 className="text-xl font-semibold ml-2">CREATE ACCOUNT</h1>
-      </div>
+    <div className="w-full max-w-md">
+      {userEmail && (
+        <div className="text-sm text-gray-400 mb-4">
+          Signed in as: {userEmail}
+        </div>
+      )}
       
-      <div className="h-2 bg-gray-100 rounded">
-        <div className="h-full w-3/6 bg-primary rounded" />
-      </div>
-
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
-          <h2 className="text-sm font-medium">PROFILE</h2>
-          
-          <div className="flex items-center justify-center">
-          <AvatarSelectionModal 
-                avatarUrl={avatarUrl}
-                onAvatarSelect={handleAvatarSelect}
-                onSelect={handleAvatarSelect}
-                onClose={() => setIsAvatarModalOpen(false)}
-                onOpenChange={setIsAvatarModalOpen}
-                isOpen={isAvatarModalOpen}
-                avatars={predefinedAvatars}
-                />
+          <div className="flex items-center justify-center mb-6">
+            <AvatarSelectionModal 
+              avatarUrl={avatarUrl}
+              onAvatarSelect={handleAvatarSelect}
+              onSelect={handleAvatarSelect}
+              onClose={() => setIsAvatarModalOpen(false)}
+              onOpenChange={setIsAvatarModalOpen}
+              isOpen={isAvatarModalOpen}
+              avatars={predefinedAvatars}
+            />
           </div>
 
-          <Input
-            placeholder="Username"
-            value={formData.display_name}
-            onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
-            required
-          />
+          <div className="space-y-2">
+            <label htmlFor="username" className="text-white text-sm">
+              Username
+            </label>
+            <Input
+              id="username"
+              placeholder="Username"
+              value={formData.display_name}
+              onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
+              required
+              className="text-white"
+            />
+          </div>
 
-          <Select
-            value={formData.favorite_strain}
-            onValueChange={(value) => setFormData({ ...formData, favorite_strain: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Favorite strain" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="indica">Indica</SelectItem>
-              <SelectItem value="sativa">Sativa</SelectItem>
-              <SelectItem value="hybrid">Hybrid</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="space-y-2">
+            <label htmlFor="strain" className="text-white text-sm">
+              Favorite Strain
+            </label>
+            <Input
+              id="strain"
+              placeholder="Favorite strain"
+              value={formData.strain_preference}
+              onChange={(e) => setFormData({ ...formData, strain_preference: e.target.value })}
+              className="text-white"
+            />
+          </div>
 
-          <Select
-            value={formData.favorite_strain_type}
-            onValueChange={(value) => setFormData({ ...formData, favorite_strain_type: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Favorite strain type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="flower">Flower</SelectItem>
-              <SelectItem value="concentrate">Concentrate</SelectItem>
-              <SelectItem value="edible">Edible</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="space-y-2">
+            <label htmlFor="substitution" className="text-white text-sm">
+              Substitution Preference
+            </label>
+            <Select
+              value={formData.replacement_preference}
+              onValueChange={(value) => setFormData({ ...formData, replacement_preference: value })}
+            >
+              <SelectTrigger id="substitution" className="text-white">
+                <SelectValue placeholder="Substitution Preference" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="contact">Contact me</SelectItem>
+                <SelectItem value="similar">Similar product</SelectItem>
+                <SelectItem value="none">No substitution</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {error && <p className="text-red-500 text-sm">{error}</p>}
         </div>
 
-        <div className="fixed bottom-12 left-0 right-0 space-y-2 max-w-sm mx-auto">
-          <Button
-            type="submit"
-            className="w-full bg-primary"
-          >
-            NEXT
-          </Button>
-          <Button
-            type="button"
-            onClick={() => onSubmit({})}
-            className="w-full bg-gray-200 hover:bg-gray-300 text-black"
-          >
-            SKIP VERIFICATION (DEV ONLY)
-          </Button>
-        </div>
+        <Button
+          type="submit"
+          className="w-full bg-primary hover:bg-primary/75 h-11 mt-6"
+          disabled={isLoading || formIsLoading}
+        >
+          {isLoading || formIsLoading ? 'Loading...' : 'Continue'}
+        </Button>
       </form>
     </div>
   );

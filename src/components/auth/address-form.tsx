@@ -9,15 +9,16 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft } from 'lucide-react';
 import type { DeliveryAddress } from '@/app/types/auth';
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseClient } from "@/lib/supabaseClient";
 
 interface AddressFormProps {
   defaultValues?: DeliveryAddress;
   onSubmit: (data: DeliveryAddress) => void;
-  onBack: () => void;
+  isLoading?: boolean;
+  error?: string;
 }
 
-export function AddressForm({ defaultValues, onSubmit, onBack }: AddressFormProps) {
+export function AddressForm({ defaultValues, onSubmit, isLoading = false, error = '' }: AddressFormProps) {
   const [formData, setFormData] = useState<DeliveryAddress>(defaultValues || {
     street: '',
     city: '',
@@ -28,6 +29,7 @@ export function AddressForm({ defaultValues, onSubmit, onBack }: AddressFormProp
     deliveryInstructions: ''
   });
   const [isValidDeliveryZone, setIsValidDeliveryZone] = useState<boolean>(true);
+  const supabase = getSupabaseClient();
 
   // Check delivery zone using Supabase
   const checkDeliveryZone = async (zipCode: string) => {
@@ -66,48 +68,57 @@ export function AddressForm({ defaultValues, onSubmit, onBack }: AddressFormProp
   };
 
   return (
-    <div className="space-y-6 w-full max-w-sm mx-auto">
-      <div className="flex items-center">
-        <button onClick={onBack} className="p-2">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        
-      </div>
-      <div>
-      <h1 className="text-xl font-semibold ml-2">CREATE ACCOUNT</h1>
-      </div>
-      
-      <div className="h-2 bg-gray-100 rounded">
-        <div className="h-full w-5/6 bg-primary rounded" />
-      </div>
-
+    <div className="w-full max-w-md">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
-          <h2 className="text-sm font-medium">DELIVERY ADDRESS</h2>
-          
-          <Input
-            placeholder="Street address"
-            value={formData.street}
-            onChange={(e) => setFormData({ ...formData, street: e.target.value })}
-            required
-          />
+          <div className="space-y-2">
+            <Label htmlFor="street" className="text-white">
+              Street Address
+            </Label>
+            <Input
+              id="street"
+              placeholder="Street address"
+              value={formData.street}
+              onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+              required
+              className="text-white"
+            />
+          </div>
 
-          <Input
-            placeholder="City"
-            value={formData.city}
-            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-            required
-          />
+          <div className="space-y-2">
+            <Label htmlFor="city" className="text-white">
+              City
+            </Label>
+            <Input
+              id="city"
+              placeholder="City"
+              value={formData.city}
+              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              required
+              className="text-white"
+            />
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Input
-              placeholder="State"
-              value={formData.state}
-              onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-              required
-            />
-            <div className="space-y-1">
+            <div className="space-y-2">
+              <Label htmlFor="state" className="text-white">
+                State
+              </Label>
               <Input
+                id="state"
+                placeholder="State"
+                value={formData.state}
+                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                required
+                className="text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="zipCode" className="text-white">
+                Zip Code
+              </Label>
+              <Input
+                id="zipCode"
                 placeholder="Zip Code"
                 value={formData.zipCode}
                 onChange={(e) => {
@@ -116,6 +127,7 @@ export function AddressForm({ defaultValues, onSubmit, onBack }: AddressFormProp
                   checkDeliveryZone(newZipCode);
                 }}
                 required
+                className="text-white"
               />
               {!isValidDeliveryZone && formData.zipCode && (
                 <p className="text-sm font-semibold text-[#FF9494]">
@@ -126,7 +138,7 @@ export function AddressForm({ defaultValues, onSubmit, onBack }: AddressFormProp
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm font-medium">Building type</p>
+            <Label className="text-white">Building Type</Label>
             <RadioGroup
               value={formData.buildingType}
               onValueChange={(value) => {
@@ -136,11 +148,11 @@ export function AddressForm({ defaultValues, onSubmit, onBack }: AddressFormProp
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="house" id="house" />
-                <Label htmlFor="house">House/Townhouse</Label>
+                <Label htmlFor="house" className="text-white">House/Townhouse</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="apartment" id="apartment" />
-                <Label htmlFor="apartment">Apartment/Highrise</Label>
+                <Label htmlFor="apartment" className="text-white">Apartment/Highrise</Label>
               </div>
             </RadioGroup>
             {formData.buildingType === 'apartment' && (
@@ -151,7 +163,7 @@ export function AddressForm({ defaultValues, onSubmit, onBack }: AddressFormProp
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm font-medium">Delivery Method</p>
+            <Label className="text-white">Delivery Method</Label>
             {!isValidDeliveryZone && formData.zipCode && (
               <p className="text-sm font-semibold text-[#FF9494] mb-2">
                 Only pickup is available for this location
@@ -160,60 +172,53 @@ export function AddressForm({ defaultValues, onSubmit, onBack }: AddressFormProp
             <RadioGroup
               value={formData.deliveryMethod}
               onValueChange={(value) => 
-                setFormData({ ...formData, deliveryMethod: value as 'handoff' | 'contactless' | 'pickup' })
+                setFormData({ ...formData, deliveryMethod: value as 'handoff' | 'contactless' | 'pickup' | 'dropoff' })
               }
             >
               {isValidDeliveryZone && (
                 <>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="handoff" id="handoff" />
-                    <Label htmlFor="handoff">In-person Handoff</Label>
+                    <Label htmlFor="handoff" className="text-white">In-person Handoff</Label>
                   </div>
                   {formData.buildingType !== 'apartment' && (
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="contactless" id="contactless" />
-                      <Label htmlFor="contactless">Contactless Delivery</Label>
+                      <Label htmlFor="contactless" className="text-white">Contactless Delivery</Label>
                     </div>
                   )}
                 </>
               )}
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="pickup" id="pickup" />
-                <Label htmlFor="pickup">Pickup</Label>
+                <Label htmlFor="pickup" className="text-white">Pickup</Label>
               </div>
             </RadioGroup>
           </div>
 
-          <Textarea
-            placeholder="Add delivery instructions"
-            value={formData.deliveryInstructions}
-            onChange={(e) => setFormData({ ...formData, deliveryInstructions: e.target.value })}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="instructions" className="text-white">
+              Delivery Instructions
+            </Label>
+            <Textarea
+              id="instructions"
+              placeholder="Add delivery instructions"
+              value={formData.deliveryInstructions}
+              onChange={(e) => setFormData({ ...formData, deliveryInstructions: e.target.value })}
+              className="text-white"
+            />
+          </div>
+
+          {error && <p className="text-red-500 text-sm">{error}</p>}
         </div>
 
-        <div className="fixed bottom-12 left-1/2 -translate-x-1/2 w-full max-w-sm space-y-2">
-          <Button
-            type="submit"
-            className="w-full bg-primary"
-          >
-            NEXT
-          </Button>
-          <Button
-            type="button"
-            onClick={() => onSubmit({
-              street: 'test',
-              city: 'test',
-              state: 'test',
-              zipCode: 'test',
-              buildingType: 'house',
-              deliveryMethod: 'handoff',
-              deliveryInstructions: ''
-            })}
-            className="w-full bg-gray-200 hover:bg-gray-300 text-black"
-          >
-            SKIP VERIFICATION (DEV ONLY)
-          </Button>
-        </div>
+        <Button
+          type="submit"
+          className="w-full bg-primary hover:bg-primary/75 h-11 mt-6"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Loading...' : 'Complete Registration'}
+        </Button>
       </form>
     </div>
   );

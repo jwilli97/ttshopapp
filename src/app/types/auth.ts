@@ -11,7 +11,7 @@ export interface UserProfile {
     created_at?: string;
     updated_at?: string;
     username?: string;
-    favorite_strain?: string;
+    strain_preference?: string;
     favorite_strain_type?: string;
 }
 
