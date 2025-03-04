@@ -61,17 +61,17 @@ export default function EditProfile() {
                 if (error) throw error;
     
                 if (data) {
-                    setDisplayName(data.display_name || '');
-                    setEmail(data.email || '');
-                    setFirstName(data.first_name || '');
-                    setLastName(data.last_name || '');
-                    setPhoneNumber(data.phone_number || '');
-                    setResidenceType(data.residence_type || '');
-                    setStreetAddress(data.street_address || '');
-                    setCity(data.city || '');
-                    setState(data.state || '');
-                    setZipCode(data.zipcode || '');
-                    setAvatarUrl(data.avatar_url || '');
+                    setDisplayName(data.display_name as string || '');
+                    setEmail(data.email as string || '');
+                    setFirstName(data.first_name as string || '');
+                    setLastName(data.last_name as string || '');
+                    setPhoneNumber(data.phone_number as string || '');
+                    setResidenceType(data.residence_type as string || '');
+                    setStreetAddress(data.street_address as string || '');
+                    setCity(data.city as string || '');
+                    setState(data.state as string || '');
+                    setZipCode(data.zipcode as string || '');
+                    setAvatarUrl(data.avatar_url as string || '');
                 }
             }
         } catch (error: unknown) {
