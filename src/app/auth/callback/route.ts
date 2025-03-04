@@ -14,14 +14,8 @@ export async function GET(request: Request) {
     // Exchange the code for a session
     await supabase.auth.exchangeCodeForSession(code)
 
-    // Check if we have a specific redirect parameter
-    if (redirectParam === 'profile') {
-      // User came from the account creation flow, redirect to profile setup
-      return NextResponse.redirect(`${requestUrl.origin}/CreateAccount?step=profile`)
-    }
-
     // Default redirect for normal email verification
-    return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+    return NextResponse.redirect(`${requestUrl.origin}/auth/create-profile`)
   }
 
   // Handle error case

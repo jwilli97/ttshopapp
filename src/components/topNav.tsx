@@ -1,8 +1,11 @@
+"use client";
+
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ChevronRight } from "lucide-react"
+import LogoutButton from './logoutButton';
 
 export default function TopNav() {
     const router = useRouter();
@@ -18,25 +21,33 @@ export default function TopNav() {
             setIsLoading(true);
             setError(null);
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                
+                if (userError) throw userError;
+                
                 if (user) {
                     const { data, error } = await supabase
                         .from('profiles')
                         .select('*')
                         .eq('user_id', user.id)
                         .single();
-    
+
                     if (error) throw error;
                     if (data) {
-                        setDisplayName(data.display_name);
-                        setAvatarUrl(data.avatar_url);
-                        setStreetAddress(data.street_address);
-                        setEmail(data.email);
+                        setDisplayName(data.display_name || '');
+                        setAvatarUrl(data.avatar_url || '');
+                        setStreetAddress(data.street_address || '');
+                        setEmail(data.email || '');
                     }
+                } else {
+                    // Handle case when no user is logged in
+                    console.log("No user logged in");
+                    // You might want to redirect to login page here
+                    // router.push('/login');
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error("There was a problem fetching data:", error);
-                setError("Failed to load data. Please try again later.");
+                setError(error.message || "Failed to load data. Please try again later.");
             } finally {
                 setIsLoading(false);
             }
@@ -49,7 +60,7 @@ export default function TopNav() {
     };
 
     return (
-        <nav className="flex items-center pr-4 pl-4 pb-4">
+        <nav className="flex items-center justify-between pr-4 pl-4 pb-4">
             <div className="flex items-center space-x-4">
                 <Avatar 
                     className="h-20 w-20 cursor-pointer"
@@ -70,6 +81,9 @@ export default function TopNav() {
                         <ChevronRight className="h-5 w-5" />
                     </div>
                 </div>
+            </div>
+            <div className="flex-shrink-0">
+                <LogoutButton />
             </div>
         </nav>
     );

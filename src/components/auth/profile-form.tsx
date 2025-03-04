@@ -119,12 +119,6 @@ export function ProfileForm({ onSubmit, isLoading = false, error = '' }: Profile
 
   return (
     <div className="w-full max-w-md">
-      {userEmail && (
-        <div className="text-sm text-gray-400 mb-4">
-          Signed in as: {userEmail}
-        </div>
-      )}
-      
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
           <div className="flex items-center justify-center mb-6">
