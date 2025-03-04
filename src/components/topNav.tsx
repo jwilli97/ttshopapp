@@ -34,10 +34,10 @@ export default function TopNav() {
 
                     if (error) throw error;
                     if (data) {
-                        setDisplayName(data.display_name || '');
-                        setAvatarUrl(data.avatar_url || '');
-                        setStreetAddress(data.street_address || '');
-                        setEmail(data.email || '');
+                        setDisplayName(data.display_name as string || '');
+                        setAvatarUrl(data.avatar_url as string || '');
+                        setStreetAddress(data.street_address as string || '');
+                        setEmail(data.email as string || '');
                     }
                 } else {
                     // Handle case when no user is logged in
