@@ -273,7 +273,7 @@ export default function NewOrder() {
                               zipcode: zipcode,
                               residence_type: residenceType
                             })
-                            .eq('user_id', userId);
+                            .eq('user_id', userId as string);
 
                           if (error) throw error;
 
@@ -412,10 +412,10 @@ export default function NewOrder() {
             // Initialize Intercom with user data
             Intercom({
               app_id: 'cdcmnvsm',
-              user_id: profileData.user_id,
-              name: profileData.display_name,
-              email: profileData.email,
-              created_at: profileData.created_at,
+              user_id: profileData.user_id as string,
+              name: profileData.display_name as string,
+              email: profileData.email as string,
+              created_at: profileData.created_at as number,
             });
             
             // Add custom CSS for Intercom positioning
@@ -431,30 +431,30 @@ export default function NewOrder() {
             document.head.appendChild(style);
 
             console.log('User profile:', profileData);
-            setUserId(profileData.user_id);
-            setDisplayName(profileData.display_name);
-            setAvatarUrl(profileData.avatar_url);
-            setDeliveryNotes(profileData.delivery_notes);
-            setResidenceType(profileData.residence_type);
-            setStreetAddress(profileData.street_address);
-            setCity(profileData.city);
-            setState(profileData.state);
-            setZipcode(profileData.zipcode);
-            setPhoneNumber(profileData.phone_number);
-            setFirstName(profileData.first_name);
-            setLastName(profileData.last_name);
-            setPreferredDeliveryMethod(profileData.delivery_method || 'handoff');
+            setUserId(profileData.user_id as string);
+            setDisplayName(profileData.display_name as string);
+            setAvatarUrl(profileData.avatar_url as string);
+            setDeliveryNotes(profileData.delivery_notes as string);
+            setResidenceType(profileData.residence_type as string);
+            setStreetAddress(profileData.street_address as string);
+            setCity(profileData.city as string);
+            setState(profileData.state as string);
+            setZipcode(profileData.zipcode as string);
+            setPhoneNumber(profileData.phone_number as string);
+            setFirstName(profileData.first_name as string);
+            setLastName(profileData.last_name as string);
+            setPreferredDeliveryMethod(profileData.delivery_method as string || 'handoff');
 
             setOrderDetails((prev) => ({
               ...prev,
-              phoneNumber: profileData.phone_number,
-              deliveryResidenceType: profileData.residence_type,
-              deliveryStreetAddress: profileData.street_address,
-              deliveryCity: profileData.city,
-              deliveryState: profileData.state,
-              deliveryZipcode: profileData.zipcode,
-              deliveryNotes: profileData.delivery_notes,
-              deliveryMethod: profileData.delivery_method || 'handoff',
+              phoneNumber: profileData.phone_number as string,
+              deliveryResidenceType: profileData.residence_type as string,
+              deliveryStreetAddress: profileData.street_address as string,
+              deliveryCity: profileData.city as string,
+              deliveryState: profileData.state as string,
+              deliveryZipcode: profileData.zipcode as string,
+              deliveryNotes: profileData.delivery_notes as string,
+              deliveryMethod: profileData.delivery_method as string || 'handoff',
             }));
             
             if (profileData.square_loyalty_id) {
@@ -541,7 +541,7 @@ export default function NewOrder() {
     const { data: userData, error: userError } = await supabase
       .from('profiles')
       .select('square_loyalty_id')
-      .eq('user_id', userId)
+      .eq('user_id', userId as string)
       .single();
 
     if (userError || !userData?.square_loyalty_id) {
