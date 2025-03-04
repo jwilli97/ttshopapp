@@ -31,7 +31,7 @@ export default function AccountPage() {
           .single();
 
         if (error) throw error;
-        setUserData(data);
+        setUserData(data as any);
       } catch (error) {
         console.error("Error fetching user data:", error);
         setError("Failed to load user data");
