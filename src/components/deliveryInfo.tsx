@@ -33,7 +33,7 @@ export default function DeliveryInfo({ zipcode }: DeliveryInfoProps) {
           console.error('Error checking delivery zone:', error);
           setDeliveryInfo(null);
         } else {
-          setDeliveryInfo(data);
+          setDeliveryInfo(data as DeliveryZone); 
         }
       } catch (err) {
         console.error('Error fetching delivery zone:', err);
