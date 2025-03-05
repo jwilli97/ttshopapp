@@ -81,8 +81,8 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
     
                     if (error) throw error;
                     if (data) {
-                        setDisplayName(data.display_name);
-                        setAvatarUrl(data.avatar_url);
+                        setDisplayName(data.display_name as string);
+                        setAvatarUrl(data.avatar_url as string);
                     }
                 }
 
@@ -94,7 +94,27 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
 
                 if (orderError) throw orderError
                 if (orderData) {
-                    setOrders(orderData)
+                    setOrders(orderData.map((order: any) => ({
+                        id: order.id as string,
+                        display_name: order.display_name as string,
+                        full_name: order.full_name as string,
+                        order_details: order.order_details as string,
+                        token_redemption: order.token_redemption as string,
+                        phone_number: order.phone_number as string,
+                        payment_method: order.payment_method as string,
+                        delivery_method: order.delivery_method as string,
+                        delivery_notes: order.delivery_notes as string,
+                        cash_details: order.cash_details as string,
+                        street_address: order.street_address as string,
+                        address_line_2: order.address_line_2 as string,
+                        city: order.city as string,
+                        state: order.state as string,
+                        zipcode: order.zipcode as string,
+                        residence_type: order.residence_type as string,
+                        delivery_time_frame: order.delivery_time_frame as string,
+                        total: order.total as number,
+                        status: order.status as "received" | "processing" | "out for delivery" | "completed" | "cancelled"
+                    })));
                 }
 
             } catch (error) {

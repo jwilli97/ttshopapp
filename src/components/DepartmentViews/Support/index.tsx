@@ -23,7 +23,27 @@ export function SupportView() {
             if (error) {
                 console.error(error);
             } else {
-                setOrders(data as Order[]);
+                setOrders(data.map(order => ({
+                    id: order.id as string,
+                    display_name: order.display_name as string,
+                    full_name: order.full_name as string,
+                    order_details: order.order_details as string,
+                    token_redemption: order.token_redemption as string,
+                    phone_number: order.phone_number as string,
+                    payment_method: order.payment_method as string,
+                    delivery_method: order.delivery_method as string,
+                    delivery_notes: order.delivery_notes as string,
+                    cash_details: order.cash_details as string,
+                    street_address: order.street_address as string,
+                    address_line_2: order.address_line_2 as string,
+                    city: order.city as string,
+                    state: order.state as string,
+                    zipcode: order.zipcode as string,
+                    residence_type: order.residence_type as string,
+                    delivery_time_frame: order.delivery_time_frame as string,
+                    total: order.total as number,
+                    status: order.status as "received" | "processing" | "out for delivery" | "completed" | "cancelled"
+                })));
             }
         }
         fetchOrders();
