@@ -17,7 +17,7 @@ export function useAuth() {
           .single();
 
         if (error) throw error;
-        setIsAdmin(data?.is_admin || false);
+        setIsAdmin((data?.is_admin as boolean) || false);
       } catch (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
