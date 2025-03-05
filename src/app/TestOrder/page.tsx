@@ -46,10 +46,10 @@ export default function Order() {
     
                     if (error) throw error;
                     if (data) {
-                        setDisplayName(data.display_name);
-                        setAvatarUrl(data.avatar_url);
-                        setAddress(data.address);
-                        setPhoneNumber(data.phone_number);
+                        setDisplayName(data.display_name as string);
+                        setAvatarUrl(data.avatar_url as string);
+                        setAddress(data.address as string);
+                        setPhoneNumber(data.phone_number as string);
                         
                         // Fetch loyalty balance using Square Loyalty ID
                         if (data.square_loyalty_id) {
