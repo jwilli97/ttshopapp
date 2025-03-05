@@ -48,15 +48,15 @@ export default function Dashboard() {
     
                     if (error) throw error;
                     if (data) {
-                        setDisplayName(data.display_name);
-                        setAvatarUrl(data.avatar_url);
+                        setDisplayName(data.display_name as string);
+                        setAvatarUrl(data.avatar_url as string);
 
                         Intercom({
                             app_id: 'cdcmnvsm',
-                            user_id: data.user_id,
-                            name: data.display_name,
-                            email: data.email,
-                            created_at: data.created_at,
+                            user_id: data.user_id as string,
+                            name: data.display_name as string,
+                            email: data.email as string,
+                            created_at: data.created_at as number,
                         });
                         
                         // Add custom CSS to adjust Intercom position

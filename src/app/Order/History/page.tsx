@@ -45,8 +45,8 @@ export default function Orders() {
     
                     if (error) throw error;
                     if (data) {
-                        setDisplayName(data.display_name);
-                        setAvatarUrl(data.avatar_url);
+                        setDisplayName(data.display_name as string);
+                        setAvatarUrl(data.avatar_url as string);
                     }
                 }
     
@@ -60,7 +60,13 @@ export default function Orders() {
 
                     if (orderError) throw orderError;
                     if (orderData) {
-                        setOrders(orderData);
+                        setOrders(orderData.map((order: any) => ({
+                            id: order.id as number,
+                            created_at: order.created_at as string,
+                            order_details: order.order_details as string,
+                            status: order.status as string,
+                            total_amount: order.total_amount as number
+                        })));
                     }
                 }
             } catch (error) {
