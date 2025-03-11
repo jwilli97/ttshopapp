@@ -31,7 +31,7 @@ export default function SignUp() {
         if (error) {
             setError(error.message);
         } else {
-            router.push('/Test/check-email');
+            router.push('/auth/check-email');
         }
     };
 

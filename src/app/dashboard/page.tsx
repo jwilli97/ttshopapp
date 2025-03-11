@@ -29,64 +29,121 @@ export default function Dashboard() {
             setIsLoading(true);
             setError(null);
             try {
+                // First check authentication status
+                const { data: authData, error: authError } = await supabase.auth.getUser();
+                if (authError) {
+                    throw new Error(`Authentication error: ${authError.message}`);
+                }
+                if (!authData.user) {
+                    throw new Error('No authenticated user found');
+                }
+
                 // Fetch menu URL
                 const menuResponse = await fetch('/api/getMenuUrl');
                 if (!menuResponse.ok) {
-                    throw new Error(`HTTP error! status: ${menuResponse.status}`);
+                    throw new Error(`Menu fetch error: ${menuResponse.status}`);
                 }
                 const menuData: { url: string } = await menuResponse.json();
                 setMenuUrl(menuData.url);
-    
-                // Fetch user data including Square Loyalty ID
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                    const { data, error } = await supabase
-                        .from('profiles')
-                        .select('*')
-                        .eq('user_id', user.id)
-                        .single();
-    
-                    if (error) throw error;
-                    if (data) {
-                        setDisplayName(data.display_name as string);
-                        setAvatarUrl(data.avatar_url as string);
 
-                        Intercom({
-                            app_id: 'cdcmnvsm',
-                            user_id: data.user_id as string,
-                            name: data.display_name as string,
-                            email: data.email as string,
-                            created_at: data.created_at as number,
-                        });
-                        
-                        // Add custom CSS to adjust Intercom position
-                        const style = document.createElement('style');
-                        style.innerHTML = `
-                            #intercom-container {
-                                bottom: 50px !important;
+                // Fetch user profile data
+                const { data: profiles, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('user_id', authData.user.id);
+
+                if (profileError) {
+                    throw new Error(`Profile fetch error: ${profileError.message}`);
+                }
+                
+                if (!profiles || profiles.length === 0) {
+                    // No profile found - create one
+                    const { data: newProfile, error: createError } = await supabase
+                        .from('profiles')
+                        .insert([
+                            {
+                                user_id: authData.user.id,
+                                email: authData.user.email,
+                                display_name: authData.user.email?.split('@')[0] || 'New User',
+                                created_at: new Date().toISOString(),
                             }
-                            .intercom-lightweight-app-launcher {
-                                bottom: 50px !important;
-                            }
-                        `;
-                        document.head.appendChild(style);
-                        
-                        // Fetch loyalty balance using Square Loyalty ID
-                        if (data.square_loyalty_id) {
-                            const loyaltyResponse = await fetch(`/api/getLoyaltyBalance?loyaltyId=${data.square_loyalty_id}`);
-                            if (!loyaltyResponse.ok) {
-                                throw new Error(`HTTP error! status: ${loyaltyResponse.status}`);
-                            }
-                            const loyaltyData: { balance: number } = await loyaltyResponse.json();
-                            setLoyaltyBalance(loyaltyData.balance);
-                        } else {
-                            console.warn('No Square Loyalty ID found for this user');
+                        ])
+                        .select()
+                        .single();
+
+                    if (createError) {
+                        throw new Error(`Failed to create profile: ${createError.message}`);
+                    }
+                    
+                    if (!newProfile) {
+                        throw new Error('Failed to create new profile');
+                    }
+
+                    setDisplayName(newProfile.display_name as string);
+                    setAvatarUrl(newProfile.avatar_url as string);
+                    
+                    // Initialize Intercom with new profile
+                    Intercom({
+                        app_id: 'cdcmnvsm',
+                        user_id: newProfile.user_id as string,
+                        name: newProfile.display_name as string,
+                        email: newProfile.email as string,
+                        created_at: new Date(newProfile.created_at as string).getTime(),
+                    });
+
+                    // Check loyalty balance for new profile
+                    if (newProfile.square_loyalty_id) {
+                        const loyaltyResponse = await fetch(`/api/getLoyaltyBalance?loyaltyId=${newProfile.square_loyalty_id}`);
+                        if (!loyaltyResponse.ok) {
+                            throw new Error(`Loyalty fetch error: ${loyaltyResponse.status}`);
                         }
+                        const loyaltyData: { balance: number } = await loyaltyResponse.json();
+                        setLoyaltyBalance(loyaltyData.balance);
+                    }
+                } else {
+                    // Use the first profile if multiple exist (shouldn't happen)
+                    const profileData = profiles[0];
+                    setDisplayName(profileData.display_name as string);
+                    setAvatarUrl(profileData.avatar_url as string);
+                    
+                    // Initialize Intercom with existing profile
+                    Intercom({
+                        app_id: 'cdcmnvsm',
+                        user_id: profileData.user_id as string,
+                        name: profileData.display_name as string,
+                        email: profileData.email as string,
+                        created_at: new Date(profileData.created_at as string).getTime(),
+                    });
+
+                    // Check loyalty balance for existing profile
+                    if (profileData.square_loyalty_id) {
+                        const loyaltyResponse = await fetch(`/api/getLoyaltyBalance?loyaltyId=${profileData.square_loyalty_id}`);
+                        if (!loyaltyResponse.ok) {
+                            throw new Error(`Loyalty fetch error: ${loyaltyResponse.status}`);
+                        }
+                        const loyaltyData: { balance: number } = await loyaltyResponse.json();
+                        setLoyaltyBalance(loyaltyData.balance);
                     }
                 }
+
+                // Add custom CSS to adjust Intercom position
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    #intercom-container {
+                        bottom: 50px !important;
+                    }
+                    .intercom-lightweight-app-launcher {
+                        bottom: 50px !important;
+                    }
+                `;
+                document.head.appendChild(style);
             } catch (error) {
-                console.error("There was a problem fetching data:", error);
-                setError("Failed to load data. Please try again later.");
+                console.error("There was a problem fetching data:", error instanceof Error ? error.message : error);
+                setError(typeof error === 'string' ? error : (error instanceof Error ? error.message : 'Failed to load data. Please try again later.'));
+                // If it's an auth error, redirect to login
+                if (error instanceof Error && error.message.includes('Authentication error')) {
+                    router.push('/auth/welcome');
+                }
             } finally {
                 setIsLoading(false);
             }

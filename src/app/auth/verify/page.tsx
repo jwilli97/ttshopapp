@@ -83,13 +83,13 @@ export default function Verify() {
             if (supaData.exists) {
               console.log('Supabase account exists, redirecting to login');
               // Has Supabase account - direct to login
-              router.push('/login');
+              router.push('/auth/welcome');
               return;
             }
             if (squareData.exists) {
               console.log('Square account exists but no Supabase account, continuing to email verification');
               // Has Square but no Supabase - continue to email verification
-              router.push('/Test/signUp');
+              router.push('/auth/signUp');
               return;
             }
             console.log('No account found');
@@ -110,7 +110,7 @@ export default function Verify() {
             }
             console.log('Square account exists but no Supabase account, continuing to email verification');
             // Has Square but no Supabase - perfect for new customer
-            router.push('/Test/signUp');
+            router.push('/auth/signUp');
           }
     
         } catch (error) {

@@ -76,7 +76,7 @@ export default function Login() {
       
       <div className="fixed bottom-4 w-full text-center">
         {/* TODO: Change routing for production */}
-        <Link href="/Test/verify" className="text-sm text-accent">TinyTrees BETA</Link>
+        <Link href="/auth/welcome" className="text-sm text-accent">TinyTrees BETA</Link>
       </div>
     </div>
   );
