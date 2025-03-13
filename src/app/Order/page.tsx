@@ -444,6 +444,8 @@ export default function NewOrder() {
             setFirstName(profileData.first_name as string);
             setLastName(profileData.last_name as string);
             setPreferredDeliveryMethod(profileData.delivery_method as string || 'handoff');
+            // Set loyalty balance directly from profile data
+            setLoyaltyBalance(profileData.loyalty_balance as number);
 
             setOrderDetails((prev) => ({
               ...prev,
@@ -456,17 +458,6 @@ export default function NewOrder() {
               deliveryNotes: profileData.delivery_notes as string,
               deliveryMethod: profileData.delivery_method as string || 'handoff',
             }));
-            
-            if (profileData.square_loyalty_id) {
-              const loyaltyResponse = await fetch(`/api/getLoyaltyBalance?loyaltyId=${profileData.square_loyalty_id}`);
-              if (!loyaltyResponse.ok) {
-                throw new Error(`HTTP error! status: ${loyaltyResponse.status}`);
-              }
-              const loyaltyData: { balance: number } = await loyaltyResponse.json();
-              setLoyaltyBalance(loyaltyData.balance);
-            } else {
-              console.warn('No Square Loyalty ID found for this user');
-            }
           } else {
             console.error('No profile data found for user');
             setError('No profile data found. Please contact support.');
@@ -717,7 +708,7 @@ export default function NewOrder() {
         <div className="mt-6 mb-36 w-full">
             <div className="w-full mx-auto" style={{ position: 'relative', height: '500px', paddingTop: '66.67%' }}>
                 <Image
-                    src="https://qrcgcustomers.s3-eu-west-1.amazonaws.com/account13454916/50370932_1.png?0.7927771912096631"
+                    src="/HTX_menu_mar13.png"
                     alt="Current Menu"
                     fill
                     priority

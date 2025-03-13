@@ -99,6 +99,14 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
     }));
   };
 
+  // Helper function to render a field with better styling
+  const InfoField = ({ label, value }: { label: string; value: string | null | undefined }) => (
+    <div className="space-y-1">
+      <Label className="text-sm font-medium text-muted-foreground">{label}</Label>
+      <div className="text-base font-medium">{value || 'Not provided'}</div>
+    </div>
+  );
+
   const renderSection = () => {
     switch (section) {
       case 'personal':
@@ -113,68 +121,13 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="first_name" className="text-sm font-medium">First Name</Label>
-                    <Input
-                      id="first_name"
-                      name="first_name"
-                      value={isEditing ? (editedData?.first_name || userData.first_name || '') : (userData.first_name || '')}
-                      onChange={handleInputChange}
-                      readOnly={!isEditing}
-                      className={cn(
-                        "transition-all duration-200",
-                        !isEditing && "bg-muted border-none text-black",
-                        isEditing && "border-2 focus:border-primary text-white"
-                      )}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last_name" className="text-sm font-medium">Last Name</Label>
-                    <Input
-                      id="last_name"
-                      name="last_name"
-                      value={isEditing ? (editedData?.last_name || userData.last_name || '') : (userData.last_name || '')}
-                      onChange={handleInputChange}
-                      readOnly={!isEditing}
-                      className={cn(
-                        "transition-all duration-200",
-                        !isEditing && "bg-muted border-none text-black",
-                        isEditing && "border-2 focus:border-primary text-white"
-                      )}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      value={userData.email}
-                      readOnly
-                      className={cn(
-                        "transition-all duration-200",
-                        !isEditing && "bg-muted border-none text-black",
-                        isEditing && "border-2 focus:border-primary text-white"
-                      )}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone_number" className="text-sm font-medium">Phone Number</Label>
-                    <Input
-                      id="phone_number"
-                      name="phone_number"
-                      placeholder="(555) 555-5555"
-                      value={isEditing 
-                        ? (editedData?.phone_number || '') 
-                        : formatPhoneNumber(userData.phone_number || '')}
-                      onChange={handleInputChange}
-                      readOnly={!isEditing}
-                      className={cn(
-                        "transition-all duration-200",
-                        !isEditing && "bg-muted border-none text-black",
-                        isEditing && "border-2 focus:border-primary text-white"
-                      )}
-                    />
-                  </div>
+                  <InfoField label="First Name" value={userData.first_name} />
+                  <InfoField label="Last Name" value={userData.last_name} />
+                  <InfoField label="Email" value={userData.email} />
+                  <InfoField 
+                    label="Phone Number" 
+                    value={userData.phone_number ? formatPhoneNumber(userData.phone_number) : null} 
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -188,54 +141,15 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col sm:flex-row items-center sm:space-x-6 mb-6">
-                  {isEditing ? (
-                    <AvatarSelectionModal 
-                      avatarUrl={editedData?.avatar_url || userData.avatar_url}
-                      onAvatarSelect={handleAvatarSelect}
-                      onSelect={handleAvatarSelect}
-                      onClose={() => setIsAvatarModalOpen(false)}
-                      onOpenChange={setIsAvatarModalOpen}
-                      isOpen={isAvatarModalOpen}
-                      avatars={predefinedAvatars}
-                    />
-                  ) : (
-                    <Avatar className="h-32 w-32 mb-4 sm:mb-0 ring-2 ring-offset-4 ring-primary transition-all duration-200">
-                      <AvatarImage src={userData.avatar_url} alt={userData.display_name} />
-                      <AvatarFallback className="bg-primary text-white text-2xl">
-                        {userData.display_name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                  <div className="w-full space-y-2">
-                    <Label htmlFor="display_name" className="text-sm font-medium">Display Name</Label>
-                    <Input
-                      id="display_name"
-                      name="display_name"
-                      value={isEditing ? (editedData?.display_name || userData.display_name || '') : (userData.display_name || '')}
-                      onChange={handleInputChange}
-                      readOnly={!isEditing}
-                      className={cn(
-                        "transition-all duration-200",
-                        !isEditing && "bg-muted border-none text-black",
-                        isEditing && "border-2 focus:border-primary text-white"
-                      )}
-                    />
+                  <Avatar className="h-32 w-32 mb-4 sm:mb-0 ring-2 ring-offset-4 ring-primary transition-all duration-200">
+                    <AvatarImage src={userData.avatar_url} alt={userData.display_name} />
+                    <AvatarFallback className="bg-primary text-white text-2xl">
+                      {userData.display_name?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="w-full">
+                    <InfoField label="Display Name" value={userData.display_name} />
                   </div>
-                </div>
-                <div>
-                  <Label htmlFor="residence_type" className="text-sm font-medium">Residence Type</Label>
-                  <Input
-                    id="residence_type"
-                    name="residence_type"
-                    value={isEditing ? (editedData?.residence_type || userData.residence_type || '') : (userData.residence_type || '')}
-                    onChange={handleInputChange}
-                    readOnly={!isEditing}
-                    className={cn(
-                      "transition-all duration-200",
-                      !isEditing && "bg-muted border-none text-black",
-                      isEditing && "border-2 focus:border-primary text-white"
-                    )}
-                  />
                 </div>
               </CardContent>
             </Card>
@@ -249,100 +163,23 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
                 <CardTitle className="text-2xl font-bold text-white bg-primary p-2 rounded-lg">
                   Delivery Details
                 </CardTitle>
-                <p className="text-muted-foreground text-sm ml-4">Where we&apos;ll deliver your orders</p>
+                <p className="text-muted-foreground text-sm ml-4">Your primary delivery address</p>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="street_address" className="text-sm font-medium">Street Address</Label>
-                    <Input
-                      id="street_address"
-                      name="street_address"
-                      value={isEditing ? (editedData?.street_address || userData.street_address || '') : (userData.street_address || '')}
-                      onChange={handleInputChange}
-                      readOnly={!isEditing}
-                      className={cn(
-                        "transition-all duration-200",
-                        !isEditing && "bg-muted border-none text-black",
-                        isEditing && "border-2 focus:border-primary text-white"
-                      )}
-                    />
+                  <div className="col-span-2">
+                    <InfoField label="Street Address" value={userData.street_address} />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address_line_2" className="text-sm font-medium">Address Line 2</Label>
-                    <Input
-                      id="address_line_2"
-                      name="address_line_2"
-                      value={isEditing ? (editedData?.address_line_2 || userData.address_line_2 || '') : (userData.address_line_2 || '')}
-                      onChange={handleInputChange}
-                      readOnly={!isEditing}
-                      className={cn(
-                        "transition-all duration-200",
-                        !isEditing && "bg-muted border-none text-black",
-                        isEditing && "border-2 focus:border-primary text-white"
-                      )}
-                    />
+                  <div className="col-span-2">
+                    <InfoField label="Residence Type" value={userData.residence_type} />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city" className="text-sm font-medium">City</Label>
-                    <Input
-                      id="city"
-                      name="city"
-                      value={isEditing ? (editedData?.city || userData.city || '') : (userData.city || '')}
-                      onChange={handleInputChange}
-                      readOnly={!isEditing}
-                      className={cn(
-                        "transition-all duration-200",
-                        !isEditing && "bg-muted border-none text-black",
-                        isEditing && "border-2 focus:border-primary text-white"
-                      )}
-                    />
+                  <InfoField label="Address Line 2" value={userData.address_line_2} />
+                  <InfoField label="City" value={userData.city} />
+                  <InfoField label="State" value={userData.state} />
+                  <InfoField label="Zip Code" value={userData.zipcode} />
+                  <div className="col-span-2">
+                    <InfoField label="Delivery Notes" value={userData.delivery_notes} />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="state" className="text-sm font-medium">State</Label>
-                    <Input
-                      id="state"
-                      name="state"
-                      value={isEditing ? (editedData?.state || userData.state || '') : (userData.state || '')}
-                      onChange={handleInputChange}
-                      readOnly={!isEditing}
-                      className={cn(
-                        "transition-all duration-200",
-                        !isEditing && "bg-muted border-none text-black",
-                        isEditing && "border-2 focus:border-primary text-white"
-                      )}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="zipcode" className="text-sm font-medium">Zip Code</Label>
-                    <Input
-                      id="zipcode"
-                      name="zipcode"
-                      value={isEditing ? (editedData?.zipcode || userData.zipcode || '') : (userData.zipcode || '')}
-                      onChange={handleInputChange}
-                      readOnly={!isEditing}
-                      className={cn(
-                        "transition-all duration-200",
-                        !isEditing && "bg-muted border-none text-black",
-                        isEditing && "border-2 focus:border-primary text-white"
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <Label htmlFor="delivery_notes" className="text-sm font-medium">Delivery Notes</Label>
-                  <Input
-                    id="delivery_notes"
-                    name="delivery_notes"
-                    value={isEditing ? (editedData?.delivery_notes || userData.delivery_notes || '') : (userData.delivery_notes || '')}
-                    onChange={handleInputChange}
-                    readOnly={!isEditing}
-                    className={cn(
-                      "transition-all duration-200",
-                      !isEditing && "bg-muted border-none text-black",
-                      isEditing && "border-2 focus:border-primary text-white"
-                    )}
-                  />
                 </div>
               </CardContent>
             </Card>
@@ -356,66 +193,20 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
                 <CardTitle className="text-2xl font-bold text-white bg-primary p-2 rounded-lg">
                   Order Preferences
                 </CardTitle>
-                <p className="text-muted-foreground text-sm ml-4">Customize your ordering experience</p>
+                <p className="text-muted-foreground text-sm ml-4">Tell us your preferences</p>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="strain-preference">Strain Preference</Label>
-                  <Select
-                    disabled={!isEditing}
-                    value={editedData?.strain_preference || userData.strain_preference}
-                    onValueChange={(value) => 
-                      setEditedData(prev => ({
-                        ...(prev || userData),
-                        strain_preference: value
-                      }))
-                    }
-                  >
-                    <SelectTrigger className={cn(
-                      "w-full transition-all duration-200",
-                      !isEditing && "bg-muted border-none text-black",
-                      isEditing && "border-2 focus:border-primary text-white"
-                    )}>
-                      <SelectValue placeholder="Select preferred strain type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {strainOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="replacement-preference">Replacement Preference</Label>
-                  <Select
-                    disabled={!isEditing}
-                    value={editedData?.replacement_preference || userData.replacement_preference}
-                    onValueChange={(value) =>
-                      setEditedData(prev => ({
-                        ...(prev || userData),
-                        replacement_preference: value
-                      }))
-                    }
-                  >
-                    <SelectTrigger className={cn(
-                      "w-full transition-all duration-200",
-                      !isEditing && "bg-muted border-none text-black",
-                      isEditing && "border-2 focus:border-primary text-white"
-                    )}>
-                      <SelectValue placeholder="Select replacement preference" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {replacementOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <InfoField 
+                  label="Strain Preference" 
+                  value={userData.strain_preference ? 
+                    userData.strain_preference.charAt(0).toUpperCase() + userData.strain_preference.slice(1) : null} 
+                />
+                <InfoField 
+                  label="Replacement Preference" 
+                  value={userData.replacement_preference === 'similar' ? 'Similar Product' :
+                         userData.replacement_preference === 'contact' ? 'Contact Me First' :
+                         userData.replacement_preference === 'refund' ? 'Refund' : null} 
+                />
 
                 <div className="space-y-2">
                   <Label>Care Package Settings</Label>
@@ -423,29 +214,26 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
                     <DialogTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className={cn(
-                          "w-full transition-all duration-200 hover:bg-primary hover:text-white",
-                          !isEditing && "bg-muted border-none text-black",
-                          isEditing && "border-2 focus:border-primary text-white"
-                        )}
+                        className="w-full transition-all duration-200 hover:bg-primary hover:text-white"
                       >
-                        Configure Care Package
+                        My Usual Order
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
-                      <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70  transition-opacity hover:opacity-100 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                      <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
                         <X className="h-4 w-4" />
                         <span className="sr-only">Close</span>
                       </DialogClose>
                       <DialogHeader>
-                        <DialogTitle>Care Package Preferences</DialogTitle>
+                        <DialogTitle>Usual Order</DialogTitle>
                         <DialogDescription>
-                          Configure your care package preferences. This will be used when we prepare special packages for you.
+                          Example order:
                         </DialogDescription>
                       </DialogHeader>
-                      {/* Add care package configuration options here */}
                       <div className="py-4">
-                        <p>Care package configuration coming soon...</p>
+                        <p>14g of Designer Sativa</p>
+                        <p>2 Sativa Pens</p>
+                        <p>3 Packs of Stiizy Gummies</p>
                       </div>
                     </DialogContent>
                   </Dialog>
@@ -460,32 +248,6 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
   return (
     <div className="space-y-6">
       {renderSection()}
-      <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-4 pt-4">
-        {isEditing ? (
-          <>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsEditing(false)} 
-              className="w-full sm:w-auto"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSubmit} 
-              className="w-full sm:w-auto"
-            >
-              Save Changes
-            </Button>
-          </>
-        ) : (
-          <Button 
-            onClick={handleEdit} 
-            className="w-full sm:w-auto"
-          >
-            Edit Information
-          </Button>
-        )}
-      </div>
     </div>
   );
 }

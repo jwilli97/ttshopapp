@@ -61,7 +61,7 @@ export default function Login() {
             <Image src="/new_TT_logo.png" width={115} height={115} alt="Welcome Logo"  />
           </div>
           <div>
-            <h1 className="text-white font-semibold text-4xl mb-8 ">Welcome to Tiny Trees!</h1>
+            <h1 className="text-white font-semibold text-4xl mb-8 ">Welcome!</h1>
           </div>
           <div className="grid w-full max-w-sm text-white items-center gap-2 mb-2">
             <Label htmlFor="email">Email</Label>
@@ -100,14 +100,14 @@ export default function Login() {
               Forgot Password?
             </Link>
           </div> */}
-          <div className="mt-8">
+          {/* <div className="mt-8">
             <Link 
               href="/auth/verify" 
               className="block text-sm text-center py-2"
             >
               Create Account
             </Link>
-          </div>
+          </div> */}
         </div>
       </form>
     </div>

@@ -20,7 +20,7 @@ export default function AccountPage() {
         const { data: { session } } = await supabase.auth.getSession();
 
         if (!session) {
-          router.push("/login");
+          router.push("/auth/welcome");
           return;
         }
 

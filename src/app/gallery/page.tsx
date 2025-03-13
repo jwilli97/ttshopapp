@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import BottomNav from '@/components/BottomNav';
 
 export default function ComingSoonGallery() {
   const router = useRouter();
@@ -19,16 +20,20 @@ export default function ComingSoonGallery() {
             className="mx-auto"
           />
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl mb-4">
-          Gallery Coming Soon
+        <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2">
+          Flower Gallery
         </h1>
-        <p className="mt-3 max-w-md mx-auto text-base text-white sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-          We are working hard to bring you an amazing photo gallery of our products.<br />Stay tuned for updates!
+        <h2 className='text-white text-xl mb-4'>
+          - Coming Soon -
+        </h2>
+        <p className="mt-4">
+          A first ever photo gallery of our products is currently under construction.<br />Stay tuned for updates!
         </p>
         <Button className='mt-4' onClick={() => router.push('/dashboard')}>
           Home
         </Button>
       </div>
+      <BottomNav />
     </div>
   );
 }

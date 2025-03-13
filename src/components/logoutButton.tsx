@@ -38,7 +38,6 @@ const LogOutButton: React.FC<LogOutButtonProps> = ({ children }) => {
       >
         {children || (
           <div className="flex flex-row items-center font-thin">
-            {isLoading ? 'LOGGING OUT...' : 'LOG OUT'}
             <LogOutIcon className="ml-2" />
           </div>
         )}
@@ -46,6 +45,6 @@ const LogOutButton: React.FC<LogOutButtonProps> = ({ children }) => {
       {error && <p className="text-red-500 mt-2">{error}</p>}
     </>
   );
-};
+}
 
 export default LogOutButton;

@@ -42,7 +42,7 @@ export default function Login() {
             <Image src="/new_TT_logo.png" width={115} height={115} alt="Welcome Logo" />
           </div>
           <div>
-            <h1 className="text-white font-semibold text-4xl mb-8">Welcome to Tiny Trees!</h1>
+            <h1 className="text-white font-semibold text-4xl mb-8">Welcome!</h1>
           </div>
           <div className="grid w-full max-w-sm text-white items-center gap-2 mb-4">
             <Label htmlFor="password">Password</Label>
@@ -75,8 +75,7 @@ export default function Login() {
       </form>
       
       <div className="fixed bottom-4 w-full text-center">
-        {/* TODO: Change routing for production */}
-        <Link href="/auth/welcome" className="text-sm text-accent">TinyTrees BETA</Link>
+        <Link href="/auth/welcome" className="text-sm text-accent">Beta Testers</Link>
       </div>
     </div>
   );
