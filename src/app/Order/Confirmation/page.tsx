@@ -26,6 +26,8 @@ interface OrderDetails {
     deliveryMethod: string;
     paymentMethod: string;
     status: orderStatus;
+    pickupTime?: string;
+    pickupLocation?: string;
 }
 
 interface Order {
@@ -342,8 +344,17 @@ export default function Orders() {
                                         <p><strong>Item: </strong> {details.item ? (details.item) : 'N/A'}</p>
                                         {details.tokenRedemption && <p><strong>Token Redemption:</strong> {capitalizeFirstLetter(details.tokenRedemption)}</p>}
                                         {details.phoneNumber && <p><strong>Phone: </strong> {formatPhoneNumber(details.phoneNumber)}</p>}
-                                        {details.deliveryStreetAddress && <p><strong>Address: </strong> {(details.deliveryStreetAddress)}, {details.deliveryZipcode}</p>}
-                                        {details.deliveryMethod && <p><strong>Delivery Method: </strong> {capitalizeFirstLetter(details.deliveryMethod)}</p>}
+                                        {details.deliveryMethod === 'Pickup' ? (
+                                            <>
+                                                <p><strong>Pickup Location: </strong> {details.pickupLocation}</p>
+                                                <p><strong>Pickup Time: </strong> {details.pickupTime}</p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p><strong>Address: </strong> {(details.deliveryStreetAddress)}, {details.deliveryZipcode}</p>
+                                                <p><strong>Delivery Method: </strong> {capitalizeFirstLetter(details.deliveryMethod ?? '')}</p>
+                                            </>
+                                        )}
                                         {details.paymentMethod && <p><strong>Payment Method: </strong> {capitalizeFirstLetter(details.paymentMethod)}</p>}
                                         <p><strong>Status: </strong>{capitalizeFirstLetter(orders[0].status)}</p>
                                         <p><strong>Total: </strong>${orders[0].total}</p>

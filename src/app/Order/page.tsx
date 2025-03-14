@@ -166,6 +166,15 @@ export default function NewOrder() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="absolute right-4 top-4 rounded-sm hover:bg-background"
+                  onClick={() => setShowTokenShop(false)}
+                >
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Close</span>
+                </Button>
                 <DialogHeader>
                   <DialogTitle className="text-white mt-2 text-2xl">Token Shop</DialogTitle>
                   <p className="text-white text-md">Redeem your tokens for rewards</p>
@@ -176,7 +185,7 @@ export default function NewOrder() {
                       <div className="flex flex-row justify-between items-center p-4">
                         <div className="flex items-center gap-2">
                           <div className="flex-col text-sm font-medium text-white">
-                            <Badge variant="secondary" className="bg-accent">{item.cost} Tokens</Badge>
+                            <Badge variant="secondary" className="bg-accent text-black">{item.cost} Tokens</Badge>
                             <p>{item.name}</p>
                           </div>
                         </div>
@@ -186,17 +195,20 @@ export default function NewOrder() {
                             disabled={loyaltyBalance === null || loyaltyBalance < item.cost}
                             size="sm"
                           >
-                            Claim Reward
+                            Redeem
                           </Button>
                         </div>
                       </div>
                     </Card>
                   ))}
                 </div>
-                <DialogFooter className="sticky bottom-0 bg-transparent z-10 pt-4">
-                  <div className="flex justify-center">
-                    <Button onClick={() => setShowTokenShop(false)}>Close</Button>
-                  </div>
+                <DialogFooter className="w-full pt-4">
+                  <Button 
+                    onClick={() => setShowTokenShop(false)}
+                    className="w-full"
+                  >
+                    Close
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -210,14 +222,14 @@ export default function NewOrder() {
       id: 'deliveryAndConfirmation',
       title: "Review & Confirm Order",
       content: (
-        <div className="space-y-6 text-black">
+        <div className="space-y-4 text-black">
           {/* Order Items */}
           <div className="border border-gray-300 rounded-lg p-4 bg-gray-100">
             <h3 className="font-bold mb-2">Order Items:</h3>
             <p>{(orderDetails.item)}</p>
             {orderDetails.tokenRedemption && (
               <p className="mt-2">
-                <span className="font-semibold">Token Redemption: </span>
+                <span className="font-semibold">Token Redemption: </span><br />
                 {orderDetails.tokenRedemption}
               </p>
             )}
@@ -257,9 +269,9 @@ export default function NewOrder() {
             ) : (
               <>
                 <p>{(orderDetails.deliveryStreetAddress)}, {capitalizeFirst(orderDetails.deliveryCity)}, {orderDetails.deliveryState.toUpperCase()} {orderDetails.deliveryZipcode}</p>
-                <div className="mt-2">
-                  <p><span className="font-semibold">Residence Type:<br /> </span>{capitalizeFirst(orderDetails.deliveryResidenceType)}</p>
-                  <p className="mt-2"><span className="font-semibold">Delivery Method:<br /> </span>{capitalizeFirst(orderDetails.deliveryMethod)}</p>
+                <div className="mt-2 space-y-2">
+                  <p><span className="font-semibold">Residence Type: </span><br />{capitalizeFirst(orderDetails.deliveryResidenceType)}</p>
+                  <p><span className="font-semibold">Delivery Method: </span><br />{capitalizeFirst(orderDetails.deliveryMethod)}</p>
                 </div>
               </>
             )}
@@ -435,20 +447,20 @@ export default function NewOrder() {
           </div>
 
           {/* Phone Number */}
-          <div className="mt-2">
+          <div>
             <h3 className="font-bold">Phone Number:</h3>
             <p>{formatPhoneNumber(orderDetails.phoneNumber)}</p>
           </div>
 
           {/* Estimated Time */}
           <div>
-            <DeliveryInfo zipcode={orderDetails.deliveryZipcode} hideIfFreeDelivery={true} />
+            <DeliveryInfo zipcode={orderDetails.deliveryZipcode} />
           </div>
 
           {/* Total and Payment */}
           <div>
             <h3 className="font-bold">Total:</h3>
-            <p className="text-md mb-4">{orderDetails.total === null ? 'Pending Confirmation' : `$${orderDetails.total}`}</p>
+            <p className="mb-4">{orderDetails.total === null ? 'Pending Confirmation' : `$${orderDetails.total}`}</p>
             
             <h3 className="font-bold mb-2">Payment Method:</h3>
             <RadioGroup 
@@ -476,7 +488,7 @@ export default function NewOrder() {
               </div>
             </RadioGroup>
             {orderDetails.deliveryMethod === 'Contactless' && orderDetails.paymentMethod === 'Venmo' && (
-              <p className="text-red-500 text-sm mt-4">Prepayment required for Venmo & contactless delivery</p>
+              <p className="text-red-500 text-sm mt-2">Prepayment required for Venmo & contactless delivery</p>
             )}
           </div>
         </div>

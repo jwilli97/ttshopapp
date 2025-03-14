@@ -74,7 +74,11 @@ export default function DeliveryInfo({ zipcode, hideIfFreeDelivery = false }: De
       </p>
       {deliveryInfo.delivery_fee !== null && (
         <p>
-          Delivery Fee: ${deliveryInfo.delivery_fee.toFixed(2)}
+          {deliveryInfo.delivery_fee === 0 ? (
+            'Free Delivery'
+          ) : (
+            `Delivery Fee: $${deliveryInfo.delivery_fee.toFixed(2)}`
+          )}
         </p>
       )}
       {deliveryInfo.delivery_range && (

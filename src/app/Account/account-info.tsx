@@ -99,8 +99,17 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
       }
 
       const updates = {
+        street_address: editedData?.street_address || userData.street_address,
+        address_line_2: editedData?.address_line_2 || userData.address_line_2,
+        city: editedData?.city || userData.city,
+        state: editedData?.state || userData.state,
+        zipcode: editedData?.zipcode || userData.zipcode,
+        residence_type: editedData?.residence_type || userData.residence_type,
+        delivery_notes: editedData?.delivery_notes || userData.delivery_notes,
         display_name: editedData?.display_name || userData.display_name,
         avatar_url: editedData?.avatar_url || userData.avatar_url,
+        strain_preference: editedData?.strain_preference || userData.strain_preference,
+        replacement_preference: editedData?.replacement_preference || userData.replacement_preference,
         updated_at: new Date().toISOString(),
       };
 
@@ -111,14 +120,12 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
 
       if (error) throw error;
 
-      // Update local state with type safety
+      // Update local state
       setUserData(prev => {
         if (!prev) return null;
         return {
           ...prev,
-          display_name: updates.display_name,
-          avatar_url: updates.avatar_url,
-          updated_at: updates.updated_at
+          ...updates
         };
       });
 
@@ -126,9 +133,8 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
       setEditedData(null);
     } catch (error) {
       console.error('Error updating profile:', error);
-      // You might want to show an error message to the user here
     }
-  }
+  };
 
   const handleAvatarSelect = (avatarUrl: string) => {
     setEditedData(prev => ({
@@ -237,25 +243,126 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
                 </CardTitle>
                 <p className="text-muted-foreground text-sm">Your primary delivery address</p>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="col-span-2">
-                    <InfoField label="Street Address" value={userData.street_address} />
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        <Label htmlFor="street_address">Street Address</Label>
+                        <Input
+                          id="street_address"
+                          name="street_address"
+                          value={editedData?.street_address || ''}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    ) : (
+                      <InfoField label="Street Address" value={userData.street_address} />
+                    )}
                   </div>
-                  <InfoField label="Address Line 2" value={userData.address_line_2} />
-                  <InfoField label="City" value={userData.city} />
-                  <InfoField label="State" value={userData.state} />
-                  <InfoField label="Zip Code" value={userData.zipcode} />
-                  <div className="col-span-2">
-                    <InfoField 
-                      label="Residence Type" 
-                      value={userData.residence_type ? 
-                        userData.residence_type.charAt(0).toUpperCase() + userData.residence_type.slice(1) : null} 
-                    />
+                  {isEditing ? (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="address_line_2">Address Line 2</Label>
+                        <Input
+                          id="address_line_2"
+                          name="address_line_2"
+                          value={editedData?.address_line_2 || ''}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="city">City</Label>
+                        <Input
+                          id="city"
+                          name="city"
+                          value={editedData?.city || ''}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="state">State</Label>
+                        <Input
+                          id="state"
+                          name="state"
+                          value={editedData?.state || ''}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="zipcode">Zip Code</Label>
+                        <Input
+                          id="zipcode"
+                          name="zipcode"
+                          value={editedData?.zipcode || ''}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <InfoField label="Address Line 2" value={userData.address_line_2} />
+                      <InfoField label="City" value={userData.city} />
+                      <InfoField label="State" value={userData.state} />
+                      <InfoField label="Zip Code" value={userData.zipcode} />
+                    </>
+                  )}
+                  <div>
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        <Label htmlFor="residence_type">Residence Type</Label>
+                        <Select
+                          name="residence_type"
+                          value={editedData?.residence_type || ''}
+                          onValueChange={(value) => 
+                            setEditedData(prev => ({
+                              ...(prev || userData),
+                              residence_type: value
+                            }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select residence type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="house">House</SelectItem>
+                            <SelectItem value="apartment">Apartment</SelectItem>
+                            <SelectItem value="condo">Condo</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ) : (
+                      <InfoField 
+                        label="Residence Type" 
+                        value={userData.residence_type ? 
+                          userData.residence_type.charAt(0).toUpperCase() + userData.residence_type.slice(1) : null} 
+                      />
+                    )}
                   </div>
-                  <div className="col-span-2">
-                    <InfoField label="Delivery Notes" value={userData.delivery_notes} />
+                  <div>
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        <Label htmlFor="delivery_notes">Delivery Notes</Label>
+                        <Input
+                          id="delivery_notes"
+                          name="delivery_notes"
+                          value={editedData?.delivery_notes || ''}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    ) : (
+                      <InfoField label="Delivery Notes" value={userData.delivery_notes} />
+                    )}
                   </div>
+                </div>
+                <div className="pt-4 flex">
+                  <Button 
+                    onClick={() => isEditing ? handleSubmit() : handleEdit()}
+                    variant={isEditing ? "default" : "outline"}
+                    className="transition-all duration-200 w-full hover:bg-background"
+                  >
+                    {isEditing ? "Save Changes" : "Edit"}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -265,24 +372,84 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
         return (
           <div className="space-y-4 animate-in fade-in-50 duration-500">
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-              <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold text-white rounded-lg">
-                  Order Preferences
-                </CardTitle>
-                <p className="text-muted-foreground text-sm">Tell us your preferences</p>
+              <CardHeader className="space-y-1 flex flex-row justify-between items-center">
+                <div>
+                  <CardTitle className="text-2xl font-bold text-white rounded-lg">
+                    Order Preferences
+                  </CardTitle>
+                  <p className="text-muted-foreground text-sm">Tell us your preferences</p>
+                </div>
+                <Button 
+                  onClick={() => isEditing ? handleSubmit() : handleEdit()}
+                  variant={isEditing ? "default" : "outline"}
+                  className="transition-all duration-200"
+                >
+                  {isEditing ? "Save Changes" : "Edit"}
+                </Button>
               </CardHeader>
               <CardContent className="space-y-6">
-                <InfoField 
-                  label="Strain Preference" 
-                  value={userData.strain_preference ? 
-                    userData.strain_preference.charAt(0).toUpperCase() + userData.strain_preference.slice(1) : null} 
-                />
-                <InfoField 
-                  label="Replacement Preference" 
-                  value={userData.replacement_preference === 'similar' ? 'Similar Product' :
-                         userData.replacement_preference === 'contact' ? 'Contact Me First' :
-                         userData.replacement_preference === 'refund' ? 'Refund' : null} 
-                />
+                {isEditing ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="strain_preference">Strain Preference</Label>
+                      <Select
+                        name="strain_preference"
+                        value={editedData?.strain_preference || ''}
+                        onValueChange={(value) => 
+                          setEditedData(prev => ({
+                            ...(prev || userData),
+                            strain_preference: value
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select strain preference" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="indica">Indica</SelectItem>
+                          <SelectItem value="sativa">Sativa</SelectItem>
+                          <SelectItem value="hybrid">Hybrid</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="replacement_preference">Replacement Preference</Label>
+                      <Select
+                        name="replacement_preference"
+                        value={editedData?.replacement_preference || ''}
+                        onValueChange={(value) => 
+                          setEditedData(prev => ({
+                            ...(prev || userData),
+                            replacement_preference: value
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select replacement preference" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="contact">Contact Me First</SelectItem>
+                          <SelectItem value="similar">Similar Product</SelectItem>
+                          <SelectItem value="refund">No Replacement</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <InfoField 
+                      label="Strain Preference" 
+                      value={userData.strain_preference ? 
+                        userData.strain_preference.charAt(0).toUpperCase() + userData.strain_preference.slice(1) : null} 
+                    />
+                    <InfoField 
+                      label="Replacement Preference" 
+                      value={userData.replacement_preference === 'similar' ? 'Similar Product' :
+                             userData.replacement_preference === 'contact' ? 'Contact Me First' :
+                             userData.replacement_preference === 'refund' ? 'No Replacement' : null} 
+                    />
+                  </>
+                )}
 
                 <div className="space-y-2">
                   <Label>Usual Order</Label>
