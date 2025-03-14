@@ -112,56 +112,60 @@ const TokenShop: React.FC<TokenShopProps> = ({ userId }) => {
     const toggleShop = () => setIsShopOpen(!isShopOpen);
 
     return (
-        <div className="w-full max-w-md mx-auto pb-4 pr-4 pl-4 bg-background text-white rounded-lg">
+        <div className="w-full max-w-md mx-auto px-3 pb-3 bg-background text-white rounded-lg">
             {isLoading ? (
                 <div className="animate-pulse h-8 bg-gray-200 rounded"></div>
             ) : error ? (
-                <div className="text-red-500">Error: {error}</div>
+                <div className="text-red-500 text-sm">Error: {error}</div>
             ) : (
                 <>
-                    <div className="animate-in motion-preset-confetti motion-duration-1500">
-                        <span className="flex items-center text-2xl font-bold">
-                            <CoinIcon />{loyaltyBalance ?? 0}
+                    <div className="mt-1 animate-in motion-preset-confetti motion-duration-1500">
+                        <span className="flex items-center text-2xl md:text-3xl font-bold gap-1">
+                            {loyaltyBalance ?? 0}<CoinIcon />
                         </span>
                     </div>
-                    <div className="mb-6">
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="font-medium text-white">Token Balance</span>
+                    <div className="mb-4 md:mb-6">
+                        <div className="flex justify-between items-center mb-1.5">
+                            <span className="font-medium text-sm md:text-base text-white">Token Balance</span>
                         </div>
-                        <Progress value={progressPercentage} className="w-full [&>div]:bg-accent bg-muted/45 backdrop-blur-sm rounded-full border border-muted/10" />
-                        <div className="relative w-full h-2 mt-1">
+                        <Progress value={progressPercentage} className="w-full h-2 [&>div]:bg-accent bg-muted/45 backdrop-blur-sm rounded-full border border-muted/10" />
+                        <div className="relative w-full mt-0.5">
                             {tickValues.map((value: number) => {
                                 const tickPosition = (value / maxValue) * 100;
                                 return (
                                     <div
                                         key={value}
-                                        className="absolute transform -translate-x-1/2"
+                                        className="absolute transform -translate-x-1/2 -translate-y-1"
                                         style={{ left: `${tickPosition}%` }}
                                     >
-                                        <span className="text-xs text-white">{value}</span>
+                                        <span className="text-[10px] md:text-xs text-white/80">{value}</span>
                                     </div>
                                 );
                             })}
                         </div>
                     </div>
-                    <div>
+                    <div className="mt-8 md:mt-12">
                         <Button
                             onClick={toggleShop}
-                            className="w-full flex justify-between items-center"
+                            className={`w-full flex justify-between items-center h-10 md:h-11 hover:bg-background ${
+                                isShopOpen ? 'border-accent' : ''
+                            }`}
                             variant="outline"
                         >
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5">
                                 <ShopIcon />
-                                <span className="text-lg">Browse Token Shop</span>
+                                <span className="text-base md:text-lg">Browse Token Shop</span>
                             </div>
-                            {isShopOpen ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
+                            {isShopOpen ? <ChevronUpIcon className="h-4 w-4 md:h-5 md:w-5" /> : <ChevronDownIcon className="h-4 w-4 md:h-5 md:w-5" />}
                         </Button>
                         {isShopOpen && (
-                            <ul className="mt-4 text-background space-y-2">
+                            <ul className="mt-3 text-background space-y-1.5">
                                 {shopItems.map((item) => (
                                     <li key={item.id} className="flex justify-between items-center p-2 bg-muted/45 backdrop-blur-sm rounded-md border border-muted/10">
-                                        <span>{item.name}</span>
-                                        <span className="flex items-center font-medium">{item.cost} <CoinIcon /></span>
+                                        <span className="text-sm md:text-base">{item.name}</span>
+                                        <span className="flex items-center gap-1 font-medium text-sm md:text-base">
+                                            {item.cost} <CoinIcon />
+                                        </span>
                                     </li>
                                 ))}
                             </ul>

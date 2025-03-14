@@ -12,6 +12,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import BottomNav from "@/components/BottomNav";
 import Intercom from '@intercom/messenger-js-sdk';
 import { ClipLoader } from "react-spinners";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 // config.autoAddCss = false;
 
 export default function Dashboard() {
@@ -23,6 +24,7 @@ export default function Dashboard() {
     const [error, setError] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const router = useRouter();
+    const [isMenuExpanded, setIsMenuExpanded] = useState(false);
     // Create Supabase client inside the component
     const supabase = createClientComponentClient();
 
@@ -132,29 +134,42 @@ export default function Dashboard() {
 
     return (
         <ProtectedRoute>
-            <div className="flex h-screen w-full flex-col items-center px-4 py-6 relative">
+            <div className="flex min-h-screen w-full flex-col items-center px-3 py-4 relative">
                 <div className="w-full">
                     <TopNav />
                 </div>
                 <div className="flex flex-col w-full items-center">
-                    <div className="container bg-[#cbd5e1]/25 h-0.5 w-full md:w-11/12 mb-3 rounded-full"></div>
+                    <div className="container bg-[#cbd5e1]/25 h-0.5 w-full md:w-11/12 my-2 rounded-full"></div>
                     <TokenShop userId={userId || ''} />
-                    <div className="container bg-[#cbd5e1]/25 h-0.5 w-full md:w-11/12 mt-3  rounded-full"></div>
-                    <div className="mt-6 mb-36 w-full">
-                        <div className="w-full mx-auto" style={{ position: 'relative', height: '500px', paddingTop: '66.67%' }}>
-                            <Image
+                    <div className="container bg-[#cbd5e1]/25 h-0.5 w-full md:w-11/12 my-2 rounded-full"></div>
+                    <div className="mt-4 mb-24 w-full">
+                        <div className="mb-24 w-full">
+                            {/* <Image
                                 src="/HTX_menu_mar13.png"
                                 alt="Current Menu"
                                 fill
                                 priority
-                                style={{ objectFit: 'contain' }}
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
+                                className="object-contain hover:cursor-zoom-in"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw"
+                                onClick={() => window.open('/HTX_menu_mar13.png', '_blank')}
+                            /> */}
+                            <div className="w-full mx-auto" style={{ position: 'relative', height: '500px', paddingTop: '66.67%' }}>
+                                <Image
+                                    src="/HTX_menu_mar13.png"
+                                    alt="Current Menu"
+                                    fill
+                                    priority
+                                    style={{ objectFit: 'contain' }}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    onClick={() => window.open('/HTX_menu_mar13.png', '_blank')}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="fixed bottom-14 left-0 w-full flex justify-center pb-6 px-4 z-50">
-                    <Button className="text-white text-lg hover:bg-primary bg-primary w-full md:w-72 h-11 shadow-lg" onClick={() => router.push('/Order')}> 
+                <div className="fixed bottom-16 left-0 w-full flex justify-center px-6 py-4 z-50">
+                    <Button className="text-white text-base font-medium hover:bg-primary/90 bg-primary w-full md:w-72 h-12 shadow-md rounded-lg" 
+                           onClick={() => router.push('/Order')}> 
                         Place Order
                     </Button>
                 </div>

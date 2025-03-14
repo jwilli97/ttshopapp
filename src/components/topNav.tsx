@@ -60,10 +60,10 @@ export default function TopNav() {
     };
 
     return (
-        <nav className="flex items-center justify-between pr-4 pl-4 pb-4">
-            <div className="flex items-center space-x-4">
+        <nav className="flex items-center justify-between px-2 pb-2">
+            <div className="flex items-center gap-2">
                 <Avatar 
-                    className="h-20 w-20 cursor-pointer"
+                    className="h-16 w-16 md:h-20 md:w-20 cursor-pointer"
                     onClick={handleNavigateToAccount}
                 >
                     <AvatarImage src={avatarUrl} alt="@user" />
@@ -71,14 +71,16 @@ export default function TopNav() {
                 </Avatar>
                 <div className="flex flex-col">
                     <span 
-                        className="text-4xl text-primary font-semibold cursor-pointer"
+                        className="text-2xl md:text-4xl text-primary font-semibold cursor-pointer truncate max-w-[200px] md:max-w-none"
                         onClick={handleNavigateToAccount}
                     >
                         {displayName}
                     </span>
-                    <div className="flex text-xl items-center text-white">
-                        <span>{streetAddress}</span>
-                        <ChevronRight className="h-5 w-5" />
+                    <div className="flex items-center text-white">
+                        <span className="text-base md:text-xl truncate max-w-[180px] md:max-w-none">
+                            {streetAddress}
+                        </span>
+                        <ChevronRight className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
                     </div>
                 </div>
             </div>

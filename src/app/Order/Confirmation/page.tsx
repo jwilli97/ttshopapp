@@ -187,7 +187,7 @@ export default function Orders() {
                         <div className="flex flex-col items-center py-4 sm:py-8">
                             <div className="flex items-center">
                                 <StatusStep
-                                    label="Order Received"
+                                    label="Received"
                                     isCompleted={['processing', 'out for delivery'].includes(orders[0].status)}
                                     isActive={orders[0].status === 'received'}
                                 />
@@ -197,7 +197,7 @@ export default function Orders() {
                                     isActive={['processing'].includes(orders[0].status)}
                                 />
                                 <StatusStep
-                                    label="Out for Delivery"
+                                    label="En Route"
                                     isCompleted={['completed', 'cancelled'].includes(orders[0].status)}
                                     isActive={orders[0].status === 'out for delivery'}
                                 />

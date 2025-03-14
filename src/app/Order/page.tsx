@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import Intercom from '@intercom/messenger-js-sdk';
+import ShopIcon from "@/components/icons/shopIcon";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface OrderDetails {
@@ -127,7 +128,51 @@ export default function NewOrder() {
             onChange={(e) => setOrderDetails({ ...orderDetails, item: e.target.value })}
             rows={3}
           />
-          <p className="text-black text-sm text-center mt-1">Please note that we have a $100 minimum order requirement.</p>
+          <div className="mt-2 w-full">
+            <Dialog open={showTokenShop} onOpenChange={setShowTokenShop}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="w-full text-accent flex items-center gap-2 justify-center">
+                  <ShopIcon />
+                  Token Shop
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-white mt-2 text-2xl">Token Shop</DialogTitle>
+                  <p className="text-white text-md">Redeem your tokens for rewards</p>
+                </DialogHeader>
+                <div className="grid gap-4">
+                  {tokenShopItems.map((item) => (
+                    <Card key={item.id}>
+                      <div className="flex flex-row justify-between items-center p-4">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-col text-sm font-medium text-white">
+                            <Badge variant="secondary" className="bg-accent">{item.cost} Tokens</Badge>
+                            <p>{item.name}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <Button
+                            onClick={() => handleRewardClaim(item.id)}
+                            disabled={loyaltyBalance === null || loyaltyBalance < item.cost}
+                            size="sm"
+                          >
+                            Claim Reward
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+                <DialogFooter className="sticky bottom-0 bg-transparent z-10 pt-4">
+                  <div className="flex justify-center">
+                    <Button onClick={() => setShowTokenShop(false)}>Close</Button>
+                  </div>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+          <p className="text-black text-sm mt-1">Please note that we have a $100 minimum order requirement.</p>
         </div>
       ),
       nextStep: () => 'deliveryAndConfirmation',
@@ -151,132 +196,109 @@ export default function NewOrder() {
 
           {/* Delivery Information */}
           <div>
-            <h3 className="font-bold mb-2">Delivery Address</h3>
+            <h3 className="font-bold">Delivery Address</h3>
             <p>{orderDetails.deliveryStreetAddress}, {orderDetails.deliveryCity}, {orderDetails.deliveryState} {orderDetails.deliveryZipcode}</p>
-            <p className="mt-1"><span className="font-semibold">Residence Type: </span>{orderDetails.deliveryResidenceType}</p>
-            <p className="mt-1"><span className="font-semibold">Delivery Method: </span>{orderDetails.deliveryMethod}</p>
-            <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
-              <DialogTrigger asChild>
-                <Button size="sm" variant="ghost" className="mt-2 text-primary">
-                  Edit Address
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle className="text-white">Enter New Delivery Address</DialogTitle>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="absolute right-0 top-0 rounded-sm"
-                    onClick={() => setShowAddressDialog(false)}
-                  >
-                    <X className="h-4 w-4" />
-                    <span className="sr-only">Close</span>
+            <div className="mt-2">
+              <p><span className="font-semibold">Residence Type:<br /> </span>{orderDetails.deliveryResidenceType}</p>
+              <p className="mt-2"><span className="font-semibold">Delivery Method:<br /> </span>{orderDetails.deliveryMethod}</p>
+            </div>
+            <div>
+              <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="text-primary bg-white hover:bg-white">
+                    Edit Address
                   </Button>
-                </DialogHeader>
-                <div className="flex flex-col gap-4">
-                  <Input 
-                    type="text" 
-                    placeholder="Street Address" 
-                    onChange={(e) => setStreetAddress(e.target.value)}
-                  />
-                  <Input 
-                    type="text" 
-                    placeholder="Address Line 2" 
-                    onChange={(e) => setAddressLine2(e.target.value)}
-                  />
-                  <div className="flex flex-row gap-2">
-                    <Input 
-                      type="text" 
-                      placeholder="City" 
-                      onChange={(e) => setCity(e.target.value)}
-                    />
-                    <Input 
-                      type="text" 
-                      placeholder="State" 
-                      onChange={(e) => setState(e.target.value)}
-                    />
-                    <Input 
-                      type="text" 
-                      placeholder="ZIP Code" 
-                      onChange={(e) => setZipcode(e.target.value)}
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Delivery Method</Label>
-                    <RadioGroup 
-                      defaultValue={orderDetails.deliveryMethod}
-                      onValueChange={(value) => setOrderDetails({ ...orderDetails, deliveryMethod: value })}
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle className="text-white">Enter New Delivery Address</DialogTitle>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="absolute right-0 top-0 rounded-sm"
+                      onClick={() => setShowAddressDialog(false)}
                     >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Handoff" id="handoff" />
-                        <Label htmlFor="handoff">Handoff</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Contactless" id="contactless" />
-                        <Label htmlFor="contactless">Contactless</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Pickup" id="pickup" />
-                        <Label htmlFor="pickup">Pickup</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                  
-                  <div className="space-y-2 text-white">
-                    <Label>Residence Type</Label>
-                    <RadioGroup 
-                      defaultValue={residenceType}
-                      onValueChange={(value) => setResidenceType(value)}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="House" id="house" />
-                        <Label htmlFor="house">House/Townhouse</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Apartment" id="apartment" />
-                        <Label htmlFor="apartment">Apartment/Highrise</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  <div className="flex mt-2 gap-2 justify-between">
-                    <Button 
-                      className="text-primary border-primary"
-                      variant="outline"
-                      onClick={async () => {
-                        // Update only the current order details
-                        setOrderDetails(prev => ({
-                          ...prev,
-                          deliveryStreetAddress: streetAddress,
-                          deliveryCity: city,
-                          deliveryState: state,
-                          deliveryZipcode: zipcode,
-                          deliveryResidenceType: residenceType
-                        }));
-                        setShowAddressDialog(false);
-                      }}
-                    >
-                      Use Once
+                      <X className="h-4 w-4" />
+                      <span className="sr-only">Close</span>
                     </Button>
-                    <Button 
-                      onClick={async () => {
-                        try {
-                          // Update both order details and user profile in Supabase
-                          const { error } = await supabase
-                            .from('profiles')
-                            .update({
-                              street_address: streetAddress,
-                              city: city,
-                              state: state,
-                              zipcode: zipcode,
-                              residence_type: residenceType
-                            })
-                            .eq('user_id', userId as string);
+                  </DialogHeader>
+                  <div className="flex flex-col gap-4">
+                    <Input 
+                      type="text" 
+                      placeholder="Street Address" 
+                      onChange={(e) => setStreetAddress(e.target.value)}
+                    />
+                    <Input 
+                      type="text" 
+                      placeholder="Address Line 2" 
+                      onChange={(e) => setAddressLine2(e.target.value)}
+                    />
+                    <div className="flex flex-row gap-2">
+                      <Input 
+                        type="text" 
+                        placeholder="City" 
+                        onChange={(e) => setCity(e.target.value)}
+                      />
+                      <Input 
+                        type="text" 
+                        placeholder="State" 
+                        onChange={(e) => setState(e.target.value)}
+                      />
+                      <Input 
+                        type="text" 
+                        placeholder="ZIP Code" 
+                        onChange={(e) => setZipcode(e.target.value)}
+                      />
+                    </div>
 
-                          if (error) throw error;
+                    <div className="mt-2">
+                      <DeliveryInfo zipcode={zipcode} />
+                    </div>
 
+                    <div>
+                      <Label>Delivery Method</Label>
+                      <RadioGroup 
+                        defaultValue={orderDetails.deliveryMethod}
+                        onValueChange={(value) => setOrderDetails({ ...orderDetails, deliveryMethod: value })}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="Handoff" id="handoff" />
+                          <Label htmlFor="handoff">Handoff</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="Contactless" id="contactless" />
+                          <Label htmlFor="contactless">Contactless</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="Pickup" id="pickup" />
+                          <Label htmlFor="pickup">Pickup</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="space-y-2 text-white">
+                      <Label>Residence Type</Label>
+                      <RadioGroup 
+                        defaultValue={residenceType}
+                        onValueChange={(value) => setResidenceType(value)}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="House" id="house" />
+                          <Label htmlFor="house">House/Townhouse</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="Apartment" id="apartment" />
+                          <Label htmlFor="apartment">Apartment/Highrise</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+
+                    <div className="flex mt-2 gap-2 justify-between">
+                      <Button 
+                        className="text-primary border-primary"
+                        variant="outline"
+                        onClick={async () => {
+                          // Update only the current order details
                           setOrderDetails(prev => ({
                             ...prev,
                             deliveryStreetAddress: streetAddress,
@@ -285,28 +307,59 @@ export default function NewOrder() {
                             deliveryZipcode: zipcode,
                             deliveryResidenceType: residenceType
                           }));
-
-                          // Update local state
-                          setStreetAddress(streetAddress);
-                          setCity(city);
-                          setState(state);
-                          setZipcode(zipcode);
-                          setResidenceType(residenceType);
-
                           setShowAddressDialog(false);
-                          alert('Default address updated successfully!');
-                        } catch (error) {
-                          console.error('Error updating default address:', error);
-                          alert('Failed to update default address. Please try again.');
-                        }
-                      }}
-                    >
-                      Set as Default
-                    </Button>
+                        }}
+                      >
+                        Use Once
+                      </Button>
+                      <Button 
+                        onClick={async () => {
+                          try {
+                            // Update both order details and user profile in Supabase
+                            const { error } = await supabase
+                              .from('profiles')
+                              .update({
+                                street_address: streetAddress,
+                                city: city,
+                                state: state,
+                                zipcode: zipcode,
+                                residence_type: residenceType
+                              })
+                              .eq('user_id', userId as string);
+
+                            if (error) throw error;
+
+                            setOrderDetails(prev => ({
+                              ...prev,
+                              deliveryStreetAddress: streetAddress,
+                              deliveryCity: city,
+                              deliveryState: state,
+                              deliveryZipcode: zipcode,
+                              deliveryResidenceType: residenceType
+                            }));
+
+                            // Update local state
+                            setStreetAddress(streetAddress);
+                            setCity(city);
+                            setState(state);
+                            setZipcode(zipcode);
+                            setResidenceType(residenceType);
+
+                            setShowAddressDialog(false);
+                            alert('Default address updated successfully!');
+                          } catch (error) {
+                            console.error('Error updating default address:', error);
+                            alert('Failed to update default address. Please try again.');
+                          }
+                        }}
+                      >
+                        Set as Default
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
 
           {/* Delivery Method */}
@@ -321,14 +374,14 @@ export default function NewOrder() {
 
           {/* Phone Number */}
           <div>
-            <h3 className="font-bold mb-2">Phone Number</h3>
+            <h3 className="font-bold">Phone Number</h3>
             <p>{formatPhoneNumber(orderDetails.phoneNumber)}</p>
           </div>
 
           {/* Total and Payment */}
           <div>
-            <h3 className="font-bold mb-2">Total</h3>
-            <p className="text-xl mb-4">{orderDetails.total === null ? 'Pending' : `$${orderDetails.total}`}</p>
+            <h3 className="font-bold">Total</h3>
+            <p className="text-md mb-4">{orderDetails.total === null ? 'Pending' : `$${orderDetails.total}`}</p>
             
             <h3 className="font-bold mb-2">Payment Method</h3>
             <RadioGroup 
@@ -627,84 +680,26 @@ export default function NewOrder() {
               <h2 className="text-2xl font-bold mb-6 text-black">{currentStep.title}</h2>
               <div className="mb-8 text-black">{currentStep.content}</div>
             </div>
-            <div className="flex justify-between">
-              {currentStepIndex > 0 && (
-                <Button className="bg-primary text-white" onClick={handlePrevious} variant="outline">
-                  <ChevronLeft className="mr-1 h-4 w-4" /> Back
-                </Button>
-              )}
+            <div className="flex flex-col gap-2">
               {currentStep.id === 'deliveryAndConfirmation' ? (
                 <>
-                  <Button onClick={handleNext} className="bg-primary text-white">
+                  <Button onClick={handleNext} className="bg-primary text-white w-full">
                     Submit Order
                   </Button>
                 </>
               ) : (
-                <Button onClick={handleNext} className={`${currentStepIndex === 0 ? "ml-auto" : ""} text-white`}>
+                <Button onClick={handleNext} className="w-full text-white">
                   Next <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               )}
-            </div>
-            <div className="mt-8 flex flex-col justify-center items-center">
-              <Dialog open={showTokenShop} onOpenChange={setShowTokenShop}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="text-accent">
-                    <Coins className="mr-2 h-4 w-4" />
-                    Token Shop
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle className="text-white mt-2 text-2xl">Token Shop</DialogTitle>
-                    <p className="text-white text-md">Redeem your tokens for rewards</p>
-                  </DialogHeader>
-                  <div className="grid gap-4">
-                    {tokenShopItems.map((item) => (
-                      <Card key={item.id}>
-                        <div className="flex flex-row justify-between items-center p-4">
-                          <div className="flex items-center gap-2">
-                            <div className="flex-col text-sm font-medium text-white">
-                              <Badge variant="secondary" className="bg-accent">{item.cost} Tokens</Badge>
-                              <p>{item.name}</p>
-                            </div>
-                          </div>
-                          <div>
-                            <Button
-                              onClick={() => handleRewardClaim(item.id)}
-                              disabled={loyaltyBalance === null || loyaltyBalance < item.cost}
-                              size="sm"
-                            >
-                              Claim Reward
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                  <DialogFooter className="sticky bottom-0 bg-transparent z-10 pt-4">
-                    <div className="flex justify-center">
-                      <Button onClick={() => setShowTokenShop(false)}>Close</Button>
-                    </div>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-              <p className="text-sm font-medium mr-4">Tokens: <strong>{loyaltyBalance}</strong></p>
+              {currentStepIndex > 0 && (
+                <Button className="w-full bg-white text-primary hover:bg-white" onClick={handlePrevious}>
+                  <ChevronLeft className="mr-1 h-4 w-4" /> Back
+                </Button>
+              )}
             </div>
           </div>
         </div>
-        {/* <div className="mt-8 mb-20">
-          {menuUrl && (
-            <Image 
-              src={menuUrl} 
-              width={500} 
-              height={500} 
-              alt="Current Menu" 
-              className="mx-auto" 
-              priority
-              style={{ width: 'auto', height: 'auto' }}
-            />
-          )}
-        </div> */}
         <div className="mt-6 mb-36 w-full">
             <div className="w-full mx-auto" style={{ position: 'relative', height: '500px', paddingTop: '66.67%' }}>
                 <Image
