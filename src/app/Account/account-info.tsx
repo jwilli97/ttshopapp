@@ -149,13 +149,13 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
     switch (section) {
       case 'personal':
         return (
-          <div className="space-y-8 animate-in fade-in-50 duration-500">
+          <div className="space-y-4 animate-in fade-in-50 duration-500">
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
               <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold text-white bg-primary p-2 rounded-lg">
+                <CardTitle className="text-2xl font-bold text-white rounded-lg">
                   Private Information
                 </CardTitle>
-                <p className="text-muted-foreground text-sm ml-4">Your personal contact details</p>
+                <p className="text-muted-foreground text-sm">Your personal contact details</p>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -173,10 +173,10 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
               <CardHeader className="space-y-1 flex flex-row justify-between items-center">
                 <div>
-                  <CardTitle className="text-2xl font-bold text-white bg-primary p-2 rounded-lg">
+                  <CardTitle className="text-2xl font-bold text-white rounded-lg">
                     Display Information
                   </CardTitle>
-                  <p className="text-muted-foreground text-sm ml-4">How others see you</p>
+                  <p className="text-muted-foreground text-sm">How others see you</p>
                 </div>
                 <Button 
                   onClick={() => isEditing ? handleSubmit() : handleEdit()}
@@ -229,13 +229,13 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
         );
       case 'delivery':
         return (
-          <div className="space-y-8 animate-in fade-in-50 duration-500">
+          <div className="space-y-4 animate-in fade-in-50 duration-500">
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
               <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold text-white bg-primary p-2 rounded-lg">
+                <CardTitle className="text-2xl font-bold text-white rounded-lg">
                   Delivery Details
                 </CardTitle>
-                <p className="text-muted-foreground text-sm ml-4">Your primary delivery address</p>
+                <p className="text-muted-foreground text-sm">Your primary delivery address</p>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -263,13 +263,13 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
         );
       case 'preferences':
         return (
-          <div className="space-y-8 animate-in fade-in-50 duration-500">
+          <div className="space-y-4 animate-in fade-in-50 duration-500">
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
               <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold text-white bg-primary p-2 rounded-lg">
+                <CardTitle className="text-2xl font-bold text-white rounded-lg">
                   Order Preferences
                 </CardTitle>
-                <p className="text-muted-foreground text-sm ml-4">Tell us your preferences</p>
+                <p className="text-muted-foreground text-sm">Tell us your preferences</p>
               </CardHeader>
               <CardContent className="space-y-6">
                 <InfoField 
@@ -301,21 +301,22 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
                         <span className="sr-only">Close</span>
                       </DialogClose>
                       <DialogHeader>
-                        <DialogTitle>Usual Order</DialogTitle>
+                        <DialogTitle>My Usual</DialogTitle>
                         <DialogDescription>
                           Example order:
                         </DialogDescription>
                       </DialogHeader>
                       <div className="py-4">
-                        <p>14g of Designer Sativa</p>
-                        <p>2 Sativa Pens</p>
-                        <p>3 Packs of Stiizy Gummies</p>
+                        <p>14g of Indica</p>
+                        {/* <p>2 Sativa Pens</p>
+                        <p>3 Packs of Stiizy Gummies</p> */}
+                        <p>Total: $100</p>
                       </div>
                     </DialogContent>
                   </Dialog>
                 </div>
-                <div className="text-muted-foreground text-sm text-center">
-                  <p>Please contact us to change your usual order</p>
+                <div className="text-muted-foreground text-sm">
+                  <p>Please contact us to make changes to your usual order</p>
                 </div>
               </CardContent>
             </Card>
@@ -325,7 +326,7 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {renderSection()}
     </div>
   );

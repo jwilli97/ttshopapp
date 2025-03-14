@@ -296,9 +296,9 @@ export default function Orders() {
 
     return (
         <div className="flex min-h-screen flex-col bg-background">
-            <header className="bg-background mt-2 sm:mt-4">
+            {/* <header className="bg-background mt-2 sm:mt-4">
                 <TopNav />
-            </header>
+            </header> */}
 
             <main className="flex h-screen w-full flex-col items-center px-2 sm:px-4 py-4 sm:py-6 relative">
                 <div className="mb-4 sm:mb-6">

@@ -36,6 +36,7 @@ interface OrderDetails {
   paymentMethod: string;
   cashDetails?: string;
   total: number | null;
+  pickupTime?: string;
 }
 
 interface TinyTokenShopItem {
@@ -53,6 +54,9 @@ const tokenShopItems: TinyTokenShopItem[] = [
   { id: 6, name: 'Stizzy Battery/Pod Set', cost: 18 },
   { id: 7, name: 'Sampler Pack', cost: 21 },
 ]
+
+const PICKUP_LOCATION = "Placeholder: 123 Main Street, Houston, TX 77002";
+const PICKUP_TIMES = ["7:30 PM", "8:30 PM"];
 
 const formatPhoneNumber = (phoneNumber: string) => {
   // Remove all non-numeric characters
@@ -103,6 +107,7 @@ export default function NewOrder() {
     paymentMethod: '',
     cashDetails: '',
     total: null,
+    pickupTime: undefined,
   })
   const [zipcode, setZipcode] = useState('');
   const [showTokenShop, setShowTokenShop] = useState(false);
@@ -123,22 +128,41 @@ export default function NewOrder() {
   const steps = [
     {
       id: 'item',
-      title: "What would you like to order?",
+      title: "What can we get for you?",
       content: (
         <div>
           <Textarea
             className="bg-gray-200 text-black placeholder:text-gray-600"
-            placeholder="Enter the items you want to order..."
+            placeholder="Type your order here..."
             value={orderDetails.item}
             onChange={(e) => setOrderDetails({ ...orderDetails, item: e.target.value })}
             rows={3}
           />
+
+          {/* Add selected token redemption display */}
+          {orderDetails.tokenRedemption && (
+            <div className="mt-2 mb-2 p-2 bg-accent/40 rounded-md flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Coins className="h-4 w-4 text-primary" />
+                <span className="text-sm text-primary">{orderDetails.tokenRedemption}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 text-primary hover:text-primary/80"
+                onClick={() => setOrderDetails({ ...orderDetails, tokenRedemption: '' })}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+
           <div className="mt-2 w-full">
             <Dialog open={showTokenShop} onOpenChange={setShowTokenShop}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="w-full text-accent flex items-center gap-2 justify-center">
                   <ShopIcon />
-                  Token Shop
+                  Redeem Tokens
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
@@ -201,139 +225,151 @@ export default function NewOrder() {
 
           {/* Delivery Information */}
           <div>
-            <h3 className="font-bold">Delivery Address:</h3>
-            <p>{(orderDetails.deliveryStreetAddress)}, {capitalizeFirst(orderDetails.deliveryCity)}, {orderDetails.deliveryState.toUpperCase()} {orderDetails.deliveryZipcode}</p>
-            <div className="mt-2">
-              <p><span className="font-semibold">Residence Type:<br /> </span>{capitalizeFirst(orderDetails.deliveryResidenceType)}</p>
-              <p className="mt-2"><span className="font-semibold">Delivery Method:<br /> </span>{capitalizeFirst(orderDetails.deliveryMethod)}</p>
-            </div>
-            <div>
-              <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
-                <DialogTrigger asChild>
-                  <Button size="sm" className="text-primary bg-white hover:bg-white">
-                    Edit Address
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle className="text-white">Enter New Delivery Address</DialogTitle>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="absolute right-0 top-0 rounded-sm"
-                      onClick={() => setShowAddressDialog(false)}
-                    >
-                      <X className="h-4 w-4" />
-                      <span className="sr-only">Close</span>
+            <h3 className="font-bold">
+              {orderDetails.deliveryMethod === 'Pickup' ? 'Meetup Location:' : 'Delivery Address:'}
+            </h3>
+            
+            {orderDetails.deliveryMethod === 'Pickup' ? (
+              <div>
+                <p>{PICKUP_LOCATION}</p>
+                <div className="mt-4">
+                  <Label className="font-bold">Select Pickup Time:</Label>
+                  <RadioGroup 
+                    value={orderDetails.pickupTime}
+                    onValueChange={(value) => setOrderDetails(prev => ({
+                      ...prev,
+                      pickupTime: value
+                    }))}
+                    className="mt-2"
+                  >
+                    {PICKUP_TIMES.map((time) => (
+                      <div key={time} className="flex items-center space-x-2">
+                        <RadioGroupItem value={time} id={`pickup-${time}`} />
+                        <Label htmlFor={`pickup-${time}`}>{time}</Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+                {orderDetails.pickupTime && (
+                  <p className="mt-2 text-green-600">Pickup scheduled for {orderDetails.pickupTime}</p>
+                )}
+              </div>
+            ) : (
+              <>
+                <p>{(orderDetails.deliveryStreetAddress)}, {capitalizeFirst(orderDetails.deliveryCity)}, {orderDetails.deliveryState.toUpperCase()} {orderDetails.deliveryZipcode}</p>
+                <div className="mt-2">
+                  <p><span className="font-semibold">Residence Type:<br /> </span>{capitalizeFirst(orderDetails.deliveryResidenceType)}</p>
+                  <p className="mt-2"><span className="font-semibold">Delivery Method:<br /> </span>{capitalizeFirst(orderDetails.deliveryMethod)}</p>
+                </div>
+              </>
+            )}
+            
+            {/* Only show Edit Address button for non-pickup orders */}
+            {orderDetails.deliveryMethod !== 'Pickup' && (
+              <div>
+                <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="text-primary bg-white hover:bg-white mt-2">
+                      Edit Address
                     </Button>
-                  </DialogHeader>
-                  <div className="flex flex-col gap-4">
-                    <Input 
-                      type="text" 
-                      placeholder="Street Address" 
-                      onChange={(e) => setStreetAddress(e.target.value)}
-                    />
-                    <Input 
-                      type="text" 
-                      placeholder="Address Line 2" 
-                      onChange={(e) => setAddressLine2(e.target.value)}
-                    />
-                    <div className="flex flex-row gap-2">
-                      <Input 
-                        type="text" 
-                        placeholder="City" 
-                        onChange={(e) => setCity(e.target.value)}
-                      />
-                      <Input 
-                        type="text" 
-                        placeholder="State" 
-                        onChange={(e) => setState(e.target.value)}
-                      />
-                      <Input 
-                        type="text" 
-                        placeholder="ZIP Code" 
-                        onChange={(e) => setZipcode(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="mt-2">
-                      <DeliveryInfo zipcode={zipcode} />
-                    </div>
-
-                    <div>
-                      <Label>Delivery Method</Label>
-                      <RadioGroup 
-                        defaultValue={orderDetails.deliveryMethod}
-                        onValueChange={(value) => setOrderDetails({ ...orderDetails, deliveryMethod: value })}
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle className="text-white">Enter New Delivery Address</DialogTitle>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="absolute right-0 top-0 rounded-sm"
+                        onClick={() => setShowAddressDialog(false)}
                       >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="Handoff" id="handoff" />
-                          <Label htmlFor="handoff">Handoff</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="Contactless" id="contactless" />
-                          <Label htmlFor="contactless">Contactless</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="Pickup" id="pickup" />
-                          <Label htmlFor="pickup">Pickup</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                    
-                    <div className="space-y-2 text-white">
-                      <Label>Residence Type</Label>
-                      <RadioGroup 
-                        defaultValue={residenceType}
-                        onValueChange={(value) => setResidenceType(value)}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="House" id="house" />
-                          <Label htmlFor="house">House/Townhouse</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="Apartment" id="apartment" />
-                          <Label htmlFor="apartment">Apartment/Highrise</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    <div className="flex mt-2 gap-2 justify-between">
-                      <Button 
-                        className="text-primary border-primary"
-                        variant="outline"
-                        onClick={async () => {
-                          // Update only the current order details
-                          setOrderDetails(prev => ({
-                            ...prev,
-                            deliveryStreetAddress: streetAddress,
-                            deliveryCity: city,
-                            deliveryState: state,
-                            deliveryZipcode: zipcode,
-                            deliveryResidenceType: residenceType
-                          }));
-                          setShowAddressDialog(false);
-                        }}
-                      >
-                        Use Once
+                        <X className="h-4 w-4" />
+                        <span className="sr-only">Close</span>
                       </Button>
-                      <Button 
-                        onClick={async () => {
-                          try {
-                            // Update both order details and user profile in Supabase
-                            const { error } = await supabase
-                              .from('profiles')
-                              .update({
-                                street_address: streetAddress,
-                                city: city,
-                                state: state,
-                                zipcode: zipcode,
-                                residence_type: residenceType
-                              })
-                              .eq('user_id', userId as string);
+                    </DialogHeader>
+                    <div className="flex flex-col gap-4">
+                      <Input 
+                        type="text" 
+                        placeholder="Street Address" 
+                        onChange={(e) => setStreetAddress(e.target.value)}
+                      />
+                      <Input 
+                        type="text" 
+                        placeholder="Address Line 2" 
+                        onChange={(e) => setAddressLine2(e.target.value)}
+                      />
+                      <div className="flex flex-row gap-2">
+                        <Input 
+                          type="text" 
+                          placeholder="City" 
+                          onChange={(e) => setCity(e.target.value)}
+                        />
+                        <Input 
+                          type="text" 
+                          placeholder="State" 
+                          onChange={(e) => setState(e.target.value)}
+                        />
+                        <Input 
+                          type="text" 
+                          placeholder="ZIP Code" 
+                          onChange={(e) => setZipcode(e.target.value)}
+                        />
+                      </div>
 
-                            if (error) throw error;
+                      <div className="mt-2">
+                        <DeliveryInfo zipcode={zipcode} />
+                      </div>
 
+                      <div>
+                        <Label>Delivery Method</Label>
+                        <RadioGroup 
+                          defaultValue={orderDetails.deliveryMethod}
+                          onValueChange={(value) => {
+                            setOrderDetails(prev => ({
+                              ...prev,
+                              deliveryMethod: value,
+                            }));
+                            // Close dialog after selection
+                            setShowAddressDialog(false);
+                          }}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Handoff" id="handoff" />
+                            <Label htmlFor="handoff">Handoff</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Contactless" id="contactless" />
+                            <Label htmlFor="contactless">Contactless</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Pickup" id="pickup" />
+                            <Label htmlFor="pickup">Pickup</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+                      
+                      <div className="space-y-2 text-white">
+                        <Label>Residence Type</Label>
+                        <RadioGroup 
+                          defaultValue={residenceType}
+                          onValueChange={(value) => setResidenceType(value)}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="House" id="house" />
+                            <Label htmlFor="house">House/Townhouse</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Apartment" id="apartment" />
+                            <Label htmlFor="apartment">Apartment/Highrise</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+
+                      <div className="flex mt-2 gap-2 justify-between">
+                        <Button 
+                          className="text-primary border-primary"
+                          variant="outline"
+                          onClick={async () => {
+                            // Update only the current order details
                             setOrderDetails(prev => ({
                               ...prev,
                               deliveryStreetAddress: streetAddress,
@@ -342,33 +378,64 @@ export default function NewOrder() {
                               deliveryZipcode: zipcode,
                               deliveryResidenceType: residenceType
                             }));
-
-                            // Update local state
-                            setStreetAddress(streetAddress);
-                            setCity(city);
-                            setState(state);
-                            setZipcode(zipcode);
-                            setResidenceType(residenceType);
-
                             setShowAddressDialog(false);
-                            alert('Default address updated successfully!');
-                          } catch (error) {
-                            console.error('Error updating default address:', error);
-                            alert('Failed to update default address. Please try again.');
-                          }
-                        }}
-                      >
-                        Set as Default
-                      </Button>
+                          }}
+                        >
+                          Use Once
+                        </Button>
+                        <Button 
+                          onClick={async () => {
+                            try {
+                              // Update both order details and user profile in Supabase
+                              const { error } = await supabase
+                                .from('profiles')
+                                .update({
+                                  street_address: streetAddress,
+                                  city: city,
+                                  state: state,
+                                  zipcode: zipcode,
+                                  residence_type: residenceType
+                                })
+                                .eq('user_id', userId as string);
+
+                              if (error) throw error;
+
+                              setOrderDetails(prev => ({
+                                ...prev,
+                                deliveryStreetAddress: streetAddress,
+                                deliveryCity: city,
+                                deliveryState: state,
+                                deliveryZipcode: zipcode,
+                                deliveryResidenceType: residenceType
+                              }));
+
+                              // Update local state
+                              setStreetAddress(streetAddress);
+                              setCity(city);
+                              setState(state);
+                              setZipcode(zipcode);
+                              setResidenceType(residenceType);
+
+                              setShowAddressDialog(false);
+                              alert('Default address updated successfully!');
+                            } catch (error) {
+                              console.error('Error updating default address:', error);
+                              alert('Failed to update default address. Please try again.');
+                            }
+                          }}
+                        >
+                          Set as Default
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
           </div>
 
           {/* Phone Number */}
-          <div>
+          <div className="mt-2">
             <h3 className="font-bold">Phone Number:</h3>
             <p>{formatPhoneNumber(orderDetails.phoneNumber)}</p>
           </div>
@@ -544,6 +611,12 @@ export default function NewOrder() {
       return;
     }
 
+    // Add pickup time validation
+    if (orderDetails.deliveryMethod === 'Pickup' && !orderDetails.pickupTime) {
+      alert('Please select a pickup time');
+      return;
+    }
+
     // Add validation for cash details if needed
     if (orderDetails.paymentMethod === 'Cash' && 
         orderDetails.deliveryMethod === 'Contactless' && 
@@ -561,11 +634,12 @@ export default function NewOrder() {
         token_redemption: orderDetails.tokenRedemption,
         phone_number: orderDetails.phoneNumber,
         residence_type: orderDetails.deliveryResidenceType,
-        street_address: orderDetails.deliveryStreetAddress,
-        city: orderDetails.deliveryCity,
-        state: orderDetails.deliveryState,
-        zipcode: orderDetails.deliveryZipcode,
+        street_address: orderDetails.deliveryMethod === 'Pickup' ? PICKUP_LOCATION : orderDetails.deliveryStreetAddress,
+        city: orderDetails.deliveryMethod === 'Pickup' ? 'Houston' : orderDetails.deliveryCity,
+        state: orderDetails.deliveryMethod === 'Pickup' ? 'TX' : orderDetails.deliveryState,
+        zipcode: orderDetails.deliveryMethod === 'Pickup' ? '77002' : orderDetails.deliveryZipcode,
         delivery_method: orderDetails.deliveryMethod,
+        pickup_time: orderDetails.pickupTime,
         delivery_notes: orderDetails.deliveryNotes,
         payment_method: orderDetails.paymentMethod,
         status: 'processing',

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Home, Image, ShoppingBag, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,11 +14,11 @@ interface NavItem {
 const navItems: NavItem[] = [
   { icon: <Home className="h-6 w-6" />, label: "Home", href: "/dashboard" },
   { icon: <Image className="h-6 w-6" />, label: "Gallery", href: "/gallery" },
-  { icon: <ShoppingBag className="h-6 w-6" />, label: "Orders", href: "/Order/History" },
+  { icon: <ShoppingBag className="h-6 w-6" />, label: "Orders", href: "/Order/Confirmation" },
 ];
 
 export default function BottomNav() {
-  const [active, setActive] = useState("/")
+  const pathname = usePathname();
   const router = useRouter();
 
   return (
@@ -30,19 +30,21 @@ export default function BottomNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "inline-flex flex-col items-center justify-center px-5 group",
-              active === item.href
-                ? "text-accent dark:text-accent"
-                : "text-background dark:text-background"
+              "inline-flex flex-col items-center justify-center px-5 group rounded-lg text-background",
+              pathname === item.href
+                ? "font-bold"
+                : "font-normal hover:bg-background/10"
             )}
             onClick={(e) => {
               e.preventDefault()
-              setActive(item.href)
               router.push(item.href)
             }}
           >
             {item.icon}
-            <span className="text-sm text-background">{item.label}</span>
+            <span className={cn(
+              "text-sm text-background",
+              pathname === item.href ? "font-bold" : "font-normal"
+            )}>{item.label}</span>
           </a>
         ))}
       </nav>
