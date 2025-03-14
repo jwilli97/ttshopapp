@@ -67,6 +67,11 @@ const formatPhoneNumber = (phoneNumber: string) => {
   return phoneNumber;
 };
 
+const capitalizeFirst = (str: string) => {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
 export default function NewOrder() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -172,7 +177,7 @@ export default function NewOrder() {
               </DialogContent>
             </Dialog>
           </div>
-          <p className="text-black text-sm mt-1">Please note that we have a $100 minimum order requirement.</p>
+          {/* <p className="text-black text-sm mt-1">Please note that we have a $100 minimum order requirement.</p> */}
         </div>
       ),
       nextStep: () => 'deliveryAndConfirmation',
@@ -184,8 +189,8 @@ export default function NewOrder() {
         <div className="space-y-6 text-black">
           {/* Order Items */}
           <div className="border border-gray-300 rounded-lg p-4 bg-gray-100">
-            <h3 className="font-bold mb-2">Order Items</h3>
-            <p>{orderDetails.item}</p>
+            <h3 className="font-bold mb-2">Order Items:</h3>
+            <p>{(orderDetails.item)}</p>
             {orderDetails.tokenRedemption && (
               <p className="mt-2">
                 <span className="font-semibold">Token Redemption: </span>
@@ -196,11 +201,11 @@ export default function NewOrder() {
 
           {/* Delivery Information */}
           <div>
-            <h3 className="font-bold">Delivery Address</h3>
-            <p>{orderDetails.deliveryStreetAddress}, {orderDetails.deliveryCity}, {orderDetails.deliveryState} {orderDetails.deliveryZipcode}</p>
+            <h3 className="font-bold">Delivery Address:</h3>
+            <p>{(orderDetails.deliveryStreetAddress)}, {capitalizeFirst(orderDetails.deliveryCity)}, {orderDetails.deliveryState.toUpperCase()} {orderDetails.deliveryZipcode}</p>
             <div className="mt-2">
-              <p><span className="font-semibold">Residence Type:<br /> </span>{orderDetails.deliveryResidenceType}</p>
-              <p className="mt-2"><span className="font-semibold">Delivery Method:<br /> </span>{orderDetails.deliveryMethod}</p>
+              <p><span className="font-semibold">Residence Type:<br /> </span>{capitalizeFirst(orderDetails.deliveryResidenceType)}</p>
+              <p className="mt-2"><span className="font-semibold">Delivery Method:<br /> </span>{capitalizeFirst(orderDetails.deliveryMethod)}</p>
             </div>
             <div>
               <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
@@ -362,28 +367,23 @@ export default function NewOrder() {
             </div>
           </div>
 
-          {/* Delivery Method */}
+          {/* Phone Number */}
           <div>
-            
+            <h3 className="font-bold">Phone Number:</h3>
+            <p>{formatPhoneNumber(orderDetails.phoneNumber)}</p>
           </div>
 
           {/* Estimated Time */}
           <div>
-            <DeliveryInfo zipcode={orderDetails.deliveryZipcode} />
-          </div>
-
-          {/* Phone Number */}
-          <div>
-            <h3 className="font-bold">Phone Number</h3>
-            <p>{formatPhoneNumber(orderDetails.phoneNumber)}</p>
+            <DeliveryInfo zipcode={orderDetails.deliveryZipcode} hideIfFreeDelivery={true} />
           </div>
 
           {/* Total and Payment */}
           <div>
-            <h3 className="font-bold">Total</h3>
-            <p className="text-md mb-4">{orderDetails.total === null ? 'Pending' : `$${orderDetails.total}`}</p>
+            <h3 className="font-bold">Total:</h3>
+            <p className="text-md mb-4">{orderDetails.total === null ? 'Pending Confirmation' : `$${orderDetails.total}`}</p>
             
-            <h3 className="font-bold mb-2">Payment Method</h3>
+            <h3 className="font-bold mb-2">Payment Method:</h3>
             <RadioGroup 
               defaultValue={orderDetails.paymentMethod} 
               onValueChange={(value) => setOrderDetails({ ...orderDetails, paymentMethod: value })}
@@ -401,7 +401,7 @@ export default function NewOrder() {
                   <Textarea
                     className="bg-white text-black"
                     placeholder="Please specify where you will leave the cash and if you need change..."
-                    value={orderDetails.cashDetails || ''}
+                    value={capitalizeFirst(orderDetails.cashDetails || '')}
                     onChange={(e) => setOrderDetails({ ...orderDetails, cashDetails: e.target.value })}
                     rows={2}
                   />
@@ -532,6 +532,26 @@ export default function NewOrder() {
       return;
     }
 
+    // Add order items validation
+    if (!orderDetails.item.trim()) {
+      alert('Please enter items you would like to order');
+      return;
+    }
+
+    // Add payment method validation
+    if (!orderDetails.paymentMethod) {
+      alert('Please select a payment method');
+      return;
+    }
+
+    // Add validation for cash details if needed
+    if (orderDetails.paymentMethod === 'Cash' && 
+        orderDetails.deliveryMethod === 'Contactless' && 
+        !orderDetails.cashDetails) {
+      alert('Please provide cash placement details for contactless delivery');
+      return;
+    }
+
     try {
       const orderData = {
         user_id: userId,
@@ -548,8 +568,7 @@ export default function NewOrder() {
         delivery_method: orderDetails.deliveryMethod,
         delivery_notes: orderDetails.deliveryNotes,
         payment_method: orderDetails.paymentMethod,
-        status: 'received',
-        // Only include cash_details if payment method is Cash
+        status: 'processing',
         ...(orderDetails.paymentMethod === 'Cash' && { cash_details: orderDetails.cashDetails || '' }),
         total: orderDetails.total,
       };
@@ -682,11 +701,19 @@ export default function NewOrder() {
             </div>
             <div className="flex flex-col gap-2">
               {currentStep.id === 'deliveryAndConfirmation' ? (
-                <>
-                  <Button onClick={handleNext} className="bg-primary text-white w-full">
-                    Submit Order
-                  </Button>
-                </>
+                <Button 
+                  onClick={handleNext} 
+                  className="bg-primary text-white w-full"
+                  disabled={
+                    !orderDetails.item.trim() || 
+                    !orderDetails.paymentMethod || 
+                    (orderDetails.paymentMethod === 'Cash' && 
+                     orderDetails.deliveryMethod === 'Contactless' && 
+                     !orderDetails.cashDetails)
+                  }
+                >
+                  Submit Order
+                </Button>
               ) : (
                 <Button onClick={handleNext} className="w-full text-white">
                   Next <ChevronRight className="ml-2 h-4 w-4" />

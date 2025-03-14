@@ -78,23 +78,18 @@ const TokenShop: React.FC<TokenShopProps> = ({ userId }) => {
 
                 // Only fetch from Square API if we have a loyalty ID
                 if (profile.square_loyalty_id) {
-                    const lastUpdate = profile.loyalty_balance_updated_at ? new Date(profile.loyalty_balance_updated_at) : null;
-                    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-
-                    if (!lastUpdate || lastUpdate < fiveMinutesAgo) {
-                        console.log('Fetching fresh balance from Square API');
-                        const response = await fetch(
-                            `/api/getLoyaltyBalance?loyaltyId=${profile.square_loyalty_id}&userId=${userId}`
-                        );
-                        
-                        if (!response.ok) {
-                            throw new Error(`API error: ${response.status}`);
-                        }
-
-                        const data = await response.json();
-                        console.log('Received new balance:', data.balance);
-                        setLoyaltyBalance(data.balance);
+                    console.log('Fetching fresh balance from Square API');
+                    const response = await fetch(
+                        `/api/getLoyaltyBalance?loyaltyId=${profile.square_loyalty_id}&userId=${userId}`
+                    );
+                    
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status}`);
                     }
+
+                    const data = await response.json();
+                    console.log('Received new balance:', data.balance);
+                    setLoyaltyBalance(data.balance);
                 }
             } catch (error) {
                 console.error('Error fetching loyalty balance:', error);

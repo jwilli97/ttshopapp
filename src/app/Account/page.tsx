@@ -59,13 +59,13 @@ export default function AccountPage() {
                   value="personal"
                   className="data-[state=active]:bg-primary data-[state=active]:text-white text-black"
                 >
-                  Personal Info
+                  Personal
                 </TabsTrigger>
                 <TabsTrigger 
                   value="delivery"
                   className="data-[state=active]:bg-primary data-[state=active]:text-white text-black"
                 >
-                  Delivery Info
+                  Delivery
                 </TabsTrigger>
                 <TabsTrigger 
                   value="preferences"

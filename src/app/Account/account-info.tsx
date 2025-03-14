@@ -209,7 +209,7 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
                 />
 
                 <div className="space-y-2">
-                  <Label>Care Package Settings</Label>
+                  <Label>Usual Order</Label>
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button 
@@ -237,6 +237,9 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
                       </div>
                     </DialogContent>
                   </Dialog>
+                </div>
+                <div className="text-muted-foreground text-sm text-center">
+                  <p>Please contact us to change your usual order</p>
                 </div>
               </CardContent>
             </Card>

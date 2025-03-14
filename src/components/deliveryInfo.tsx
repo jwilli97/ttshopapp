@@ -9,9 +9,10 @@ interface DeliveryZone {
 
 interface DeliveryInfoProps {
   zipcode: string;
+  hideIfFreeDelivery?: boolean;
 }
 
-export default function DeliveryInfo({ zipcode }: DeliveryInfoProps) {
+export default function DeliveryInfo({ zipcode, hideIfFreeDelivery = false }: DeliveryInfoProps) {
   const [deliveryInfo, setDeliveryInfo] = useState<DeliveryZone | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -62,13 +63,17 @@ export default function DeliveryInfo({ zipcode }: DeliveryInfoProps) {
     );
   }
 
+  if (hideIfFreeDelivery && deliveryInfo.delivery_fee === 0) {
+    return null;
+  }
+
   return (
     <div className="space-y-2">
-      <p className="font-bold text-gray-500">
-        Estimated Time Frame: {deliveryInfo.delivery_time || 'Not available'}
+      <p>
+        <strong>Estimated Time Frame:</strong><br />{deliveryInfo.delivery_time || 'Not available'}
       </p>
       {deliveryInfo.delivery_fee !== null && (
-        <p className="font-semibold text-gray-500">
+        <p>
           Delivery Fee: ${deliveryInfo.delivery_fee.toFixed(2)}
         </p>
       )}

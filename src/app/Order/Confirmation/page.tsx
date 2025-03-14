@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import LogOutButton from "@/components/logoutButton";
 
-type orderStatus = "received" | "preparing your order" | "out for delivery" | "completed" | "cancelled";
+type orderStatus = "processing" | "preparing" | "out for delivery" | "completed" | "cancelled";
 
 interface OrderDetails {
     item: string;
@@ -79,12 +79,52 @@ function StatusStep({ label, isCompleted, isActive, isLast = false }: StatusStep
     );
 }
 
+const capitalizeFirstLetter = (str: string) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
+const formatPhoneNumber = (phoneNumber: string) => {
+    // Remove all non-numeric characters
+    const cleaned = phoneNumber.replace(/\D/g, '');
+    
+    // Check if the number has exactly 10 digits
+    if (cleaned.length === 10) {
+        return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    }
+    
+    // Return original if not 10 digits
+    return phoneNumber;
+};
+
+// Add a helper function to determine step status
+const getStepStatus = (currentStatus: string, stepIndex: number) => {
+    // Normalize the status to remove spaces and convert to lowercase
+    const normalizedStatus = currentStatus.toLowerCase().trim();
+    
+    const statusOrder = ["processing", "preparing", "out for delivery", "completed"];
+    const currentIndex = statusOrder.indexOf(normalizedStatus);
+    
+    return {
+        isCompleted: currentIndex >= stepIndex,
+        isActive: currentIndex === stepIndex
+    };
+};
+
+// Add this helper function near other helper functions like capitalizeFirstLetter
+const formatOrderId = (id: number): string => {
+    return id.toString().padStart(4, '0');
+};
+
 export default function Orders() {
     const [displayName, setDisplayName] = useState<string>('Loading...');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [orders, setOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showCancelDialog, setShowCancelDialog] = useState(false);
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [editRequest, setEditRequest] = useState('');
+    const { toast } = useToast();
 
     const router = useRouter();
     
@@ -137,12 +177,82 @@ export default function Orders() {
         fetchData();
     }, []);
 
+    // Add status monitoring
+    useEffect(() => {
+        const statusChannel = supabase
+            .channel('orders-status-changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'orders',
+                    filter: orders.length > 0 ? `id=eq.${orders[0].id}` : undefined
+                },
+                (payload) => {
+                    const newStatus = payload.new.status;
+                    toast({
+                        title: "Order Status Updated",
+                        description: `Your order is now ${capitalizeFirstLetter(newStatus)}`,
+                        duration: 5000,
+                    });
+                    // Update local state
+                    setOrders(prevOrders => 
+                        prevOrders.map(order => 
+                            order.id === payload.new.id 
+                                ? { ...order, status: newStatus }
+                                : order
+                        )
+                    );
+                }
+            )
+            .subscribe();
+
+        return () => {
+            statusChannel.unsubscribe();
+        };
+    }, [orders]);
+
     const parseOrderDetails = (detailsString: string): Partial<OrderDetails> => {
         try {
             return JSON.parse(detailsString);
         } catch (error) {
             console.error("Error parsing order details:", error);
             return {};
+        }
+    };
+
+    const handleEditOrder = async () => {
+        if (orders[0].status === "processing") {
+            setShowEditDialog(true);
+        } else {
+            toast({
+                title: "Cannot Edit Order",
+                description: "Orders can only be edited when in 'processing' status.",
+                variant: "destructive",
+                duration: 5000,
+            });
+        }
+    };
+
+    const handleSubmitEdit = async () => {
+        try {
+            // Here you could add logic to save the edit request to your database
+            // For now, we'll just show a success message
+            toast({
+                title: "Edit Request Submitted",
+                description: "We'll review your changes and update your order soon.",
+                duration: 5000,
+            });
+            setShowEditDialog(false);
+            setEditRequest('');
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to submit edit request. Please try again.",
+                variant: "destructive",
+                duration: 5000,
+            });
         }
     };
 
@@ -154,17 +264,33 @@ export default function Orders() {
                 .eq('id', orders[0].id);
 
             if (error) throw error;
+
+            toast({
+                title: "Order Cancelled",
+                description: "Your order has been successfully cancelled.",
+                duration: 5000,
+            });
             
+            // Update local state first
             setOrders(orders.map(order => 
                 order.id === orders[0].id 
                     ? { ...order, status: 'cancelled' }
                     : order
             ));
             
-            router.push('/Order/History');
-            setShowCancelDialog(false);
+            // Short delay before redirect
+            setTimeout(() => {
+                router.push('/Order/History');
+                setShowCancelDialog(false);
+            }, 1500);
         } catch (error) {
             console.error("Error cancelling order:", error);
+            toast({
+                title: "Error",
+                description: "Failed to cancel order. Please try again.",
+                variant: "destructive",
+                duration: 5000,
+            });
         }
     };
 
@@ -187,50 +313,59 @@ export default function Orders() {
                         <div className="flex flex-col items-center py-4 sm:py-8">
                             <div className="flex items-center">
                                 <StatusStep
-                                    label="Received"
-                                    isCompleted={['processing', 'out for delivery'].includes(orders[0].status)}
-                                    isActive={orders[0].status === 'received'}
+                                    label="Processing"
+                                    {...getStepStatus(orders[0].status, 0)}
                                 />
                                 <StatusStep
                                     label="Preparing"
-                                    isCompleted={['out for delivery'].includes(orders[0].status)}
-                                    isActive={['processing'].includes(orders[0].status)}
+                                    {...getStepStatus(orders[0].status, 1)}
                                 />
                                 <StatusStep
                                     label="En Route"
-                                    isCompleted={['completed', 'cancelled'].includes(orders[0].status)}
-                                    isActive={orders[0].status === 'out for delivery'}
+                                    {...getStepStatus(orders[0].status, 2)}
                                 />
                                 <StatusStep
                                     label="Delivered"
-                                    isCompleted={['completed', 'cancelled'].includes(orders[0].status)}
-                                    isActive={false}
+                                    {...getStepStatus(orders[0].status, 3)}
                                     isLast={true}
                                 />
                             </div>
                         </div>
 
                         <div className="container bg-white text-black p-3 sm:p-4 rounded-lg shadow w-full mt-4 sm:mt-8 mb-16 max-w-2xl text-sm sm:text-base">
-                            <p className="font-semibold">Order #{orders[0].id}</p>
+                            <p className="font-semibold">Order #{formatOrderId(orders[0].id)}</p>
                             <p><span className="font-bold">Date: </span> {new Date(orders[0].created_at).toLocaleDateString()}</p>
                             {(() => {
                                 const details = parseOrderDetails(orders[0].order_details);
                                 return (
                                     <>
-                                        <p><strong>Item: </strong> {details.item || 'N/A'}</p>
-                                        {details.tokenRedemption && <p><strong>Token Redemption:</strong> {details.tokenRedemption}</p>}
-                                        {details.phoneNumber && <p><strong>Phone: </strong> {details.phoneNumber}</p>}
-                                        {details.deliveryStreetAddress && <p><strong>Address: </strong> {details.deliveryStreetAddress}, {details.deliveryZipcode}</p>}
-                                        {details.deliveryMethod && <p><strong>Delivery Method: </strong> {details.deliveryMethod}</p>}
-                                        {details.paymentMethod && <p><strong>Payment Method: </strong> {details.paymentMethod}</p>}
-                                        <p><strong>Status: </strong>{orders[0].status}</p>
+                                        <p><strong>Item: </strong> {details.item ? (details.item) : 'N/A'}</p>
+                                        {details.tokenRedemption && <p><strong>Token Redemption:</strong> {capitalizeFirstLetter(details.tokenRedemption)}</p>}
+                                        {details.phoneNumber && <p><strong>Phone: </strong> {formatPhoneNumber(details.phoneNumber)}</p>}
+                                        {details.deliveryStreetAddress && <p><strong>Address: </strong> {(details.deliveryStreetAddress)}, {details.deliveryZipcode}</p>}
+                                        {details.deliveryMethod && <p><strong>Delivery Method: </strong> {capitalizeFirstLetter(details.deliveryMethod)}</p>}
+                                        {details.paymentMethod && <p><strong>Payment Method: </strong> {capitalizeFirstLetter(details.paymentMethod)}</p>}
+                                        <p><strong>Status: </strong>{capitalizeFirstLetter(orders[0].status)}</p>
                                         <p><strong>Total: </strong>${orders[0].total}</p>
                                     </>
                                 );
                             })()}
                             <div className="flex flex-row mt-4 justify-between gap-2">
-                                <Button variant="outline" className="text-primary border-primary bg-white text-sm" onClick={() => setShowCancelDialog(true)}>Cancel Order</Button>
-                                <Button className="text-sm">Edit Order</Button>
+                                <Button 
+                                    variant="outline" 
+                                    className="text-primary border-primary bg-white text-sm" 
+                                    onClick={() => setShowCancelDialog(true)}
+                                    disabled={['completed', 'cancelled'].includes(orders[0].status)}
+                                >
+                                    Cancel Order
+                                </Button>
+                                <Button 
+                                    className="text-sm"
+                                    onClick={handleEditOrder}
+                                    disabled={orders[0].status !== "processing"}
+                                >
+                                    Edit Order
+                                </Button>
                             </div>
                         </div>
                     </>
@@ -259,6 +394,34 @@ export default function Orders() {
                         </Button>
                         <Button variant="destructive" onClick={handleCancelOrder}>
                             Yes, cancel order
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Request Order Changes</DialogTitle>
+                        <DialogDescription>
+                            Please describe the changes you'd like to make to your order.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <textarea
+                        className="w-full min-h-[100px] p-2 border rounded-md"
+                        value={editRequest}
+                        onChange={(e) => setEditRequest(e.target.value)}
+                        placeholder="Example: Please change my delivery address to..."
+                    />
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                            Cancel
+                        </Button>
+                        <Button 
+                            onClick={handleSubmitEdit}
+                            disabled={!editRequest.trim()}
+                        >
+                            Submit Changes
                         </Button>
                     </DialogFooter>
                 </DialogContent>

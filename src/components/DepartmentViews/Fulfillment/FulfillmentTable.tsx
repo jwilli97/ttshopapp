@@ -24,10 +24,10 @@ type SortDirection = "asc" | "desc"
 // TODO: Update status to match the order statuses in the database
 const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
-        case "pending":
-            return <Badge variant="received">{status}</Badge>
-        case "in progress":
+        case "processing":
             return <Badge variant="processing">{status}</Badge>
+        case "preparing":
+            return <Badge variant="preparing">{status}</Badge>
         case "out for delivery":
             return <Badge variant="outForDelivery">{status}</Badge>
         case "completed":
@@ -277,8 +277,8 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="received">Received</SelectItem>
                                         <SelectItem value="processing">Processing</SelectItem>
+                                        <SelectItem value="preparing">Preparing</SelectItem>
                                         <SelectItem value="out for delivery">Out for Delivery</SelectItem>
                                         <SelectItem value="completed">Completed</SelectItem>
                                         <SelectItem value="cancelled">Cancelled</SelectItem>
