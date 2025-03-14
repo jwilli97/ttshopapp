@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import type { UserData } from "@/app/types/user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,15 +26,17 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { X } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 
 interface AccountInfoProps {
   userData: UserData;
   section: 'personal' | 'delivery' | 'preferences';
+  setUserData: Dispatch<SetStateAction<UserData | null>>;
 }
 
-export default function AccountInfo({ userData, section }: AccountInfoProps) {
+export default function AccountInfo({ userData, section, setUserData }: AccountInfoProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState<UserData | null>(null);
+  const [editedData, setEditedData] = useState<Partial<UserData> | null>(null);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const predefinedAvatars = [
     '/profile_pics/profileNug1.png',
@@ -85,11 +87,47 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    // TODO: Implement update logic with Supabase
-    console.log("Updated data:", editedData)
-    setIsEditing(false)
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.error("No session found");
+        return;
+      }
+
+      const updates = {
+        display_name: editedData?.display_name || userData.display_name,
+        avatar_url: editedData?.avatar_url || userData.avatar_url,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('user_id', session.user.id);
+
+      if (error) throw error;
+
+      // Update local state with type safety
+      setUserData(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          display_name: updates.display_name,
+          avatar_url: updates.avatar_url,
+          updated_at: updates.updated_at
+        };
+      });
+
+      setIsEditing(false);
+      setEditedData(null);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      // You might want to show an error message to the user here
+    }
   }
 
   const handleAvatarSelect = (avatarUrl: string) => {
@@ -133,22 +171,56 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
             </Card>
 
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-              <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold text-white bg-primary p-2 rounded-lg">
-                  Display Information
-                </CardTitle>
-                <p className="text-muted-foreground text-sm ml-4">How others see you</p>
+              <CardHeader className="space-y-1 flex flex-row justify-between items-center">
+                <div>
+                  <CardTitle className="text-2xl font-bold text-white bg-primary p-2 rounded-lg">
+                    Display Information
+                  </CardTitle>
+                  <p className="text-muted-foreground text-sm ml-4">How others see you</p>
+                </div>
+                <Button 
+                  onClick={() => isEditing ? handleSubmit() : handleEdit()}
+                  variant={isEditing ? "default" : "outline"}
+                  className="transition-all duration-200"
+                >
+                  {isEditing ? "Save Changes" : "Edit"}
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col sm:flex-row items-center sm:space-x-6 mb-6">
-                  <Avatar className="h-32 w-32 mb-4 sm:mb-0 ring-2 ring-offset-4 ring-primary transition-all duration-200">
-                    <AvatarImage src={userData.avatar_url} alt={userData.display_name} />
-                    <AvatarFallback className="bg-primary text-white text-2xl">
-                      {userData.display_name?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="w-full">
-                    <InfoField label="Display Name" value={userData.display_name} />
+                  {isEditing ? (
+                    <AvatarSelectionModal
+                      isOpen={isAvatarModalOpen}
+                      onOpenChange={setIsAvatarModalOpen}
+                      avatarUrl={editedData?.avatar_url || userData.avatar_url}
+                      onAvatarSelect={handleAvatarSelect}
+                      onClose={() => setIsAvatarModalOpen(false)}
+                      avatars={predefinedAvatars}
+                      onSelect={handleAvatarSelect}
+                    />
+                  ) : (
+                    <Avatar className="h-32 w-32 mb-4 sm:mb-0 ring-2 ring-offset-4 ring-primary transition-all duration-200">
+                      <AvatarImage src={userData.avatar_url} alt={userData.display_name} />
+                      <AvatarFallback className="bg-primary text-white text-2xl">
+                        {userData.display_name?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div className="w-full space-y-4">
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        <Label htmlFor="display_name">Display Name</Label>
+                        <Input
+                          id="display_name"
+                          name="display_name"
+                          value={editedData?.display_name || ''}
+                          onChange={handleInputChange}
+                          className="max-w-md"
+                        />
+                      </div>
+                    ) : (
+                      <InfoField label="Display Name" value={userData.display_name} />
+                    )}
                   </div>
                 </div>
               </CardContent>

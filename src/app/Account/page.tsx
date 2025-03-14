@@ -7,12 +7,13 @@ import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import BottomNav from "@/components/BottomNav";
+import type { UserData } from "@/app/types/user";
 
 export default function AccountPage() {
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null> (null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -75,13 +76,13 @@ export default function AccountPage() {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="personal">
-                <AccountInfo userData={userData} section="personal" />
+                <AccountInfo userData={userData} section="personal" setUserData={setUserData} />
               </TabsContent>
               <TabsContent value="delivery">
-                <AccountInfo userData={userData} section="delivery" />
+                <AccountInfo userData={userData} section="delivery" setUserData={setUserData} />
               </TabsContent>
               <TabsContent value="preferences">
-                <AccountInfo userData={userData} section="preferences" />
+                <AccountInfo userData={userData} section="preferences" setUserData={setUserData} />
               </TabsContent>
             </Tabs>
           </Card>
