@@ -241,7 +241,7 @@ export default function Orders() {
             // For now, we'll just show a success message
             toast({
                 title: "Edit Request Submitted",
-                description: "We'll review your changes and update your order soon.",
+                description: "We&apos;ll review your changes and update your order soon.",
                 duration: 5000,
             });
             setShowEditDialog(false);
