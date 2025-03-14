@@ -170,13 +170,17 @@ export default function AccountInfo({ userData, section }: AccountInfoProps) {
                   <div className="col-span-2">
                     <InfoField label="Street Address" value={userData.street_address} />
                   </div>
-                  <div className="col-span-2">
-                    <InfoField label="Residence Type" value={userData.residence_type} />
-                  </div>
                   <InfoField label="Address Line 2" value={userData.address_line_2} />
                   <InfoField label="City" value={userData.city} />
                   <InfoField label="State" value={userData.state} />
                   <InfoField label="Zip Code" value={userData.zipcode} />
+                  <div className="col-span-2">
+                    <InfoField 
+                      label="Residence Type" 
+                      value={userData.residence_type ? 
+                        userData.residence_type.charAt(0).toUpperCase() + userData.residence_type.slice(1) : null} 
+                    />
+                  </div>
                   <div className="col-span-2">
                     <InfoField label="Delivery Notes" value={userData.delivery_notes} />
                   </div>
