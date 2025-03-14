@@ -211,7 +211,7 @@ export default function Orders() {
         return () => {
             statusChannel.unsubscribe();
         };
-    }, [orders]);
+    }, [orders, toast]);
 
     const parseOrderDetails = (detailsString: string): Partial<OrderDetails> => {
         try {
@@ -404,7 +404,7 @@ export default function Orders() {
                     <DialogHeader>
                         <DialogTitle>Request Order Changes</DialogTitle>
                         <DialogDescription>
-                            Please describe the changes you'd like to make to your order.
+                            Please describe the changes you&apos;d like to make to your order.
                         </DialogDescription>
                     </DialogHeader>
                     <textarea
