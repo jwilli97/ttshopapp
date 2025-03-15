@@ -122,6 +122,7 @@ export default function Orders() {
     const [displayName, setDisplayName] = useState<string>('Loading...');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [orders, setOrders] = useState<Order[]>([]);
+    const [previousOrders, setPreviousOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showCancelDialog, setShowCancelDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -150,8 +151,9 @@ export default function Orders() {
                     }
                 }
     
-                // Fetch user's orders
+                // Fetch current and previous orders
                 if (user) {
+                    // Fetch current orders (unchanged)
                     const { data: orderData, error: orderError } = await supabase
                         .from('orders')
                         .select('*')
@@ -159,9 +161,30 @@ export default function Orders() {
                         .not('status', 'in', '("completed","cancelled")')
                         .order('created_at', { ascending: false });
 
+                    // Fetch previous orders (new)
+                    const { data: previousOrderData, error: previousOrderError } = await supabase
+                        .from('orders')
+                        .select('*')
+                        .eq('user_id', user.id)
+                        .in('status', ['completed', 'cancelled'])
+                        .order('created_at', { ascending: false })
+                        .limit(5);
+
                     if (orderError) throw orderError;
+                    if (previousOrderError) throw previousOrderError;
+
                     if (orderData) {
                         setOrders(orderData.map(order => ({
+                            id: order.id as number,
+                            created_at: order.created_at as string,
+                            order_details: order.order_details as string,
+                            status: order.status as string,
+                            total: order.total as string
+                        })));
+                    }
+
+                    if (previousOrderData) {
+                        setPreviousOrders(previousOrderData.map(order => ({
                             id: order.id as number,
                             created_at: order.created_at as string,
                             order_details: order.order_details as string,
@@ -302,7 +325,7 @@ export default function Orders() {
                 <TopNav />
             </header> */}
 
-            <main className="flex h-screen w-full flex-col items-center px-2 sm:px-4 py-4 sm:py-6 relative">
+            <main className="flex w-full flex-col items-center mb-16 px-2 sm:px-4 py-4 sm:py-6 relative">
                 <div className="mb-4 sm:mb-6">
                     <Image src="/Delivery_Logo.png" width={200} height={200} alt="Welcome Logo" className="w-48 sm:w-64" />
                 </div>
@@ -334,7 +357,7 @@ export default function Orders() {
                             </div>
                         </div>
 
-                        <div className="container bg-white text-black p-3 sm:p-4 rounded-lg shadow w-full mt-4 sm:mt-8 mb-16 max-w-2xl text-sm sm:text-base">
+                        <div className="container bg-white text-black p-3 sm:p-4 rounded-lg shadow w-full mt-4 sm:mt-8 mb-8 max-w-2xl text-sm sm:text-base">
                             <p className="font-semibold">Order #{formatOrderId(orders[0].id)}</p>
                             <p><span className="font-bold">Date: </span> {new Date(orders[0].created_at).toLocaleDateString()}</p>
                             {(() => {
@@ -346,7 +369,11 @@ export default function Orders() {
                                         {details.phoneNumber && <p><strong>Phone: </strong> {formatPhoneNumber(details.phoneNumber)}</p>}
                                         {details.deliveryMethod === 'Pickup' ? (
                                             <>
-                                                <p><strong>Pickup Location: </strong> {details.pickupLocation}</p>
+                                                <p><strong>Pickup Location: </strong> 
+                                                    {details.pickupLocation || (
+                                                        <span className="text-gray-400 italic">Pending Confirmation</span>
+                                                    )}
+                                                </p>
                                                 <p><strong>Pickup Time: </strong> {details.pickupTime}</p>
                                             </>
                                         ) : (
@@ -357,7 +384,13 @@ export default function Orders() {
                                         )}
                                         {details.paymentMethod && <p><strong>Payment Method: </strong> {capitalizeFirstLetter(details.paymentMethod)}</p>}
                                         <p><strong>Status: </strong>{capitalizeFirstLetter(orders[0].status)}</p>
-                                        <p><strong>Total: </strong>${orders[0].total}</p>
+                                        <p><strong>Total: </strong>
+                                            {orders[0].total ? (
+                                                `$${orders[0].total}`
+                                            ) : (
+                                                <span className="text-gray-400 italic">Pending Confirmation</span>
+                                            )}
+                                        </p>
                                     </>
                                 );
                             })()}
@@ -382,13 +415,46 @@ export default function Orders() {
                     </>
                 ) : (
                     <div className="flex flex-col mt-4 items-center">
-                        <p className="text-gray-500 mt-6">No current orders</p>
+                        <p className="mt-6">No current orders</p>
                         <div className="flex flex-row mt-12 space-x-12">
                             <Button variant="outline" onClick={() => router.push('/Order/History')}>Order History</Button>
                             <Button onClick={() => router.push('/Order')}>Place Order</Button>
                         </div>
                     </div>
                 )}
+                <div className="container bg-[#cbd5e1]/25 h-0.5 w-full md:w-11/12 my-2 rounded-full"></div>
+                <div className="flex flex-col items-center w-full max-w-2xl">
+                    <h2 className="text-xl sm:text-2xl text-white font-bold mb-4">Recent Orders</h2>
+                    {previousOrders.length > 0 ? (
+                        previousOrders.map((order) => {
+                            const details = parseOrderDetails(order.order_details);
+                            return (
+                                <div key={order.id} className="bg-white/10 text-white p-3 rounded-lg w-full mb-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="font-semibold">Order #{formatOrderId(order.id)}</span>
+                                        <span className={`px-2 py-1 rounded text-xs ${
+                                            order.status === 'completed' ? 'bg-green-500/20' : 'bg-red-500/20'
+                                        }`}>
+                                            {capitalizeFirstLetter(order.status)}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm text-gray-300">{new Date(order.created_at).toLocaleDateString()}</p>
+                                    <p className="text-sm">{details.item}</p>
+                                    <p className="text-sm font-semibold">${order.total}</p>
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <p className="text-gray-400">No previous orders found</p>
+                    )}
+                    <Button 
+                        variant="outline" 
+                        className="mt-4 mb-16"
+                        onClick={() => router.push('/Order/History')}
+                    >
+                        View Full History
+                    </Button>
+                </div>
             </main>
 
             <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>

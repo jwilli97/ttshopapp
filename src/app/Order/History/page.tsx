@@ -24,17 +24,20 @@ interface Order {
     total_amount: number;
 }
 
+const capitalizeFirstLetter = (str: string) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
 export default function Orders() {
     const [displayName, setDisplayName] = useState<string>('Loading...');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [orders, setOrders] = useState<Order[]>([]);
-
     const router = useRouter();
     
     useEffect(() => {
         async function fetchData() {
             try {
-                // Fetch user data
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
                     const { data, error } = await supabase
@@ -50,7 +53,6 @@ export default function Orders() {
                     }
                 }
     
-                // Fetch user's orders
                 if (user) {
                     const { data: orderData, error: orderError } = await supabase
                         .from('orders')
@@ -85,6 +87,11 @@ export default function Orders() {
         }
     };
 
+    const handleViewDetails = (orderId: number) => {
+        // Implement view details functionality here
+        console.log('Viewing details for order:', orderId);
+    };
+
     return (
         <div className="flex min-h-screen flex-col mb-16 bg-background">
             {/* <header className="bg-background">
@@ -94,25 +101,39 @@ export default function Orders() {
             <main className='flex w-full flex-col items-center px-4 py-6 pb-12 relative'>
                 <h1 className="text-2xl font-bold mb-6">Order History</h1>
                 {orders.length > 0 ? (
-                    <ul className="w-full max-w-2xl space-y-4">
+                    <div className="w-full max-w-2xl space-y-3">
                         {orders.map((order) => {
                             const details = parseOrderDetails(order.order_details);
                             return (
-                                <li key={order.id} className="border p-4 rounded-lg shadow">
-                                    <p className="font-semibold">Order #{order.id}</p>
-                                    <p><strong>Date: </strong> {new Date(order.created_at).toLocaleDateString()}</p>
-                                    <p><strong>Item: </strong> {details.item || 'N/A'}</p>
-                                    {details.tokenRedemption && <p><strong>Token Redemption:</strong> {details.tokenRedemption}</p>}
-                                    {details.phoneNumber && <p><strong>Phone: </strong> {details.phoneNumber}</p>}
-                                    {details.deliveryStreetAddress && <p><strong>Address: </strong> {details.deliveryStreetAddress}, {details.deliveryZipcode}</p>}
-                                    {details.deliveryMethod && <p><strong>Delivery Method: </strong> {details.deliveryMethod}</p>}
-                                    {details.paymentMethod && <p><strong>Payment Method: </strong> {details.paymentMethod}</p>}
-                                    <p><strong>Status: </strong> {order.status}</p>
-                                    <p><strong>Total: </strong> ${order.total_amount ? order.total_amount.toFixed(2) : 'N/A'}</p>
-                                </li>
+                                <div key={order.id} className="bg-white/10 text-white p-3 rounded-lg w-full">
+                                    <div className="flex justify-between items-center">
+                                        <span className="font-semibold">
+                                            Order #{order.id.toString().padStart(4, '0')}
+                                        </span>
+                                        <span className={`px-2 py-1 rounded text-xs ${
+                                            order.status === 'completed' ? 'bg-green-500/20' : 
+                                            order.status === 'cancelled' ? 'bg-red-500/20' : 'bg-blue-500/20'
+                                        }`}>
+                                            {capitalizeFirstLetter(order.status)}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm text-gray-300">
+                                        {new Date(order.created_at).toLocaleDateString()}
+                                    </p>
+                                    <p className="text-sm">{details.item}</p>
+                                    <p className="text-sm font-semibold">
+                                        ${order.total_amount ? order.total_amount.toFixed(2) : 'N/A'}
+                                    </p>
+                                    <button 
+                                        className="text-xs text-gray-300 mt-2 hover:text-white"
+                                        onClick={() => handleViewDetails(order.id)}
+                                    >
+                                        View Details
+                                    </button>
+                                </div>
                             );
                         })}
-                    </ul>
+                    </div>
                 ) : (
                     <p>No orders found.</p>
                 )}
