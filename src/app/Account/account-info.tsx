@@ -483,6 +483,64 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
                           <>
                             <p>{userData.usual_order}</p>
                             <p>Total: ${userData.usual_total}</p>
+                            <Button 
+                              className="w-full mt-4"
+                              onClick={async () => {
+                                try {
+                                  const { data: { session } } = await supabase.auth.getSession();
+                                  
+                                  if (!session) {
+                                    console.error("No session found");
+                                    return;
+                                  }
+
+                                  // Create order details object using profile data
+                                  const orderDetails = {
+                                    item: userData.usual_order,
+                                    phoneNumber: userData.phone_number,
+                                    deliveryResidenceType: userData.residence_type,
+                                    deliveryStreetAddress: userData.street_address,
+                                    deliveryCity: userData.city,
+                                    deliveryState: userData.state,
+                                    deliveryZipcode: userData.zipcode,
+                                    deliveryMethod: userData.delivery_method || 'Handoff',
+                                    deliveryNotes: userData.delivery_notes || '',
+                                    paymentMethod: '', // This will need to be selected by user
+                                    total: userData.usual_total,
+                                    status: 'processing'
+                                  };
+
+                                  // Insert new order into orders table
+                                  const { data, error } = await supabase
+                                    .from('orders')
+                                    .insert({
+                                      user_id: session.user.id,
+                                      display_name: userData.display_name,
+                                      full_name: `${userData.first_name} ${userData.last_name}`.trim(),
+                                      order_details: JSON.stringify(orderDetails),
+                                      phone_number: userData.phone_number,
+                                      residence_type: userData.residence_type,
+                                      street_address: userData.street_address,
+                                      city: userData.city,
+                                      state: userData.state,
+                                      zipcode: userData.zipcode,
+                                      delivery_method: userData.delivery_method || 'Handoff',
+                                      status: 'processing',
+                                      total: userData.usual_total
+                                    });
+
+                                  if (error) throw error;
+
+                                  // Redirect to order confirmation page
+                                  window.location.href = '/Order/Confirmation';
+                                } catch (error) {
+                                  console.error('Error placing usual order:', error);
+                                  // You might want to add toast notification here
+                                }
+                              }}
+                            >
+                              Place Usual Order
+                            </Button>
                           </>
                         ) : (
                           <>

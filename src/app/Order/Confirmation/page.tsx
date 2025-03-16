@@ -397,7 +397,7 @@ export default function Orders() {
                             <div className="flex flex-row mt-4 justify-between gap-2">
                                 <Button 
                                     variant="outline" 
-                                    className="text-primary border-primary bg-white text-sm" 
+                                    className="text-primary border-primary bg-white text-sm hover:bg-red-500 hover:text-white" 
                                     onClick={() => setShowCancelDialog(true)}
                                     disabled={['completed', 'cancelled'].includes(orders[0].status)}
                                 >
