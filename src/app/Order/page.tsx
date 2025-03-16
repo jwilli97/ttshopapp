@@ -93,6 +93,7 @@ export default function NewOrder() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
+  const [activeMenu, setActiveMenu] = useState<string>("");
   const [orderDetails, setOrderDetails] = useState<OrderDetails>({
     item: '',
     tokenRedemption: '',
@@ -518,12 +519,21 @@ export default function NewOrder() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const menuResponse = await fetch('/api/getMenuUrl');
-        if (!menuResponse.ok) {
-            throw new Error(`HTTP error! status: ${menuResponse.status}`);
-        }
-        const menuData: { url: string } = await menuResponse.json();
-        setMenuUrl(menuData.url);
+        // Fetch active menu
+        const fetchActiveMenu = async () => {
+          try {
+              const response = await fetch('/api/getMenuUrl');
+              const data = await response.json();
+              console.log("Received data:", data);
+              
+              setActiveMenu(data.currentMenu?.url || "No active menu set");
+          } catch (error) {
+              console.error("Error fetching active menu:", error);
+              setActiveMenu("Error loading active menu");
+          }
+      };
+
+      fetchActiveMenu();
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
@@ -813,17 +823,22 @@ export default function NewOrder() {
             </div>
           </div>
         </div>
-        <div className="mt-6 mb-36 w-full">
-            <div className="w-full mx-auto" style={{ position: 'relative', height: '500px', paddingTop: '66.67%' }}>
-                <Image
-                    src="/HTX_menu_mar13.png"
-                    alt="Current Menu"
-                    fill
-                    priority
-                    style={{ objectFit: 'contain' }}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-            </div>
+        <div className="mb-32 mt-8 rounded-lg w-full max-w-4xl mx-auto px-4">
+            {activeMenu ? (
+                <div className="relative w-full aspect-[3/4] md:aspect-[4/3]">
+                    <Image 
+                        src={activeMenu}
+                        alt="Current Menu"
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 768px) 100vw, 800px"
+                        priority
+                        onClick={() => window.open(activeMenu, '_blank')}
+                    />
+                </div>
+            ) : (
+                <p className="text-gray-700">No active menu set</p>
+            )}
         </div>
       </main>
       

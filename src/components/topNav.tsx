@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ChevronRight } from "lucide-react"
 import LogoutButton from './logoutButton';
 import { Badge } from "@/components/ui/badge";
+import { MembershipBadge } from "@/components/ui/membership-badge";
 
 export default function TopNav() {
     const router = useRouter();
@@ -80,15 +81,18 @@ export default function TopNav() {
                         {displayName}
                     </span>
                     <div className="flex items-center text-white">
-                        <span className="text-base md:text-xl truncate max-w-[180px] md:max-w-none">
+                        <span className="text-base md:text-xl truncate max-w-[180px] md:max-w-none"
+                            onClick={handleNavigateToAccount}
+                        >
                             {streetAddress}
                         </span>
                         <ChevronRight className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
                     </div>
                     {membershipTier && (
-                        <Badge variant="secondary" className="bg-purple-600 hover:bg-purple-700 text-white text-xs md:text-sm mt-1 w-fit">
-                            {membershipTier}
-                        </Badge>
+                        <MembershipBadge 
+                            tier={membershipTier} 
+                            className="text-xs md:text-sm mt-1 w-fit"
+                        />
                     )}
                 </div>
             </div>

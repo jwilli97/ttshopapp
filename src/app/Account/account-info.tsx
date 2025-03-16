@@ -28,6 +28,7 @@ import {
 import { X } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { Badge } from "@/components/ui/badge";
+import { MembershipBadge } from "@/components/ui/membership-badge";
 
 interface AccountInfoProps {
   userData: UserData;
@@ -215,9 +216,7 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
                   )}
                   <div className="w-full space-y-4">
                     {userData.membership_tier && (
-                      <Badge variant="secondary" className="bg-purple-600 hover:bg-purple-700 text-white">
-                        {userData.membership_tier}
-                      </Badge>
+                      <MembershipBadge tier={userData.membership_tier} />
                     )}
                     {isEditing ? (
                       <div className="space-y-2">

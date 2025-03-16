@@ -16,7 +16,12 @@ const badgeVariants = cva(
         preparing: "border-transparent bg-yellow-300 text-yellow-800 hover:bg-yellow-400",
         outForDelivery: "border-transparent bg-accent text-black hover:bg-accent/80",
         completed: "border-transparent bg-green-300 text-green-800 hover:bg-green-400",
-        cancelled: "border-transparent bg-red-300 text-red-800 hover:bg-red-400"
+        cancelled: "border-transparent bg-red-300 text-red-800 hover:bg-red-400",
+        betaTester: "bg-purple-600 hover:bg-purple-700 text-white",
+        dev: "bg-blue-600 hover:bg-blue-700 text-white",
+        ceo: "bg-accent hover:bg-accent/80 text-black",
+        hr: "bg-pink-600 hover:bg-pink-700 text-white",
+        designer: "bg-indigo-600 hover:bg-indigo-700 text-white",
       },
     },
     defaultVariants: {

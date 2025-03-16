@@ -25,6 +25,7 @@ export default function Dashboard() {
     const [userId, setUserId] = useState<string | null>(null);
     const router = useRouter();
     const [isMenuExpanded, setIsMenuExpanded] = useState(false);
+    const [activeMenu, setActiveMenu] = useState<string>("");
     // Create Supabase client inside the component
     const supabase = createClientComponentClient();
 
@@ -97,6 +98,22 @@ export default function Dashboard() {
                     }
                 `;
                 document.head.appendChild(style);
+
+                // Fetch active menu
+                const fetchActiveMenu = async () => {
+                    try {
+                        const response = await fetch('/api/getMenuUrl');
+                        const data = await response.json();
+                        console.log("Received data:", data);
+                        
+                        setActiveMenu(data.currentMenu?.url || "No active menu set");
+                    } catch (error) {
+                        console.error("Error fetching active menu:", error);
+                        setActiveMenu("Error loading active menu");
+                    }
+                };
+
+                fetchActiveMenu();
             } catch (error) {
                 console.error("There was a problem fetching data:", error);
                 const errorMessage = error instanceof Error ? error.message : 'Failed to load data';
@@ -142,17 +159,8 @@ export default function Dashboard() {
                     <div className="container bg-[#cbd5e1]/25 h-0.5 w-full md:w-11/12 my-2 rounded-full"></div>
                     <TokenShop userId={userId || ''} />
                     <div className="container bg-[#cbd5e1]/25 h-0.5 w-full md:w-11/12 my-2 rounded-full"></div>
-                    <div className="mt-4 mb-24 w-full">
+                    {/* <div className="mt-4 mb-24 w-full">
                         <div className="mb-24 w-full">
-                            {/* <Image
-                                src="/HTX_menu_mar13.png"
-                                alt="Current Menu"
-                                fill
-                                priority
-                                className="object-contain hover:cursor-zoom-in"
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw"
-                                onClick={() => window.open('/HTX_menu_mar13.png', '_blank')}
-                            /> */}
                             <div className="w-full mx-auto" style={{ position: 'relative', height: '500px', paddingTop: '66.67%' }}>
                                 <Image
                                     src="/HTX_menu_mar13.png"
@@ -165,6 +173,23 @@ export default function Dashboard() {
                                 />
                             </div>
                         </div>
+                    </div> */}
+                    <div className="mb-32 rounded-lg w-full max-w-4xl mx-auto px-4">
+                        {activeMenu ? (
+                            <div className="relative w-full aspect-[3/4] md:aspect-[4/3]">
+                                <Image 
+                                    src={activeMenu}
+                                    alt="Current Menu"
+                                    fill
+                                    className="object-contain"
+                                    sizes="(max-width: 768px) 100vw, 800px"
+                                    priority
+                                    onClick={() => window.open(activeMenu, '_blank')}
+                                />
+                            </div>
+                        ) : (
+                            <p className="text-gray-700">No active menu set</p>
+                        )}
                     </div>
                 </div>
                 <div className="fixed bottom-16 left-0 w-full flex justify-center px-6 py-4 z-50">
