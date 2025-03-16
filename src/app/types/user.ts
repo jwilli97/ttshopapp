@@ -17,10 +17,8 @@ export interface UserData {
   replacement_preference?: string
   delivery_method?: string
   delivery_notes?: string
-  care_package_enabled?: boolean
-  care_package_preferences?: {
-    // Add specific care package preferences here when needed
-  }
+  usual_order?: string
+  usual_total?: number
 }
 
 interface AccountInfoProps {

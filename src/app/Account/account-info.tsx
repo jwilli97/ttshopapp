@@ -477,15 +477,24 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
                       </DialogClose>
                       <DialogHeader>
                         <DialogTitle>My Usual</DialogTitle>
-                        <DialogDescription>
+                        {/* <DialogDescription>
                           Example order:
-                        </DialogDescription>
+                        </DialogDescription> */}
                       </DialogHeader>
                       <div className="py-4">
-                        <p>14g of Indica</p>
-                        {/* <p>2 Sativa Pens</p>
-                        <p>3 Packs of Stiizy Gummies</p> */}
-                        <p>Total: $100</p>
+                        {userData.usual_order ? (
+                          <>
+                            <p>{userData.usual_order}</p>
+                            <p>Total: ${userData.usual_total}</p>
+                          </>
+                        ) : (
+                          <>
+                            <p><strong>Example Order:</strong></p>
+                            <p>7g Designer Sativa</p>
+                            <p>2 Sativa Pens</p>
+                            <p>Total: $150</p>
+                          </>
+                        )}
                       </div>
                     </DialogContent>
                   </Dialog>
