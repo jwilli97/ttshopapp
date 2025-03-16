@@ -6,6 +6,7 @@ export interface UserData {
   display_name: string
   phone_number: string
   avatar_url: string
+  membership_tier: string
   residence_type: string
   street_address: string
   address_line_2?: string
