@@ -125,6 +125,10 @@ export default function NewOrder() {
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [preferredDeliveryMethod, setPreferredDeliveryMethod] = useState<string>('Handoff');
+  const [userData, setUserData] = useState<{
+    usual_order?: string;
+    usual_total?: number | null;
+  } | null>(null);
 
   const steps = [
     {
@@ -158,10 +162,74 @@ export default function NewOrder() {
             </div>
           )}
 
-          <div className="mt-2 w-full">
+          <div className="mt-2 w-full space-y-2">
+            {/* Add Usual Order button */}
+            {userData?.usual_order && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full text-accent flex items-center gap-2 justify-center bg-primary text-white hover:bg-primary/80"
+                onClick={async () => {
+                  try {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    
+                    if (!session) {
+                      console.error("No session found");
+                      return;
+                    }
+
+                    // Create order details object using profile data
+                    const orderData = {
+                      user_id: userId,
+                      display_name: displayName,
+                      full_name: `${firstName} ${lastName}`.trim(),
+                      order_details: {
+                        item: userData.usual_order,
+                        phoneNumber: phoneNumber,
+                        deliveryResidenceType: residenceType,
+                        deliveryStreetAddress: streetAddress,
+                        deliveryCity: city,
+                        deliveryState: state,
+                        deliveryZipcode: zipcode,
+                        deliveryMethod: preferredDeliveryMethod,
+                        deliveryNotes: deliveryNotes || '',
+                        paymentMethod: '', // This will need to be selected
+                        total: userData.usual_total,
+                      },
+                      phone_number: phoneNumber,
+                      residence_type: residenceType,
+                      street_address: streetAddress,
+                      city: city,
+                      state: state,
+                      zipcode: zipcode,
+                      delivery_method: preferredDeliveryMethod,
+                      status: 'processing',
+                      total: userData.usual_total
+                    };
+
+                    // Insert new order into orders table
+                    const { error } = await supabase
+                      .from('orders')
+                      .insert(orderData);
+
+                    if (error) throw error;
+
+                    // Redirect to order confirmation page
+                    router.push('/Order/Confirmation');
+                  } catch (error) {
+                    console.error('Error placing usual order:', error);
+                    alert('Failed to place usual order. Please try again.');
+                  }
+                }}
+              >
+                Place Usual Order
+              </Button>
+            )}
+
+            {/* Existing Token Shop Dialog */}
             <Dialog open={showTokenShop} onOpenChange={setShowTokenShop}>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full text-accent flex items-center gap-2 justify-center">
+                <Button variant="outline" size="sm" className="w-full text-accent flex items-center gap-2 justify-center hover:text-black [&>svg]:hover:text-black">
                   <ShopIcon />
                   Redeem Tokens
                 </Button>
@@ -551,6 +619,9 @@ export default function NewOrder() {
           }
 
           if (profileData) {
+            // Add this line to set the userData
+            setUserData(profileData);
+
             // Initialize Intercom with user data
             Intercom({
               app_id: 'cdcmnvsm',

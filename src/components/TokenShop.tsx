@@ -148,7 +148,7 @@ const TokenShop: React.FC<TokenShopProps> = ({ userId }) => {
                             variant="outline"
                         >
                             <div className="flex items-center gap-1.5">
-                                <ShopIcon />
+                                <div className="text-accent"><ShopIcon /></div>
                                 <span className="text-base md:text-lg">Browse Token Shop</span>
                             </div>
                             {isShopOpen ? <ChevronUpIcon className="h-4 w-4 md:h-5 md:w-5" /> : <ChevronDownIcon className="h-4 w-4 md:h-5 md:w-5" />}
