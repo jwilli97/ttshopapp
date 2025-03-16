@@ -179,18 +179,11 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
 
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
               <CardHeader className="space-y-1 flex flex-row justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <CardTitle className="text-2xl font-bold text-white rounded-lg">
-                      Display Information
-                    </CardTitle>
-                    <p className="text-muted-foreground text-sm">How others see you</p>
-                  </div>
-                  {userData.membership_tier && (
-                    <Badge variant="secondary" className="bg-purple-600 hover:bg-purple-700 text-white">
-                      {userData.membership_tier}
-                    </Badge>
-                  )}
+                <div>
+                  <CardTitle className="text-2xl font-bold text-white rounded-lg">
+                    Display Information
+                  </CardTitle>
+                  <p className="text-muted-foreground text-sm">How others see you</p>
                 </div>
                 <Button 
                   onClick={() => isEditing ? handleSubmit() : handleEdit()}
@@ -221,6 +214,11 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
                     </Avatar>
                   )}
                   <div className="w-full space-y-4">
+                    {userData.membership_tier && (
+                      <Badge variant="secondary" className="bg-purple-600 hover:bg-purple-700 text-white">
+                        {userData.membership_tier}
+                      </Badge>
+                    )}
                     {isEditing ? (
                       <div className="space-y-2">
                         <Label htmlFor="display_name">Display Name</Label>

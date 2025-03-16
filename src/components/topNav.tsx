@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ChevronRight } from "lucide-react"
 import LogoutButton from './logoutButton';
+import { Badge } from "@/components/ui/badge";
 
 export default function TopNav() {
     const router = useRouter();
@@ -13,6 +14,7 @@ export default function TopNav() {
     const [email, setEmail] = useState<string>('');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [streetAddress, setStreetAddress] = useState<string>('');
+    const [membershipTier, setMembershipTier] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -38,6 +40,7 @@ export default function TopNav() {
                         setAvatarUrl(data.avatar_url as string || '');
                         setStreetAddress(data.street_address as string || '');
                         setEmail(data.email as string || '');
+                        setMembershipTier(data.membership_tier as string || '');
                     }
                 } else {
                     // Handle case when no user is logged in
@@ -67,7 +70,7 @@ export default function TopNav() {
                     onClick={handleNavigateToAccount}
                 >
                     <AvatarImage src={avatarUrl} alt="@user" />
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarFallback>T</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
                     <span 
@@ -82,6 +85,11 @@ export default function TopNav() {
                         </span>
                         <ChevronRight className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
                     </div>
+                    {membershipTier && (
+                        <Badge variant="secondary" className="bg-purple-600 hover:bg-purple-700 text-white text-xs md:text-sm mt-1 w-fit">
+                            {membershipTier}
+                        </Badge>
+                    )}
                 </div>
             </div>
             <div className="flex-shrink-0">
