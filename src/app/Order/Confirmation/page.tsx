@@ -485,7 +485,7 @@ export default function Orders() {
                         </DialogDescription>
                     </DialogHeader>
                     <textarea
-                        className="w-full min-h-[100px] p-2 border rounded-md"
+                        className="w-full min-h-[100px] p-2 border rounded-md text-black"
                         value={editRequest}
                         onChange={(e) => setEditRequest(e.target.value)}
                         placeholder="Example: Please change my delivery address to..."
