@@ -28,6 +28,8 @@ interface OrderDetails {
     status: orderStatus;
     pickupTime?: string;
     pickupLocation?: string;
+    deliveryTime?: string;
+    deliveryFee?: number;
 }
 
 interface Order {
@@ -380,6 +382,21 @@ export default function Orders() {
                                             <>
                                                 <p><strong>Address: </strong> {(details.deliveryStreetAddress)}, {details.deliveryZipcode}</p>
                                                 <p><strong>Delivery Method: </strong> {capitalizeFirstLetter(details.deliveryMethod ?? '')}</p>
+                                            </>
+                                        )}
+                                        {details.deliveryMethod !== 'Pickup' && (
+                                            <>
+                                                {details.deliveryTime && (
+                                                    <p><strong>Estimated Delivery: </strong> {details.deliveryTime}</p>
+                                                )}
+                                                {details.deliveryFee !== undefined && (
+                                                    <p><strong>Delivery Fee: </strong> 
+                                                        {details.deliveryFee === 0 
+                                                            ? 'Free Delivery' 
+                                                            : `$${details.deliveryFee.toFixed(2)}`
+                                                        }
+                                                    </p>
+                                                )}
                                             </>
                                         )}
                                         {details.paymentMethod && <p><strong>Payment Method: </strong> {capitalizeFirstLetter(details.paymentMethod)}</p>}

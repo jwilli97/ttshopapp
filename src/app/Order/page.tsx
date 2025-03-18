@@ -37,6 +37,8 @@ interface OrderDetails {
   cashDetails?: string;
   total: number | null;
   pickupTime?: string;
+  deliveryTime?: string;
+  deliveryFee?: number;
 }
 
 interface TinyTokenShopItem {
@@ -109,6 +111,8 @@ export default function NewOrder() {
     cashDetails: '',
     total: null,
     pickupTime: undefined,
+    deliveryTime: undefined,
+    deliveryFee: undefined,
   })
   const [zipcode, setZipcode] = useState('');
   const [showTokenShop, setShowTokenShop] = useState(false);
@@ -523,7 +527,25 @@ export default function NewOrder() {
 
           {/* Estimated Time */}
           <div>
-            <DeliveryInfo zipcode={orderDetails.deliveryZipcode} />
+            {orderDetails.deliveryMethod !== 'Pickup' && orderDetails.deliveryZipcode && (
+              <DeliveryInfo 
+                zipcode={orderDetails.deliveryZipcode} 
+                onDeliveryInfoChange={(info) => {
+                  // Only update if the info actually changed
+                  setOrderDetails(prev => {
+                    if (prev.deliveryTime === info?.delivery_time && 
+                        prev.deliveryFee === info?.delivery_fee) {
+                      return prev;
+                    }
+                    return {
+                      ...prev,
+                      deliveryTime: info?.delivery_time || undefined,
+                      deliveryFee: info?.delivery_fee || undefined
+                    };
+                  });
+                }}
+              />
+            )}
           </div>
 
           {/* Total and Payment */}

@@ -10,19 +10,21 @@ interface DeliveryZone {
 interface DeliveryInfoProps {
   zipcode: string;
   hideIfFreeDelivery?: boolean;
+  onDeliveryInfoChange?: (info: DeliveryZone | null) => void;
 }
 
-export default function DeliveryInfo({ zipcode, hideIfFreeDelivery = false }: DeliveryInfoProps) {
+export default function DeliveryInfo({ zipcode, hideIfFreeDelivery = false, onDeliveryInfoChange }: DeliveryInfoProps) {
   const [deliveryInfo, setDeliveryInfo] = useState<DeliveryZone | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastCheckedZipcode, setLastCheckedZipcode] = useState<string>('');
 
   useEffect(() => {
     async function checkDeliveryZone() {
-      if (!zipcode) {
-        setLoading(false);
+      if (!zipcode || zipcode === lastCheckedZipcode) {
         return;
       }
 
+      setLoading(true);
       try {
         const { data, error } = await supabase
           .from('delivery_zones')
@@ -33,19 +35,23 @@ export default function DeliveryInfo({ zipcode, hideIfFreeDelivery = false }: De
         if (error) {
           console.error('Error checking delivery zone:', error);
           setDeliveryInfo(null);
+          onDeliveryInfoChange?.(null);
         } else {
-          setDeliveryInfo(data as DeliveryZone); 
+          setDeliveryInfo(data as DeliveryZone);
+          onDeliveryInfoChange?.(data as DeliveryZone);
         }
       } catch (err) {
         console.error('Error fetching delivery zone:', err);
         setDeliveryInfo(null);
+        onDeliveryInfoChange?.(null);
       } finally {
         setLoading(false);
+        setLastCheckedZipcode(zipcode);
       }
     }
 
     checkDeliveryZone();
-  }, [zipcode]);
+  }, [zipcode, onDeliveryInfoChange, lastCheckedZipcode]);
 
   if (loading) {
     return (
