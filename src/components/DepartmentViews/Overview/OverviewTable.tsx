@@ -57,6 +57,8 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
     const [editingOrder, setEditingOrder] = useState<Order | null>(null)
     const { toast } = useToast()
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [changedFields, setChangedFields] = useState<Set<keyof Order>>(new Set());
     
     const handleSort = (column: SortColumn) => {
         if (column === sortColumn) {
@@ -135,43 +137,73 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
         setIsEditDialogOpen(true)
     }
 
+    const validateOrder = (order: Order) => {
+        const errors: string[] = [];
+        
+        if (!order.status) errors.push("Status is required");
+        if (!order.total) errors.push("Total is required");
+        if (!order.street_address) errors.push("Street address is required");
+        if (!order.zipcode) errors.push("Zipcode is required");
+        
+        return errors;
+    }
+
+    const handleFieldChange = (field: keyof Order, value: any) => {
+        setEditingOrder(prev => prev ? {
+            ...prev,
+            [field]: value
+        } : null);
+        setChangedFields(prev => new Set(prev.add(field)));
+    }
+
     const handleSaveEdit = async () => {
         if (editingOrder) {
+            const validationErrors = validateOrder(editingOrder);
+            if (validationErrors.length > 0) {
+                toast({
+                    variant: "destructive",
+                    title: "Validation Error",
+                    description: validationErrors.join(", "),
+                });
+                return;
+            }
+
+            setIsUpdating(true);
+            const previousOrders = [...orders];
+
+            setOrders(orders.map((order) => 
+                order.id === editingOrder.id ? editingOrder : order
+            ));
+            setIsEditDialogOpen(false);
+
             try {
-                // Update order in Supabase
-                const { data, error } = await supabase
-                .from('orders')
-                .update({
-                    status: editingOrder.status,
-                    order_details: editingOrder.order_details,
-                })
-                .eq('id', editingOrder.id)
+                const updates = Array.from(changedFields).reduce((acc, field) => ({
+                    ...acc,
+                    [field]: editingOrder[field]
+                }), {});
 
-                if (error) throw error
+                const { error } = await supabase
+                    .from('orders')
+                    .update(updates)
+                    .eq('id', editingOrder.id);
 
-                // Update local state
-                setOrders(orders.map((order) => (order.id === editingOrder.id ? editingOrder : order)))
-                
-                setIsEditDialogOpen(false)
-                setEditingOrder(null)
+                if (error) throw error;
 
                 toast({
                     title: "Order updated",
                     description: "The order has been successfully updated.",
-                    action: (
-                        <ToastAction altText="Dismiss">Dismiss</ToastAction>
-                    ),
-                })
+                });
             } catch (error) {
-                console.error("Error updating order:", error)
+                setOrders(previousOrders);
+                setIsEditDialogOpen(true);
                 toast({
                     variant: "destructive",
-                    title: "Uh oh! Something went wrong.",
-                    description: "There was a problem updating the order.",
-                    action: (
-                        <ToastAction altText="Try again">Try again</ToastAction>
-                    ),
-                })
+                    title: "Update failed",
+                    description: "Changes have been reverted. Please try again.",
+                });
+            } finally {
+                setIsUpdating(false);
+                setChangedFields(new Set());
             }
         }
     }
@@ -183,7 +215,7 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
                     <TableRow>
                         <TableHead className="text-white font-semibold">Order ID</TableHead>
                         <TableHead className="text-white font-semibold">Display Name</TableHead>
-                        <TableHead className="text-white font-semibold">Full Name</TableHead>
+                        {/* <TableHead className="text-white font-semibold">Full Name</TableHead> */}
                         <TableHead className="text-white font-semibold">Phone Number</TableHead>
                         <TableHead className="text-white font-semibold">Order Details</TableHead>
                         <TableHead className="text-white font-semibold">Total</TableHead>
@@ -194,6 +226,7 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
                         <TableHead className="text-white font-semibold">Residence Type</TableHead>
                         <TableHead className="text-white font-semibold">Delivery Time Frame</TableHead>
                         <TableHead className="text-white font-semibold">Status</TableHead>
+                        <TableHead className="text-white font-semibold">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -201,7 +234,7 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
                         <TableRow className="text-gray-100" key={order.id}>
                             <TableCell>{order.id}</TableCell>
                             <TableCell>{order.display_name}</TableCell>
-                            <TableCell>{order.full_name}</TableCell>
+                            {/* <TableCell>{order.full_name}</TableCell> */}
                             <TableCell>{order.phone_number}</TableCell>
                             <TableCell>{formatOrderDetails(order.order_details)}</TableCell>
                             <TableCell>{order.total}</TableCell>
@@ -212,12 +245,15 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
                             <TableCell>{order.residence_type}</TableCell>
                             <TableCell>{order.delivery_time_frame}</TableCell>
                             <TableCell>{getStatusBadge(order.status)}</TableCell>
+                            <TableCell>
+                                <Button size="sm" className="mr-2" onClick={() => handleEditOrder(order)}>Edit</Button>
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
 
-            {/* <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Edit Order</DialogTitle>
@@ -295,7 +331,7 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
                         <Button onClick={handleSaveEdit}>Save changes</Button>
                     </DialogFooter>
                 </DialogContent>
-            </Dialog> */}
+            </Dialog>
         </div>
     );
 }

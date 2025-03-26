@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
+import { UserDetailsDialog } from "@/components/shared/UserDetailsDialog";
 
 interface OrdersTableProps {
     orders: Order[];
@@ -61,6 +62,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
     const { toast } = useToast()
     const [isUpdating, setIsUpdating] = useState(false);
     const [changedFields, setChangedFields] = useState<Set<keyof Order>>(new Set());
+    const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
     
     const handleSort = (column: SortColumn) => {
         if (column === sortColumn) {
@@ -231,7 +233,11 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                 </TableHeader>
                 <TableBody>
                     {orders.map((order) => (
-                        <TableRow className="text-gray-100" key={order.id}>
+                        <TableRow 
+                            className="text-gray-100 cursor-pointer hover:bg-gray-800/50" 
+                            key={order.id}
+                            onClick={() => setSelectedOrderId(order.id)}
+                        >
                             <TableCell>{order.id}</TableCell>
                             <TableCell>{order.display_name}</TableCell>
                             <TableCell>{order.full_name}</TableCell>
@@ -246,6 +252,12 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                     ))}
                 </TableBody>
             </Table>
+
+            <UserDetailsDialog
+                isOpen={!!selectedOrderId}
+                onClose={() => setSelectedOrderId(null)}
+                orderId={selectedOrderId}
+            />
 
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogContent className="text-white">
