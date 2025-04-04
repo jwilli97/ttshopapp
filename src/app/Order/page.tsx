@@ -761,6 +761,7 @@ export default function NewOrder() {
         status: 'processing',
         ...(orderDetails.paymentMethod === 'Cash' && { cash_details: orderDetails.cashDetails || '' }),
         total: orderDetails.total,
+        delivery_time_frame: orderDetails.deliveryTime || null,
       };
 
       const { data, error } = await supabase

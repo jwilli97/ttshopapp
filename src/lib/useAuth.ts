@@ -2,25 +2,42 @@ import { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 import { User } from '@supabase/supabase-js';
 
+interface Role {
+  id: number;
+  name: string;
+}
+
+interface UserRole {
+  user_id: string;
+  role_id: number;
+}
+
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isEmployee, setIsEmployee] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAdminStatus = async (user: User) => {
+    const checkEmployeeStatus = async (user: User) => {
       try {
+        // Single query to check if user has employee role
         const { data, error } = await supabase
-          .from('profiles')
-          .select('is_admin')
+          .from('user_roles')
+          .select(`
+            role_id,
+            roles!inner (
+              name
+            )
+          `)
           .eq('user_id', user.id)
-          .single();
+          .eq('roles.name', 'employee')
+          .maybeSingle();
 
         if (error) throw error;
-        setIsAdmin((data?.is_admin as boolean) || false);
+        setIsEmployee(!!data);
       } catch (error) {
-        console.error('Error checking admin status:', error);
-        setIsAdmin(false);
+        console.error('Error checking employee status:', error);
+        setIsEmployee(false);
       }
     };
 
@@ -29,9 +46,9 @@ export function useAuth() {
       setUser(currentUser);
       
       if (currentUser) {
-        await checkAdminStatus(currentUser);
+        await checkEmployeeStatus(currentUser);
       } else {
-        setIsAdmin(false);
+        setIsEmployee(false);
       }
 
       setLoading(false);
@@ -43,7 +60,7 @@ export function useAuth() {
       setUser(initialUser);
       
       if (initialUser) {
-        await checkAdminStatus(initialUser);
+        await checkEmployeeStatus(initialUser);
       }
 
       setLoading(false);
@@ -54,5 +71,5 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  return { user, isAdmin, loading };
+  return { user, isEmployee, loading };
 }

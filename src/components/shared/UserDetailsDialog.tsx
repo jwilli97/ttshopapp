@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { supabase } from "@/lib/supabaseClient";
 import { Badge } from "@/components/ui/badge";
+import { checkIsEmployee } from '@/lib/auth';
 
 interface UserPreferences {
     strainPreference?: string;
@@ -38,6 +38,7 @@ interface UserDetailsDialogProps {
 
 interface DatabaseOrder {
     id: string;
+    user_id: string;
     order_details: string;
     phone_number: string;
     delivery_method: string;
@@ -51,11 +52,13 @@ interface DatabaseOrder {
     zipcode: string;
     delivery_notes?: string;
     residence_type?: string;
-    profiles?: {
-        strain_preference: string;
-        replacement_preference: string;
-        display_name: string;
-    };
+}
+
+interface DatabaseProfile {
+    user_id: string;
+    strain_preference: string;
+    replacement_preference: string;
+    display_name: string;
 }
 
 export function UserDetailsDialog({ isOpen, onClose, orderId }: UserDetailsDialogProps) {
@@ -76,58 +79,49 @@ export function UserDetailsDialog({ isOpen, onClose, orderId }: UserDetailsDialo
             setError(null);
             
             try {
-                // Fetch order details first
-                const { data: orderData, error: orderError } = await supabase
-                    .from('orders')
-                    .select(`
-                        *,
-                        profiles:user_id (
-                            strain_preference,
-                            replacement_preference,
-                            display_name
-                        )
-                    `)
-                    .eq('id', orderId)
-                    .single();
+                // Instead of direct Supabase access, use our new API endpoint
+                const response = await fetch(`/api/getUserDetails?orderId=${orderId}`);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Failed to fetch user details');
+                }
 
-                if (orderError) throw orderError;
-                if (!orderData) throw new Error('Order not found');
-
-                // Type assertion with unknown first for safety
-                const typedOrderData = orderData as unknown as DatabaseOrder;
-                const orderDetails = JSON.parse(typedOrderData.order_details) as {
+                const orderData = result.order;
+                const profileData = result.profile;
+                const orderDetails = JSON.parse(orderData.order_details) as {
                     item: string;
                     tokenRedemption?: string;
                 };
                 
                 setUserDetails({
                     preferences: {
-                        strainPreference: typedOrderData.profiles?.strain_preference || '',
-                        replacementPreference: typedOrderData.profiles?.replacement_preference || '',
+                        strainPreference: profileData?.strain_preference || '',
+                        replacementPreference: profileData?.replacement_preference || '',
                     },
                     delivery: {
-                        street_address: typedOrderData.street_address,
-                        address_line_2: typedOrderData.address_line_2,
-                        city: typedOrderData.city,
-                        state: typedOrderData.state,
-                        zipcode: typedOrderData.zipcode,
-                        delivery_notes: typedOrderData.delivery_notes,
-                        residence_type: typedOrderData.residence_type,
+                        street_address: orderData.street_address,
+                        address_line_2: orderData.address_line_2,
+                        city: orderData.city,
+                        state: orderData.state,
+                        zipcode: orderData.zipcode,
+                        delivery_notes: orderData.delivery_notes,
+                        residence_type: orderData.residence_type,
                     },
                     orderDetails: {
                         item: orderDetails.item,
                         tokenRedemption: orderDetails.tokenRedemption,
-                        phoneNumber: typedOrderData.phone_number,
-                        deliveryMethod: typedOrderData.delivery_method,
-                        paymentMethod: typedOrderData.payment_method,
-                        status: typedOrderData.status,
-                        total: typedOrderData.total,
+                        phoneNumber: orderData.phone_number,
+                        deliveryMethod: orderData.delivery_method,
+                        paymentMethod: orderData.payment_method,
+                        status: orderData.status,
+                        total: orderData.total,
                     },
-                    displayName: typedOrderData.profiles?.display_name || 'Unknown User',
+                    displayName: profileData?.display_name || 'Unknown User',
                 });
             } catch (err) {
                 console.error('Error fetching user details:', err);
-                setError('Failed to load user details');
+                setError(err instanceof Error ? err.message : 'Failed to load user details');
             } finally {
                 setIsLoading(false);
             }

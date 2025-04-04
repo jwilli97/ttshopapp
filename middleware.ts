@@ -54,7 +54,7 @@ const protectedRoutes = [
   '/api/redeemRewards'
 ];
 
-const adminRoutes = [
+const employeeRoutes = [
   '/Admin',
   '/api/menuOperations'
 ];
@@ -150,11 +150,11 @@ export async function middleware(request: NextRequest) {
 
     // Handle protected routes
     const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route))
-    const isAdminRoute = adminRoutes.some(route => path.startsWith(route))
+    const isEmployeeRoute = employeeRoutes.some(route => path.startsWith(route))
 
     // If no session, redirect to login
     if (!session) {
-      if (isProtectedRoute || isAdminRoute) {
+      if (isProtectedRoute || isEmployeeRoute) {
         const redirectUrl = new URL('/auth/welcome', request.url)
         redirectUrl.searchParams.set('returnTo', path)
         return NextResponse.redirect(redirectUrl)
@@ -162,45 +162,30 @@ export async function middleware(request: NextRequest) {
       return res
     }
 
-    // Enhanced Admin Route Handling
-    if (isAdminRoute) {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('user_id', session.user.id)
-          .single()
-        
-        if (error) throw error
-        
-        if (!data?.is_admin) {
-          return new NextResponse('Unauthorized', { 
-            status: 403,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          })
-        }
-      } catch (error) {
-        console.error('Error checking admin status:', error)
-        return new NextResponse('Internal Server Error', { 
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
+    // For employee routes, check if user has employee role
+    if (isEmployeeRoute) {
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('roles!inner(name)')
+        .eq('user_id', session.user.id)
+        .eq('roles.name', 'employee')
+        .single();
+
+      if (roleError || !roleData) {
+        // Redirect to home if not an employee
+        return NextResponse.redirect(new URL('/', request.url));
       }
     }
 
     // Enhanced Security Headers
-    res.headers.set('X-Frame-Options', 'DENY')
-    res.headers.set('X-Content-Type-Options', 'nosniff')
-    res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-    res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
-    res.headers.set('X-XSS-Protection', '1; mode=block')
-    res.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+    res.headers.set('X-Frame-Options', 'DENY');
+    res.headers.set('X-Content-Type-Options', 'nosniff');
+    res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    res.headers.set('X-XSS-Protection', '1; mode=block');
+    res.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 
-    return res
+    return res;
   } catch (error) {
     console.error('Middleware error:', error)
     return new NextResponse('Internal Server Error', { 

@@ -7,6 +7,7 @@ import { DispatchView } from "@/components/DepartmentViews/Dispatch";
 import { FulfillmentView } from "@/components/DepartmentViews/Fulfillment";
 import { SupportView } from "@/components/DepartmentViews/Support";
 import { MenuView } from "@/components/DepartmentViews/MenuView";
+import EmployeeProtectedRoute from "@/components/AdminProtectedRoute";
 
 type Department = "overview" | "fulfillment" | "dispatch" | "support" | "menu";
 
@@ -22,7 +23,7 @@ export default function AdminDashboard() {
     ];
 
     return (
-        // TODO: Add Admin Protected Route
+        <EmployeeProtectedRoute>
             <div className="min-h-screen bg-zinc-900">
                 {/* Navigation */}
                 <nav className="bg-zinc-800 border-b border-zinc-700 shadow-lg">
@@ -63,5 +64,6 @@ export default function AdminDashboard() {
                 {currentDepartment === "menu" && <MenuView />}
             </main>
         </div>
+    </EmployeeProtectedRoute>
     );
 }
