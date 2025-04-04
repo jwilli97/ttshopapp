@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import BottomNav from '@/components/BottomNav';
-import TopNav from '@/components/topNav';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 interface OrderDetails {
     item: string;
@@ -93,10 +93,11 @@ export default function Orders() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col mb-16 bg-background">
-            {/* <header className="bg-background">
-                <TopNav />
-            </header> */}
+        <ProtectedRoute>
+            <div className="flex min-h-screen flex-col mb-16 bg-background">
+                {/* <header className="bg-background">
+                    <TopNav />
+                </header> */}
 
             <main className='flex w-full flex-col items-center px-4 py-6 pb-12 relative'>
                 <h1 className="text-2xl font-bold mb-6">Order History</h1>
@@ -141,5 +142,6 @@ export default function Orders() {
 
             <BottomNav />
         </div>
+        </ProtectedRoute>
     );
 }

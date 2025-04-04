@@ -22,9 +22,10 @@ export default function AdminDashboard() {
     ];
 
     return (
-        <div className="min-h-screen bg-zinc-900">
-            {/* Navigation */}
-            <nav className="bg-zinc-800 border-b border-zinc-700 shadow-lg">
+        // TODO: Add Admin Protected Route
+            <div className="min-h-screen bg-zinc-900">
+                {/* Navigation */}
+                <nav className="bg-zinc-800 border-b border-zinc-700 shadow-lg">
                 <div className="container mx-auto px-4">
                     <div className="flex items-center h-16">
                         <Image src="/tinytreelogo.png" alt="Tiny Trees Logo" width={40} height={40} />

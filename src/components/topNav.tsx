@@ -96,9 +96,9 @@ export default function TopNav() {
                     )}
                 </div>
             </div>
-            <div className="flex-shrink-0">
+            {/* <div className="flex-shrink-0">
                 <LogoutButton />
-            </div>
+            </div> */}
         </nav>
     );
 }

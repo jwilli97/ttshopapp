@@ -13,7 +13,7 @@ import { ToastAction } from "@/components/ui/toast";
 import TopNav from "@/components/topNav";
 import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
-import LogOutButton from "@/components/logoutButton";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 type orderStatus = "processing" | "preparing" | "out for delivery" | "completed" | "cancelled";
 
@@ -322,10 +322,11 @@ export default function Orders() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col bg-background">
-            {/* <header className="bg-background mt-2 sm:mt-4">
-                <TopNav />
-            </header> */}
+        <ProtectedRoute>
+            <div className="flex min-h-screen flex-col bg-background">
+                {/* <header className="bg-background mt-2 sm:mt-4">
+                    <TopNav />
+                </header> */}
 
             <main className="flex w-full flex-col items-center mb-16 px-2 sm:px-4 py-4 sm:py-6 relative">
                 <div className="mb-4 sm:mb-6">
@@ -523,5 +524,6 @@ export default function Orders() {
 
             <BottomNav />
         </div>
+        </ProtectedRoute>
     );
 }

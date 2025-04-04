@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  env: {
+    SENDGRID_FROM_EMAIL: process.env.SENDGRID_FROM_EMAIL,
+  },
   images: {
     remotePatterns: [
       {

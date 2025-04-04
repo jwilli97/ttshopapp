@@ -4,15 +4,17 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import BottomNav from '@/components/BottomNav';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function ComingSoonGallery() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-3xl mx-auto text-center px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
-        {/* <div className="relative mb-8">
-          <Image
+    <ProtectedRoute>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="max-w-3xl mx-auto text-center px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
+          {/* <div className="relative mb-8">
+            <Image
             src="/tinytreelogo.png"
             alt="Bud Logo"
             width={125}
@@ -32,8 +34,9 @@ export default function ComingSoonGallery() {
         <Button className='mt-4' onClick={() => router.push('/dashboard')}>
           Home
         </Button>
+        </div>
+        <BottomNav />
       </div>
-      <BottomNav />
-    </div>
+    </ProtectedRoute>
   );
 }

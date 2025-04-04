@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import Intercom from '@intercom/messenger-js-sdk';
 import ShopIcon from "@/components/icons/shopIcon";
 import { Checkbox } from "@/components/ui/checkbox";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 interface OrderDetails {
   item: string;
@@ -859,9 +860,10 @@ export default function NewOrder() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="bg-background">
-        <div className="flex mt-10 items-center justify-center"> 
+    <ProtectedRoute>
+      <div className="flex min-h-screen flex-col bg-background">
+        <header className="bg-background">
+          <div className="flex mt-10 items-center justify-center"> 
           <h1 className="text-4xl text-white font-bold">Order</h1>
         </div>
       </header>
@@ -939,5 +941,6 @@ export default function NewOrder() {
         <BottomNav />
       </footer>
     </div>
+    </ProtectedRoute>
   );
 }

@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import BottomNav from "@/components/BottomNav";
 import type { UserData } from "@/app/types/user";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function AccountPage() {
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -45,10 +46,11 @@ export default function AccountPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen pb-16">
-      <div className="container mx-auto py-10">
-        <h1 className="text-3xl font-bold mb-8">Account Information</h1>
-        {isLoading ? (
+    <ProtectedRoute>
+      <div className="min-h-screen pb-16">
+        <div className="container mx-auto py-10">
+          <h1 className="text-3xl font-bold mb-8">Account Information</h1>
+          {isLoading ? (
           <div>Loading...</div>
         ) : error ? (
           <div>Error: {error}</div>
@@ -87,8 +89,9 @@ export default function AccountPage() {
             </Tabs>
           </Card>
         ) : null}
+        </div>
+        <BottomNav />
       </div>
-      <BottomNav />
-    </div>
+    </ProtectedRoute>
   );
 }
