@@ -47,6 +47,20 @@ const formatOrderDetails = (orderDetailsString: string) => {
     }
 };
 
+const formatDate = (timestamp: string) => {
+    const date = new Date(timestamp);
+    // Convert to CST by specifying the timezone
+    return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'America/Chicago'
+    });
+};
+
 export function SupportTable({ orders: initialOrders, onEditOrder }: OrdersTableProps) {
     const [orders, setOrders] = useState<Order[]>(initialOrders)
     const [displayName, setDisplayName] = useState<string>('Loading...');
@@ -96,6 +110,7 @@ export function SupportTable({ orders: initialOrders, onEditOrder }: OrdersTable
                 if (orderData) {
                     setOrders(orderData.map((order: any) => ({
                         id: order.id as string,
+                        created_at: order.created_at as string,
                         display_name: order.display_name as string,
                         full_name: order.full_name as string,
                         order_details: order.order_details as string,
@@ -112,8 +127,10 @@ export function SupportTable({ orders: initialOrders, onEditOrder }: OrdersTable
                         zipcode: order.zipcode as string,
                         residence_type: order.residence_type as string,
                         delivery_time_frame: order.delivery_time_frame as string,
+                        delivery_fee: order.delivery_fee as number | null,
                         total: order.total as number,
-                        status: order.status as "received" | "processing" | "out for delivery" | "completed" | "cancelled"
+                        status: order.status as "received" | "processing" | "out for delivery" | "completed" | "cancelled",
+                        user_id: order.user_id as string
                     })));
                 }
 
@@ -182,11 +199,14 @@ export function SupportTable({ orders: initialOrders, onEditOrder }: OrdersTable
                 <TableHeader>
                     <TableRow>
                         <TableHead>Order ID</TableHead>
+                        <TableHead>Created At</TableHead>
                         <TableHead>Display Name</TableHead>
                         <TableHead>Full Name</TableHead>
                         <TableHead>Phone Number</TableHead>
                         <TableHead>Order Details</TableHead>
                         <TableHead>Payment Method</TableHead>
+                        <TableHead>Total</TableHead>
+                        <TableHead>Delivery Fee</TableHead>
                         <TableHead>Delivery Method</TableHead>
                         <TableHead>Delivery Address</TableHead>
                         <TableHead>Zipcode</TableHead>
@@ -200,11 +220,14 @@ export function SupportTable({ orders: initialOrders, onEditOrder }: OrdersTable
                     {orders.map((order) => (
                         <TableRow key={order.id}>
                             <TableCell>{order.id}</TableCell>
+                            <TableCell>{formatDate(order.created_at)}</TableCell>
                             <TableCell>{order.display_name}</TableCell>
                             <TableCell>{order.full_name}</TableCell>
                             <TableCell>{order.phone_number}</TableCell>
                             <TableCell>{formatOrderDetails(order.order_details)}</TableCell>
                             <TableCell>{order.payment_method}</TableCell>
+                            <TableCell>${order.total}</TableCell>
+                            <TableCell>{order.delivery_fee ? `$${order.delivery_fee}` : 'N/A'}</TableCell>
                             <TableCell>{order.delivery_method}</TableCell>
                             <TableCell>{order.street_address}</TableCell>
                             <TableCell>{order.zipcode}</TableCell>

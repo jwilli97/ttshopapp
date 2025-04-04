@@ -58,7 +58,7 @@ const tokenShopItems: TinyTokenShopItem[] = [
   { id: 7, name: 'Sampler Pack', cost: 21 },
 ]
 
-const PICKUP_LOCATION = "Placeholder: 123 Main Street, Houston, TX 77002";
+const PICKUP_LOCATION = "Pending Confirmation";
 const PICKUP_TIMES = ["7:30 PM", "8:30 PM"];
 
 const formatPhoneNumber = (phoneNumber: string) => {
@@ -134,6 +134,7 @@ export default function NewOrder() {
     usual_order?: string;
     usual_total?: number | null;
   } | null>(null);
+  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(null);
 
   const steps = [
     {
@@ -174,57 +175,9 @@ export default function NewOrder() {
                 variant="outline" 
                 size="sm" 
                 className="w-full text-accent flex items-center gap-2 justify-center bg-primary text-white hover:bg-primary/80"
-                onClick={async () => {
-                  try {
-                    const { data: { session } } = await supabase.auth.getSession();
-                    
-                    if (!session) {
-                      console.error("No session found");
-                      return;
-                    }
-
-                    // Create order details object using profile data
-                    const orderData = {
-                      user_id: userId,
-                      display_name: displayName,
-                      full_name: `${firstName} ${lastName}`.trim(),
-                      order_details: {
-                        item: userData.usual_order,
-                        phoneNumber: phoneNumber,
-                        deliveryResidenceType: residenceType,
-                        deliveryStreetAddress: streetAddress,
-                        deliveryCity: city,
-                        deliveryState: state,
-                        deliveryZipcode: zipcode,
-                        deliveryMethod: preferredDeliveryMethod,
-                        deliveryNotes: deliveryNotes || '',
-                        paymentMethod: '', // This will need to be selected
-                        total: userData.usual_total,
-                      },
-                      phone_number: phoneNumber,
-                      residence_type: residenceType,
-                      street_address: streetAddress,
-                      city: city,
-                      state: state,
-                      zipcode: zipcode,
-                      delivery_method: preferredDeliveryMethod,
-                      status: 'processing',
-                      total: userData.usual_total
-                    };
-
-                    // Insert new order into orders table
-                    const { error } = await supabase
-                      .from('orders')
-                      .insert(orderData);
-
-                    if (error) throw error;
-
-                    // Redirect to order confirmation page
-                    router.push('/Order/Confirmation');
-                  } catch (error) {
-                    console.error('Error placing usual order:', error);
-                    alert('Failed to place usual order. Please try again.');
-                  }
+                onClick={() => {
+                  // Navigate to order page with usual order
+                  window.location.href = `/Order?usual=${encodeURIComponent(userData.usual_order || '')}`;
                 }}
               >
                 Place Usual Order
@@ -312,14 +265,14 @@ export default function NewOrder() {
           {/* Delivery Information */}
           <div>
             <h3 className="font-bold">
-              {orderDetails.deliveryMethod === 'Pickup' ? 'Meetup Location:' : 'Delivery Address:'}
+              {orderDetails.deliveryMethod === 'Pickup' ? 'Pickup Location:' : 'Delivery Address:'}
             </h3>
             
             {orderDetails.deliveryMethod === 'Pickup' ? (
               <div>
                 <p>{PICKUP_LOCATION}</p>
                 <div className="mt-4">
-                  <Label className="font-bold">Select Pickup Time:</Label>
+                  <Label className="font-bold text-md">Select Pickup Time:</Label>
                   <RadioGroup 
                     value={orderDetails.pickupTime}
                     onValueChange={(value) => setOrderDetails(prev => ({
@@ -608,6 +561,21 @@ export default function NewOrder() {
   };
 
   useEffect(() => {
+    // Get URL search params
+    const params = new URLSearchParams(window.location.search);
+    setSearchParams(params);
+    
+    // If there's a usual order parameter, set it in the order details
+    const usualOrder = params.get('usual');
+    if (usualOrder) {
+      setOrderDetails(prev => ({
+        ...prev,
+        item: decodeURIComponent(usualOrder)
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
     async function fetchData() {
       try {
         // Fetch active menu
@@ -762,6 +730,7 @@ export default function NewOrder() {
         ...(orderDetails.paymentMethod === 'Cash' && { cash_details: orderDetails.cashDetails || '' }),
         total: orderDetails.total,
         delivery_time_frame: orderDetails.deliveryTime || null,
+        delivery_fee: orderDetails.deliveryFee || null,
       };
 
       const { data, error } = await supabase

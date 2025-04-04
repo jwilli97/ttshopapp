@@ -29,6 +29,7 @@ import { X } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { Badge } from "@/components/ui/badge";
 import { MembershipBadge } from "@/components/ui/membership-badge";
+import { Textarea } from "@/components/ui/textarea";
 
 interface AccountInfoProps {
   userData: UserData;
@@ -101,6 +102,8 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
       }
 
       const updates = {
+        first_name: editedData?.first_name || userData.first_name,
+        last_name: editedData?.last_name || userData.last_name,
         street_address: editedData?.street_address || userData.street_address,
         address_line_2: editedData?.address_line_2 || userData.address_line_2,
         city: editedData?.city || userData.city,
@@ -159,32 +162,12 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
         return (
           <div className="space-y-4 animate-in fade-in-50 duration-500">
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-              <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold text-white rounded-lg">
-                  Private Information
-                </CardTitle>
-                <p className="text-muted-foreground text-sm">Your personal contact details</p>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <InfoField label="First Name" value={userData.first_name} />
-                  <InfoField label="Last Name" value={userData.last_name} />
-                  <InfoField label="Email" value={userData.email} />
-                  <InfoField 
-                    label="Phone Number" 
-                    value={userData.phone_number ? formatPhoneNumber(userData.phone_number) : null} 
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
               <CardHeader className="space-y-1 flex flex-row justify-between items-center">
                 <div>
                   <CardTitle className="text-2xl font-bold text-white rounded-lg">
-                    Display Information
+                    Account Information
                   </CardTitle>
-                  <p className="text-muted-foreground text-sm">How others see you</p>
+                  <p className="text-muted-foreground text-sm">Your personal details and preferences</p>
                 </div>
                 <Button 
                   onClick={() => isEditing ? handleSubmit() : handleEdit()}
@@ -193,6 +176,53 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
                 >
                   {isEditing ? "Save Changes" : "Edit"}
                 </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {isEditing ? (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="first_name">First Name</Label>
+                          <Input
+                            id="first_name"
+                            name="first_name"
+                            value={editedData?.first_name || ''}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="last_name">Last Name</Label>
+                          <Input
+                            id="last_name"
+                            name="last_name"
+                            value={editedData?.last_name || ''}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <InfoField label="First Name" value={userData.first_name} />
+                        <InfoField label="Last Name" value={userData.last_name} />
+                      </>
+                    )}
+                    <InfoField label="Email" value={userData.email} />
+                    <InfoField 
+                      label="Phone Number" 
+                      value={userData.phone_number ? formatPhoneNumber(userData.phone_number) : null} 
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl font-bold text-white rounded-lg">
+                  Display Information
+                </CardTitle>
+                <p className="text-muted-foreground text-sm">How others see you</p>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col sm:flex-row items-center sm:space-x-6 mb-6">
@@ -474,81 +504,67 @@ export default function AccountInfo({ userData, section, setUserData }: AccountI
                       </DialogClose>
                       <DialogHeader>
                         <DialogTitle>My Usual</DialogTitle>
-                        {/* <DialogDescription>
-                          Example order:
-                        </DialogDescription> */}
+                        <DialogDescription>
+                          Set your usual order for quick reordering
+                        </DialogDescription>
                       </DialogHeader>
                       <div className="py-4">
-                        {userData.usual_order ? (
-                          <>
-                            <p>{userData.usual_order}</p>
-                            <p>Total: ${userData.usual_total}</p>
-                            <Button 
-                              className="w-full mt-4"
-                              onClick={async () => {
-                                try {
-                                  const { data: { session } } = await supabase.auth.getSession();
-                                  
-                                  if (!session) {
-                                    console.error("No session found");
-                                    return;
-                                  }
-
-                                  // Create order details object using profile data
-                                  const orderDetails = {
-                                    item: userData.usual_order,
-                                    phoneNumber: userData.phone_number,
-                                    deliveryResidenceType: userData.residence_type,
-                                    deliveryStreetAddress: userData.street_address,
-                                    deliveryCity: userData.city,
-                                    deliveryState: userData.state,
-                                    deliveryZipcode: userData.zipcode,
-                                    deliveryMethod: userData.delivery_method || 'Handoff',
-                                    deliveryNotes: userData.delivery_notes || '',
-                                    paymentMethod: '', // This will need to be selected by user
-                                    total: userData.usual_total,
-                                    status: 'processing'
-                                  };
-
-                                  // Insert new order into orders table
-                                  const { data, error } = await supabase
-                                    .from('orders')
-                                    .insert({
-                                      user_id: session.user.id,
-                                      display_name: userData.display_name,
-                                      full_name: `${userData.first_name} ${userData.last_name}`.trim(),
-                                      order_details: JSON.stringify(orderDetails),
-                                      phone_number: userData.phone_number,
-                                      residence_type: userData.residence_type,
-                                      street_address: userData.street_address,
-                                      city: userData.city,
-                                      state: userData.state,
-                                      zipcode: userData.zipcode,
-                                      delivery_method: userData.delivery_method || 'Handoff',
-                                      status: 'processing',
-                                      total: userData.usual_total
-                                    });
-
-                                  if (error) throw error;
-
-                                  // Redirect to order confirmation page
-                                  window.location.href = '/Order/Confirmation';
-                                } catch (error) {
-                                  console.error('Error placing usual order:', error);
-                                  // You might want to add toast notification here
+                        {isEditing ? (
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="usual_order">Usual Order</Label>
+                              <Textarea
+                                id="usual_order"
+                                placeholder="Example: 7g Designer Sativa, 2 Sativa Pens"
+                                value={editedData?.usual_order ?? ''}
+                                onChange={(e) => 
+                                  setEditedData(prev => ({
+                                    ...(prev || userData),
+                                    usual_order: e.target.value || ''
+                                  }) as Partial<UserData>)
                                 }
-                              }}
-                            >
-                              Place Usual Order
-                            </Button>
-                          </>
+                                className="min-h-[100px]"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="usual_total">Total</Label>
+                              <Input
+                                id="usual_total"
+                                type="number"
+                                placeholder="150"
+                                value={editedData?.usual_total?.toString() ?? ''}
+                                onChange={(e) => 
+                                  setEditedData(prev => ({
+                                    ...(prev || userData),
+                                    usual_total: e.target.value ? Number(e.target.value) : undefined
+                                  }) as Partial<UserData>)
+                                }
+                              />
+                            </div>
+                          </div>
                         ) : (
-                          <>
-                            <p><strong>Example Order:</strong></p>
-                            <p>7g Designer Sativa</p>
-                            <p>2 Sativa Pens</p>
-                            <p>Total: $150</p>
-                          </>
+                          userData.usual_order ? (
+                            <>
+                              <p className="whitespace-pre-wrap">{userData.usual_order}</p>
+                              <p className="mt-2">Total: ${userData.usual_total}</p>
+                              <Button 
+                                className="w-full mt-4"
+                                onClick={() => {
+                                  // Navigate to order page with usual order
+                                  window.location.href = `/Order?usual=${encodeURIComponent(userData.usual_order || '')}`;
+                                }}
+                              >
+                                Start Order with Usual
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <p><strong>Example Order:</strong></p>
+                              <p>7g Designer Sativa</p>
+                              <p>2 Sativa Pens</p>
+                              <p>Total: $150</p>
+                            </>
+                          )
                         )}
                       </div>
                     </DialogContent>

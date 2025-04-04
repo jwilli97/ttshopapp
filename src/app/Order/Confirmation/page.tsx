@@ -38,6 +38,7 @@ interface Order {
     order_details: string;
     status: string;
     total: string;
+    street_address: string;
 }
 
 interface StatusStepProps {
@@ -181,7 +182,8 @@ export default function Orders() {
                             created_at: order.created_at as string,
                             order_details: order.order_details as string,
                             status: order.status as string,
-                            total: order.total as string
+                            total: order.total as string,
+                            street_address: order.street_address as string
                         })));
                     }
 
@@ -191,7 +193,8 @@ export default function Orders() {
                             created_at: order.created_at as string,
                             order_details: order.order_details as string,
                             status: order.status as string,
-                            total: order.total as string
+                            total: order.total as string,
+                            street_address: order.street_address as string
                         })));
                     }
                 }
@@ -373,7 +376,7 @@ export default function Orders() {
                                         {details.deliveryMethod === 'Pickup' ? (
                                             <>
                                                 <p><strong>Pickup Location: </strong> 
-                                                    {details.pickupLocation || (
+                                                    {orders[0].street_address || (
                                                         <span className="text-gray-400 italic">Pending Confirmation</span>
                                                     )}
                                                 </p>
