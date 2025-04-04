@@ -176,8 +176,10 @@ export default function NewOrder() {
                 size="sm" 
                 className="w-full text-accent flex items-center gap-2 justify-center bg-primary text-white hover:bg-primary/80"
                 onClick={() => {
-                  // Navigate to order page with usual order
-                  window.location.href = `/Order?usual=${encodeURIComponent(userData.usual_order || '')}`;
+                  setOrderDetails(prev => ({
+                    ...prev,
+                    item: userData.usual_order || ''
+                  }));
                 }}
               >
                 Place Usual Order
