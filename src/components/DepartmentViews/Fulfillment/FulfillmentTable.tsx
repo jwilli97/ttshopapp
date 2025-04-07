@@ -324,7 +324,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
             </Table>
 
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent className="text-white">
+                <DialogContent className="text-white max-h-[85vh] overflow-y-auto w-[95%] max-w-2xl">
                     <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
                         <X className="h-4 w-4" />
                         <span className="sr-only">Close</span>
@@ -347,26 +347,6 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                             <div>Total: ${editingOrder.total}</div>
                                             <div>Item: {formatOrderDetails(editingOrder.order_details)}</div>
                                             <div>Payment: {editingOrder.payment_method}</div>
-                                        </div>
-                                    </div>
-
-                                    {/* Delivery Information */}
-                                    <div className="space-y-2">
-                                        <h4 className="font-medium">Delivery Information</h4>
-                                        <div className="text-sm">
-                                            <p>{[
-                                                editingOrder.street_address,
-                                                editingOrder.address_line_2,
-                                                editingOrder.city,
-                                                editingOrder.state,
-                                                editingOrder.zipcode
-                                            ].filter(Boolean).join(', ')}</p>
-                                            {editingOrder.delivery_notes && (
-                                                <p className="mt-2">Notes: {editingOrder.delivery_notes}</p>
-                                            )}
-                                            {editingOrder.residence_type && (
-                                                <p>Residence Type: {editingOrder.residence_type}</p>
-                                            )}
                                         </div>
                                     </div>
 
