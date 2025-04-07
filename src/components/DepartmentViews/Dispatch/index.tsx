@@ -20,6 +20,7 @@ export function DispatchView() {
             } else {
                 setOrders(data.map(order => ({
                     id: order.id as string,
+                    created_at: order.created_at as string,
                     display_name: order.display_name as string,
                     full_name: order.full_name as string,
                     order_details: order.order_details as string,
@@ -36,8 +37,10 @@ export function DispatchView() {
                     zipcode: order.zipcode as string,
                     residence_type: order.residence_type as string,
                     delivery_time_frame: order.delivery_time_frame as string,
+                    delivery_fee: order.delivery_fee as number | null,
                     total: order.total as number,
-                    status: order.status as "received" | "processing" | "out for delivery" | "completed" | "cancelled"
+                    status: order.status as "received" | "processing" | "out for delivery" | "completed" | "cancelled",
+                    user_id: order.user_id as string
                 })));
             }
         }
