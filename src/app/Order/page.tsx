@@ -735,11 +735,30 @@ export default function NewOrder() {
         delivery_fee: orderDetails.deliveryFee || null,
       };
 
+      // Submit order to Supabase
       const { data, error } = await supabase
         .from('orders')
         .insert(orderData);
 
       if (error) throw error;
+
+      // Send email notification
+      try {
+        const emailResponse = await fetch('/api/sendOrderEmail', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderData),
+        });
+
+        if (!emailResponse.ok) {
+          console.error('Failed to send order notification email');
+        }
+      } catch (emailError) {
+        console.error('Error sending order notification:', emailError);
+        // Don't throw here - we don't want to block the order confirmation if email fails
+      }
 
       if (orderDetails.tokenRedemption) {
         await redeemTokenReward();

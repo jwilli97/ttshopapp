@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { Order } from "../types";
+import { Order as BaseOrder } from "../types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/hooks/use-toast";
@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { MembershipBadge } from "@/components/ui/membership-badge";
 
 interface OrdersTableProps {
     orders: Order[];
@@ -62,6 +64,31 @@ const formatDate = (timestamp: string) => {
         timeZone: 'America/Chicago'
     });
 };
+
+interface Profile {
+    avatar_url: string | null;
+    display_name: string;
+    first_name: string | null;
+    last_name: string | null;
+    membership_tier: string | null;
+    phone_number: string | null;
+    loyalty_balance: number;
+    strain_preference: string | null;
+    replacement_preference: string | null;
+    usual_order: string | null;
+    user_id: string;
+}
+
+// Extend the base Order type with profile-related fields
+interface Order extends BaseOrder {
+    avatar_url?: string | null;
+    membership_tier?: string;
+    loyalty_balance?: number;
+    strain_preference?: string;
+    replacement_preference?: string;
+    usual_order?: string;
+    delivery_time?: string;
+}
 
 export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersTableProps) {
     const [orders, setOrders] = useState<Order[]>(initialOrders)
@@ -174,35 +201,98 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
 
     const handleEditOrder = async (order: Order) => {
         try {
-            // Fetch complete user details
-            const response = await fetch(`/api/getUserDetails?orderId=${order.id}`);
-            const result = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(result.error || 'Failed to fetch user details');
+            if (!order.user_id) {
+                console.warn('No user_id found for order:', order.id);
+                setEditingOrder(order);
+                setIsEditDialogOpen(true);
+                return;
             }
 
+            console.log('Fetching profile for user_id:', order.user_id);
+
+            // Fetch complete user profile data
+            const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select(`
+                    avatar_url,
+                    display_name,
+                    first_name,
+                    last_name,
+                    membership_tier,
+                    phone_number,
+                    loyalty_balance,
+                    strain_preference,
+                    replacement_preference,
+                    usual_order,
+                    user_id
+                `)
+                .eq('user_id', order.user_id)
+                .single();
+
+            if (profileError) {
+                console.error('Supabase error fetching profile:', profileError.message);
+                throw new Error(`Failed to fetch profile: ${profileError.message}`);
+            }
+
+            const profile = profileData as Profile;
+            console.log('Profile data received:', profile);
+
+            // Construct full name from profile data if available
+            const fullName = profile ? 
+                `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 
+                order.full_name;
+
             // Merge the fetched profile data with the order data
-            const orderData = result.order;
-            const profileData = result.profile;
-            
-            setEditingOrder({
+            const updatedOrder: Order = {
                 ...order,
-                ...orderData,
-                strain_preference: profileData?.strain_preference,
-                replacement_preference: profileData?.replacement_preference,
-                membership_tier: profileData?.membership_tier,
-                usual_order: profileData?.usual_order
-            });
+                // User Profile Information
+                avatar_url: profile?.avatar_url || null,
+                display_name: profile?.display_name || order.display_name || '',
+                full_name: fullName || '',
+                membership_tier: profile?.membership_tier || undefined,
+                phone_number: profile?.phone_number || order.phone_number || '',
+                
+                // Loyalty & Preferences
+                loyalty_balance: profile?.loyalty_balance || 0,
+                strain_preference: profile?.strain_preference || undefined,
+                replacement_preference: profile?.replacement_preference || undefined,
+                usual_order: profile?.usual_order || undefined,
+
+                // Ensure we keep all original order fields
+                user_id: order.user_id,
+                created_at: order.created_at,
+                order_details: order.order_details,
+                token_redemption: order.token_redemption,
+                payment_method: order.payment_method,
+                delivery_method: order.delivery_method,
+                delivery_notes: order.delivery_notes,
+                cash_details: order.cash_details,
+                street_address: order.street_address,
+                address_line_2: order.address_line_2,
+                city: order.city,
+                state: order.state,
+                zipcode: order.zipcode,
+                residence_type: order.residence_type,
+                delivery_time_frame: order.delivery_time_frame,
+                delivery_fee: order.delivery_fee,
+                total: order.total,
+                status: order.status
+            };
+
+            console.log('Setting editing order with data:', updatedOrder);
+            setEditingOrder(updatedOrder);
             setIsEditDialogOpen(true);
+
         } catch (error) {
-            console.error('Error fetching user details:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+            console.error('Error fetching user details:', errorMessage);
+            
             toast({
                 variant: "destructive",
                 title: "Error fetching user details",
-                description: "There was a problem loading the complete user information.",
+                description: "Unable to load complete profile information. Showing basic order details.",
             });
-            // Still open the dialog with basic order information
+            
             setEditingOrder(order);
             setIsEditDialogOpen(true);
         }
@@ -339,42 +429,61 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                             <div className="border border-gray-600 rounded-lg p-4 mb-4">
                                 <h3 className="font-semibold mb-3">User Details</h3>
                                 <div className="space-y-6">
-                                    {/* Order Status and Details */}
-                                    <div className="space-y-2">
-                                        <h4 className="font-medium">Order Information</h4>
-                                        <div className="grid grid-cols-2 gap-2 text-sm">
-                                            <div>Status: <Badge>{editingOrder.status}</Badge></div>
-                                            <div>Total: ${editingOrder.total}</div>
-                                            <div>Item: {formatOrderDetails(editingOrder.order_details)}</div>
-                                            <div>Payment: {editingOrder.payment_method}</div>
+                                    {/* User Profile Header */}
+                                    <div className="flex items-center space-x-4">
+                                        <Avatar className="h-16 w-16">
+                                            <AvatarImage src={editingOrder.avatar_url as string} alt={editingOrder.display_name as string} />
+                                            <AvatarFallback>{editingOrder.display_name?.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="space-y-1">
+                                            <h4 className="text-lg font-medium">{editingOrder.display_name}</h4>
+                                            <p className="text-sm text-gray-400">{editingOrder.full_name}</p>
+                                            {editingOrder.membership_tier && (
+                                                <MembershipBadge tier={editingOrder.membership_tier} />
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Contact Information */}
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <p className="font-medium text-gray-400">Phone Number</p>
+                                            <p>{editingOrder.phone_number || 'Not provided'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-gray-400">Loyalty Balance</p>
+                                            <p>{editingOrder.loyalty_balance || '0'} points</p>
                                         </div>
                                     </div>
 
                                     {/* User Preferences */}
                                     <div className="space-y-2">
                                         <h4 className="font-medium">User Preferences</h4>
-                                        <div className="text-sm">
-                                            {editingOrder.strain_preference && (
-                                                <div className="mb-2">
-                                                    <p className="font-medium">Strain Preference:</p>
-                                                    <Badge variant="outline">
-                                                        {editingOrder.strain_preference.charAt(0).toUpperCase() + 
-                                                         editingOrder.strain_preference.slice(1)}
-                                                    </Badge>
-                                                </div>
-                                            )}
-                                            
-                                            {editingOrder.replacement_preference && (
-                                                <div>
-                                                    <p className="font-medium">Replacement Preference:</p>
-                                                    <Badge variant="outline">
-                                                        {editingOrder.replacement_preference === 'similar' ? 'Similar Product' :
-                                                         editingOrder.replacement_preference === 'contact' ? 'Contact Me First' :
-                                                         editingOrder.replacement_preference === 'refund' ? 'No Replacement' : 
-                                                         editingOrder.replacement_preference}
-                                                    </Badge>
-                                                </div>
-                                            )}
+                                        <div className="grid grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <p className="font-medium text-gray-400">Strain Preference</p>
+                                                <Badge variant="outline" className="mt-1">
+                                                    {editingOrder.strain_preference ? 
+                                                        editingOrder.strain_preference.charAt(0).toUpperCase() + 
+                                                        editingOrder.strain_preference.slice(1) : 
+                                                        'Not specified'}
+                                                </Badge>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-400">Replacement Preference</p>
+                                                <Badge variant="outline" className="mt-1">
+                                                    {editingOrder.replacement_preference === 'similar' ? 'Similar Product' :
+                                                     editingOrder.replacement_preference === 'contact' ? 'Contact Me First' :
+                                                     editingOrder.replacement_preference === 'refund' ? 'No Replacement' : 
+                                                     'Not specified'}
+                                                </Badge>
+                                            </div>
+                                        </div>
+                                        <div className="mt-4">
+                                            <p className="font-medium text-gray-400">Usual Order</p>
+                                            <p className="mt-1 text-sm">
+                                                {editingOrder.usual_order || 'No usual order set'}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

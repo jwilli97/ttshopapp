@@ -27,6 +27,8 @@ export interface Order {
     usual_order?: string;
     delivery_time?: string;
     user_id: string;
+    avatar_url?: string | null;
+    loyalty_balance?: number;
 }
 //  "awaiting confirmation" | "preparing your order" |
 
