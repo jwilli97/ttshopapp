@@ -90,8 +90,31 @@ interface Order extends BaseOrder {
     delivery_time?: string;
 }
 
+// Helper function to filter orders by date range
+const filterOrdersByDateRange = (orders: Order[], dateRange: 'today' | 'week' | 'month') => {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    switch (dateRange) {
+        case 'today':
+            return orders.filter(order => new Date(order.created_at) >= startOfToday);
+        case 'week': {
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - 7);
+            return orders.filter(order => new Date(order.created_at) >= startOfWeek);
+        }
+        case 'month': {
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            return orders.filter(order => new Date(order.created_at) >= startOfMonth);
+        }
+        default:
+            return orders;
+    }
+};
+
 export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersTableProps) {
     const [orders, setOrders] = useState<Order[]>(initialOrders)
+    const [dateRange, setDateRange] = useState<'today' | 'week' | 'month'>('today')
     const [displayName, setDisplayName] = useState<string>('Loading...');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [searchTerm, setSearchTerm] = useState<string>("")
@@ -151,7 +174,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                     // Create a map of user_id to profile data
                     const profileMap = new Map(profilesData?.map((profile: any) => [profile.user_id, profile]));
 
-                    setOrders(orderData.map((order: any) => {
+                    const allOrders = orderData.map((order: any) => {
                         const profile = profileMap.get(order.user_id);
                         return {
                             id: order.id as string,
@@ -183,7 +206,11 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                             usual_order: profile?.usual_order as string | undefined,
                             delivery_time: order.delivery_time as string | undefined,
                         };
-                    }));
+                    });
+
+                    // Filter orders based on date range
+                    const filteredOrders = filterOrdersByDateRange(allOrders, dateRange);
+                    setOrders(filteredOrders);
                 }
 
             } catch (error) {
@@ -197,7 +224,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
             }
         }
         fetchData()
-    }, [toast])
+    }, [dateRange, toast])
 
     const handleEditOrder = async (order: Order) => {
         try {
@@ -375,6 +402,23 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
 
     return (
         <div>
+            {/* Date Range Selector */}
+            <div className="flex justify-end mb-4">
+                <Select
+                    value={dateRange}
+                    onValueChange={(value) => setDateRange(value as 'today' | 'week' | 'month')}
+                >
+                    <SelectTrigger className="w-[180px] bg-zinc-800/50 border-zinc-700 text-zinc-100">
+                        <SelectValue placeholder="Select date range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="today">Today</SelectItem>
+                        <SelectItem value="week">Last 7 Days</SelectItem>
+                        <SelectItem value="month">This Month</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
             <Table>
                 <TableHeader>
                     <TableRow>

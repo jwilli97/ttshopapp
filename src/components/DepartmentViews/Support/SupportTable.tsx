@@ -213,7 +213,6 @@ export function SupportTable({ orders: initialOrders, onEditOrder }: OrdersTable
                         <TableHead>Residence Type</TableHead>
                         <TableHead>Delivery Time Frame</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -234,9 +233,6 @@ export function SupportTable({ orders: initialOrders, onEditOrder }: OrdersTable
                             <TableCell>{order.residence_type}</TableCell>
                             <TableCell>{order.delivery_time_frame}</TableCell>
                             <TableCell>{getStatusBadge(order.status)}</TableCell>
-                            <TableCell>
-                                <Button size="sm" className="mr-2" onClick={() => handleEditOrder(order)}>Edit</Button>
-                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

@@ -25,15 +25,19 @@ type SortDirection = "asc" | "desc"
 const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
         case "pending":
-        return <Badge variant="secondary">{status}</Badge>
+            return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">Pending</Badge>
         case "in progress":
-        return <Badge variant="default">{status}</Badge>
+            return <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20">In Progress</Badge>
+        case "out for delivery":
+            return <Badge variant="outline" className="bg-purple-500/10 text-purple-500 border-purple-500/20">Out for Delivery</Badge>
+        case "ready for pickup":
+            return <Badge variant="outline" className="bg-indigo-500/10 text-indigo-500 border-indigo-500/20">Ready for Pickup</Badge>
         case "completed":
-        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-500">{status}</Badge>
+            return <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">Completed</Badge>
         case "cancelled":
-        return <Badge variant="destructive">{status}</Badge>
+            return <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">Cancelled</Badge>
         default:
-        return <Badge variant="default">{status}</Badge>
+            return <Badge variant="outline" className="bg-zinc-500/10 text-zinc-500 border-zinc-500/20">{status}</Badge>
     }
 }
 
@@ -226,130 +230,149 @@ export function OverviewTable({ orders: initialOrders, onEditOrder }: OrdersTabl
     }
 
     return (
-        <div>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="text-white font-semibold">Order ID</TableHead>
-                        <TableHead className="text-white font-semibold">Created At</TableHead>
-                        <TableHead className="text-white font-semibold">Display Name</TableHead>
-                        {/* <TableHead className="text-white font-semibold">Full Name</TableHead> */}
-                        <TableHead className="text-white font-semibold">Phone Number</TableHead>
-                        <TableHead className="text-white font-semibold">Order Details</TableHead>
-                        <TableHead className="text-white font-semibold">Total</TableHead>
-                        <TableHead className="text-white font-semibold">Delivery Fee</TableHead>
-                        <TableHead className="text-white font-semibold">Payment Method</TableHead>
-                        <TableHead className="text-white font-semibold">Delivery Method</TableHead>
-                        <TableHead className="text-white font-semibold">Delivery Address</TableHead>
-                        <TableHead className="text-white font-semibold">Zipcode</TableHead>
-                        <TableHead className="text-white font-semibold">Residence Type</TableHead>
-                        <TableHead className="text-white font-semibold">Delivery Time Frame</TableHead>
-                        <TableHead className="text-white font-semibold">Status</TableHead>
-                        <TableHead className="text-white font-semibold">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {orders.map((order) => (
-                        <TableRow className="text-gray-100" key={order.id}>
-                            <TableCell>{order.id}</TableCell>
-                            <TableCell>{formatDate(order.created_at)}</TableCell>
-                            <TableCell>{order.display_name}</TableCell>
-                            {/* <TableCell>{order.full_name}</TableCell> */}
-                            <TableCell>{order.phone_number}</TableCell>
-                            <TableCell>{formatOrderDetails(order.order_details)}</TableCell>
-                            <TableCell>${order.total}</TableCell>
-                            <TableCell>{order.delivery_fee ? `$${order.delivery_fee}` : 'N/A'}</TableCell>
-                            <TableCell>{order.payment_method}</TableCell>
-                            <TableCell>{order.delivery_method}</TableCell>
-                            <TableCell>{order.street_address}</TableCell>
-                            <TableCell>{order.zipcode}</TableCell>
-                            <TableCell>{order.residence_type}</TableCell>
-                            <TableCell>{order.delivery_time_frame}</TableCell>
-                            <TableCell>{getStatusBadge(order.status)}</TableCell>
-                            <TableCell>
-                                <Button size="sm" className="mr-2" onClick={() => handleEditOrder(order)}>Edit</Button>
-                            </TableCell>
+        <div className="space-y-6">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900/50">
+                <Table>
+                    <TableHeader>
+                        <TableRow className="hover:bg-zinc-800/50">
+                            <TableHead className="text-zinc-100 font-medium">Order ID</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Created At</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Display Name</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Order Details</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Total</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Delivery Fee</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Payment Method</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Delivery Method</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Delivery Address</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Zipcode</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Residence Type</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Delivery Time Frame</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Status</TableHead>
+                            <TableHead className="text-zinc-100 font-medium">Actions</TableHead>
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+                    <TableBody>
+                        {orders.map((order) => (
+                            <TableRow 
+                                key={order.id}
+                                className="hover:bg-zinc-800/50 border-zinc-800"
+                            >
+                                <TableCell className="font-medium text-zinc-100">{order.id}</TableCell>
+                                <TableCell className="text-zinc-300">{formatDate(order.created_at)}</TableCell>
+                                <TableCell className="text-zinc-300">{order.display_name}</TableCell>
+                                <TableCell className="text-zinc-300">{formatOrderDetails(order.order_details)}</TableCell>
+                                <TableCell className="text-zinc-300">${order.total}</TableCell>
+                                <TableCell className="text-zinc-300">{order.delivery_fee ? `$${order.delivery_fee}` : 'N/A'}</TableCell>
+                                <TableCell className="text-zinc-300">{order.payment_method}</TableCell>
+                                <TableCell className="text-zinc-300">{order.delivery_method}</TableCell>
+                                <TableCell className="text-zinc-300">{order.street_address}</TableCell>
+                                <TableCell className="text-zinc-300">{order.zipcode}</TableCell>
+                                <TableCell className="text-zinc-300">{order.residence_type}</TableCell>
+                                <TableCell className="text-zinc-300">{order.delivery_time_frame}</TableCell>
+                                <TableCell>{getStatusBadge(order.status)}</TableCell>
+                                <TableCell>
+                                    <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        className="hover:bg-zinc-700/50 hover:text-zinc-100 transition-colors"
+                                        onClick={() => handleEditOrder(order)}
+                                    >
+                                        Edit
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
 
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent>
+                <DialogContent className="bg-zinc-900 border border-zinc-800 text-zinc-100 max-w-3xl">
                     <DialogHeader>
-                        <DialogTitle>Edit Order</DialogTitle>
-                        <DialogDescription>Make changes to the order details below.</DialogDescription>
+                        <DialogTitle className="text-xl font-semibold">Edit Order</DialogTitle>
+                        <DialogDescription className="text-zinc-400">
+                            Make changes to the order details below.
+                        </DialogDescription>
                     </DialogHeader>
                     {editingOrder && (
-                        <div className="grid gap-4 py-4">
+                        <div className="grid gap-6 py-4">
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="name" className="text-right">Customer</Label>
-                                <p>{editingOrder.display_name}</p>
+                                <Label htmlFor="name" className="text-right text-zinc-400">Customer</Label>
+                                <p className="col-span-3 text-zinc-100">{editingOrder.display_name}</p>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="full_name" className="text-right">Full Name</Label>
-                                <p>{editingOrder.full_name}</p>
+                                <Label htmlFor="full_name" className="text-right text-zinc-400">Full Name</Label>
+                                <p className="col-span-3 text-zinc-100">{editingOrder.full_name}</p>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="status" className="text-right">Status</Label>
+                                <Label htmlFor="status" className="text-right text-zinc-400">Status</Label>
                                 <Select
                                     value={editingOrder.status}
                                     onValueChange={(value) => setEditingOrder({ ...editingOrder, status: value as Order['status'] })}
                                 >
-                                    <SelectTrigger className="col-span-3">
+                                    <SelectTrigger className="col-span-3 bg-zinc-800 border-zinc-700">
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="pending">Received</SelectItem>
+                                        <SelectItem value="pending">Pending</SelectItem>
                                         <SelectItem value="in progress">In Progress</SelectItem>
-                                        <SelectItem value="out for delivery">Out for Delivery</SelectItem>
-                                        <SelectItem value="ready for pickup">Ready for Pickup</SelectItem>
                                         <SelectItem value="completed">Completed</SelectItem>
                                         <SelectItem value="cancelled">Cancelled</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="details" className="text-right">Items Ordered</Label>
+                                <Label htmlFor="details" className="text-right text-zinc-400">Items Ordered</Label>
                                 <Textarea
                                     id="details"
                                     value={formatOrderDetails(editingOrder.order_details)}
                                     onChange={(e) => setEditingOrder({ ...editingOrder, order_details: e.target.value })}
-                                    className="col-span-3"
+                                    className="col-span-3 bg-zinc-800 border-zinc-700 focus:ring-zinc-600"
                                 />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="token_redemption" className="text-right">Token Redemption</Label>
+                                <Label htmlFor="token_redemption" className="text-right text-zinc-400">Token Redemption</Label>
                                 <Input
                                     id="token_redemption"
                                     value={editingOrder.token_redemption}
                                     onChange={(e) => setEditingOrder({ ...editingOrder, token_redemption: e.target.value })}
-                                    className="col-span-3"
+                                    className="col-span-3 bg-zinc-800 border-zinc-700 focus:ring-zinc-600"
                                 />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="payment_method" className="text-right">Delivery Address</Label>
+                                <Label htmlFor="payment_method" className="text-right text-zinc-400">Delivery Address</Label>
                                 <Input
                                     id="payment_method"
                                     value={editingOrder.street_address}
                                     onChange={(e) => setEditingOrder({ ...editingOrder, street_address: e.target.value })}
-                                    className="col-span-3"
+                                    className="col-span-3 bg-zinc-800 border-zinc-700 focus:ring-zinc-600"
                                 />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="zipcode" className="text-right">Zipcode</Label>
+                                <Label htmlFor="zipcode" className="text-right text-zinc-400">Zipcode</Label>
                                 <Input
                                     id="zipcode"
                                     value={editingOrder.zipcode}
                                     onChange={(e) => setEditingOrder({ ...editingOrder, zipcode: e.target.value })}
-                                    className="col-span-3"
+                                    className="col-span-3 bg-zinc-800 border-zinc-700 focus:ring-zinc-600"
                                 />
                             </div>
                         </div>
                     )}
-                    <DialogFooter>
-                        <Button onClick={() => setIsEditDialogOpen(false)} variant="outline">Cancel</Button>
-                        <Button onClick={handleSaveEdit}>Save changes</Button>
+                    <DialogFooter className="gap-2">
+                        <Button 
+                            onClick={() => setIsEditDialogOpen(false)} 
+                            variant="outline"
+                            className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 text-zinc-100"
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            onClick={handleSaveEdit}
+                            className="bg-blue-600 hover:bg-blue-500 text-white"
+                        >
+                            Save changes
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

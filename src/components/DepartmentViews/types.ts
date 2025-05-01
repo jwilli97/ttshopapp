@@ -37,4 +37,5 @@ export interface SummaryCardProps {
     value: string | number;
     description: string;
     icon: React.ReactNode;
+    className?: string;
 }

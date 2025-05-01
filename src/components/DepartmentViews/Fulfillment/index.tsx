@@ -52,7 +52,7 @@ export function FulfillmentView() {
         fetchOrders();
     }, []);
 
-    return  (
+    return (
         <div className="space-y-6">
             <FulfillmentSummary
                 todayOrderCount={todayOrderCount}
@@ -64,9 +64,9 @@ export function FulfillmentView() {
                 cancelledOrderCount={cancelledOrderCount}
             />
 
-            <Card>
+            <Card className="bg-zinc-900/50 border-zinc-800">
                 <CardHeader>
-                    <CardTitle className="text-white">Current Orders</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-zinc-100">Order Queue</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <FulfillmentTable orders={orders} onEditOrder={() => {}} />

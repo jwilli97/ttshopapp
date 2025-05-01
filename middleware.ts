@@ -166,13 +166,13 @@ export async function middleware(request: NextRequest) {
     if (isEmployeeRoute) {
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
-        .select('roles!inner(name)')
+        .select('roles!inner(id)')
         .eq('user_id', session.user.id)
-        .eq('roles.name', 'employee')
+        .eq('roles.id', 2)
         .single();
 
       if (roleError || !roleData) {
-        // Redirect to home if not an employee
+        // Redirect to home if not an employee (role ID 2)
         return NextResponse.redirect(new URL('/', request.url));
       }
     }

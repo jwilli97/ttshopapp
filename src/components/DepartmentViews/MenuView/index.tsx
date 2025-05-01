@@ -215,55 +215,67 @@ export function MenuView() {
     return (
         <div className="space-y-6">
             <Tabs defaultValue="upload" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 text-black">
-                    <TabsTrigger value="upload">Upload Menu</TabsTrigger>
-                    <TabsTrigger value="manage">Manage Menus</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 bg-zinc-800/50 text-zinc-100">
+                    <TabsTrigger 
+                        value="upload"
+                        className="data-[state=active]:bg-zinc-700/50 data-[state=active]:text-zinc-100"
+                    >
+                        Upload Menu
+                    </TabsTrigger>
+                    <TabsTrigger 
+                        value="manage"
+                        className="data-[state=active]:bg-zinc-700/50 data-[state=active]:text-zinc-100"
+                    >
+                        Manage Menus
+                    </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="upload" className="mt-4">
+                <TabsContent value="upload" className="mt-6">
                     <div className="max-w-2xl mx-auto">
-                        <Card>
+                        <Card className="bg-zinc-900/50 border-zinc-800">
                             <CardHeader>
-                                <CardTitle>Upload Menu Image</CardTitle>
-                                <CardDescription>
+                                <CardTitle className="text-lg font-semibold text-zinc-100">Upload Menu Image</CardTitle>
+                                <CardDescription className="text-zinc-400">
                                     Upload a new menu image to the Supabase storage bucket. Images must be PNG format and less than 5MB.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="fileName">Filename</Label>
+                                    <Label htmlFor="fileName" className="text-zinc-100">Filename</Label>
                                     <Input
                                         id="fileName"
                                         placeholder="Enter a filename (e.g., menu_spring_2023)"
                                         value={fileName}
                                         onChange={(e) => setFileName(e.target.value)}
                                         disabled={isUploading}
+                                        className="bg-zinc-800/50 border-zinc-700 text-zinc-100"
                                     />
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-xs text-zinc-400">
                                         The .png extension will be added automatically if not included.
                                     </p>
                                 </div>
                                 
                                 <div className="space-y-2">
-                                    <Label htmlFor="menuFile">Menu Image (PNG)</Label>
+                                    <Label htmlFor="menuFile" className="text-zinc-100">Menu Image (PNG)</Label>
                                     <Input
                                         id="menuFile"
                                         type="file"
                                         accept="image/png"
                                         onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
                                         disabled={isUploading}
+                                        className="bg-zinc-800/50 border-zinc-700 text-zinc-100"
                                     />
                                 </div>
                                 
                                 {selectedFile && (
-                                    <div className="rounded-md border p-2 mt-2">
-                                        <p className="text-sm font-medium">Selected file:</p>
-                                        <p className="text-sm text-muted-foreground">{selectedFile.name} ({Math.round(selectedFile.size / 1024)} KB)</p>
+                                    <div className="rounded-md border border-zinc-700 bg-zinc-800/50 p-3">
+                                        <p className="text-sm font-medium text-zinc-100">Selected file:</p>
+                                        <p className="text-sm text-zinc-400">{selectedFile.name} ({Math.round(selectedFile.size / 1024)} KB)</p>
                                     </div>
                                 )}
                                 
                                 {error && (
-                                    <div className="text-red-500 text-sm">
+                                    <div className="text-red-400 text-sm">
                                         {error}
                                     </div>
                                 )}
@@ -272,6 +284,7 @@ export function MenuView() {
                                 <Button 
                                     onClick={handleFileUpload}
                                     disabled={!selectedFile || !fileName || isUploading}
+                                    className="bg-blue-600 hover:bg-blue-500 text-white"
                                 >
                                     {isUploading ? 'Uploading...' : 'Upload Menu'}
                                 </Button>
@@ -280,28 +293,28 @@ export function MenuView() {
                     </div>
                 </TabsContent>
                 
-                <TabsContent value="manage" className="mt-4">
+                <TabsContent value="manage" className="mt-6">
                     <div className="max-w-3xl mx-auto">
-                        <Card>
+                        <Card className="bg-zinc-900/50 border-zinc-800">
                             <CardHeader>
-                                <CardTitle>Current Menu</CardTitle>
-                                <CardDescription>
+                                <CardTitle className="text-lg font-semibold text-zinc-100">Current Menu</CardTitle>
+                                <CardDescription className="text-zinc-400">
                                     This is the menu currently displayed to customers.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="flex justify-center">
                                 {isLoading ? (
-                                    <div className="text-center p-8">Loading current menu...</div>
+                                    <div className="text-center p-8 text-zinc-400">Loading current menu...</div>
                                 ) : menuUrl ? (
                                     <Image 
                                         src={`${menuUrl}?t=${Date.now()}`}
                                         alt="Current Menu"
                                         width={400}
                                         height={560}
-                                        className="rounded-md shadow-md max-h-[560px] w-auto object-contain"
+                                        className="rounded-md shadow-lg max-h-[560px] w-auto object-contain"
                                     />
                                 ) : (
-                                    <div className="text-gray-500 text-center p-8">
+                                    <div className="text-zinc-500 text-center p-8">
                                         No current menu available
                                     </div>
                                 )}
@@ -309,13 +322,13 @@ export function MenuView() {
                         </Card>
                         
                         <div className="mt-6">
-                            <h2 className="text-xl font-semibold mb-4">All Uploaded Menus</h2>
+                            <h2 className="text-xl font-semibold mb-4 text-zinc-100">All Uploaded Menus</h2>
                             {isLoading ? (
-                                <div className="text-center p-8">Loading menus...</div>
+                                <div className="text-center p-8 text-zinc-400">Loading menus...</div>
                             ) : menuFiles.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {menuFiles.map((file) => (
-                                        <Card key={file.name} className="overflow-hidden max-w-sm">
+                                        <Card key={file.name} className="overflow-hidden bg-zinc-900/50 border-zinc-800">
                                             <div className="aspect-[3/4] relative max-h-[400px]">
                                                 <Image
                                                     src={file.url}
@@ -325,7 +338,7 @@ export function MenuView() {
                                                 />
                                             </div>
                                             <CardFooter className="flex flex-col items-start space-y-2 pt-4">
-                                                <p className="text-sm font-medium truncate w-full">{file.name}</p>
+                                                <p className="text-sm font-medium text-zinc-100 truncate w-full">{file.name}</p>
                                                 <div className="flex space-x-2 w-full">
                                                     {file.name !== 'current_menu.png' && (
                                                         <Button 
@@ -333,7 +346,7 @@ export function MenuView() {
                                                             size="sm" 
                                                             onClick={() => setAsCurrentMenu(file.name)}
                                                             disabled={isLoading}
-                                                            className="flex-1"
+                                                            className="flex-1 bg-zinc-800 border-zinc-700 text-zinc-100 hover:bg-zinc-700"
                                                         >
                                                             Set as Current
                                                         </Button>
@@ -350,7 +363,7 @@ export function MenuView() {
                                                         </Button>
                                                     )}
                                                     {file.name === 'current_menu.png' && (
-                                                        <div className="w-full text-center text-sm text-muted-foreground">
+                                                        <div className="w-full text-center text-sm text-zinc-400">
                                                             Current Active Menu
                                                         </div>
                                                     )}
@@ -360,7 +373,7 @@ export function MenuView() {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center text-muted-foreground p-8 border rounded-md">
+                                <div className="text-center text-zinc-400 p-8 border border-zinc-800 rounded-lg bg-zinc-900/50">
                                     No menu files found. Upload your first menu to get started.
                                 </div>
                             )}
