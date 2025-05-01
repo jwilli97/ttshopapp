@@ -11,7 +11,7 @@ export function SupportView() {
                 <CardTitle className="text-2xl font-semibold text-zinc-100">Support Dashboard Coming Soon</CardTitle>
             </CardHeader>
             <CardContent className="text-center text-zinc-400">
-                <p>We're working hard to build an amazing support experience.</p>
+                <p>We&apos;re working hard to build an amazing support experience.</p>
                 <p className="mt-2">Check back soon for updates!</p>
             </CardContent>
         </Card>
