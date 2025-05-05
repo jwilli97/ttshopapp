@@ -19,7 +19,7 @@ export interface Order {
     delivery_time_frame: string;
     delivery_fee: number | null;
     total: number;
-    status: "received" | "processing" | "out for delivery" | "completed" | "cancelled";
+    status: "received" | "processing" | "preparing" | "out for delivery" | "completed" | "cancelled";
     // User info fields
     membership_tier?: string;
     strain_preference?: string;

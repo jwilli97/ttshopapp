@@ -1,5 +1,6 @@
-import { ShoppingCart, Package, ArrowUp, Bell } from "lucide-react";
+import { ShoppingCart, Package, ArrowUp, Bell, RefreshCw } from "lucide-react";
 import SummaryCard from "@/components/SummaryCard";
+import { Button } from "@/components/ui/button";
 
 interface OrdersSummaryProps {
     todayOrderCount: number;
@@ -9,12 +10,23 @@ interface OrdersSummaryProps {
     readyForPickupOrderCount: number;
     completedOrderCount: number;
     cancelledOrderCount: number;
+    onRefresh: () => void;
 }
 
-export function FulfillmentSummary({ todayOrderCount, pendingOrderCount, inProgressOrderCount, outForDeliveryOrderCount, readyForPickupOrderCount, completedOrderCount, cancelledOrderCount }: OrdersSummaryProps) {
+export function FulfillmentSummary({ todayOrderCount, pendingOrderCount, inProgressOrderCount, outForDeliveryOrderCount, readyForPickupOrderCount, completedOrderCount, cancelledOrderCount, onRefresh }: OrdersSummaryProps) {
     return (
         <div className="p-6 bg-zinc-900/50 rounded-lg border border-zinc-800">
-            <h2 className="text-xl font-semibold mb-6 text-zinc-100">Fulfillment Overview</h2>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-zinc-100">Fulfillment Overview</h2>
+                <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={onRefresh}
+                    className="text-white hover:text-zinc-100 bg-zinc-600 hover:bg-zinc-800"
+                >
+                    <RefreshCw className="h-4 w-4" />
+                </Button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <SummaryCard 
                     title="Today&apos;s Orders" 
