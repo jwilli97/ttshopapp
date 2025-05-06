@@ -422,14 +422,12 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="text-white font-semibold">Order ID</TableHead>
                         <TableHead className="text-white font-semibold">Created At</TableHead>
+                        <TableHead className="text-white font-semibold">Phone Number</TableHead>
                         <TableHead className="text-white font-semibold">Display Name</TableHead>
-                        <TableHead className="text-white font-semibold">Full Name</TableHead>
-                        <TableHead className="text-white font-semibold">Order Details</TableHead>
-                        <TableHead className="text-white font-semibold">Token Redemption</TableHead>
-                        <TableHead className="text-white font-semibold">Total</TableHead>
-                        <TableHead className="text-white font-semibold">Delivery Fee</TableHead>
+                        <TableHead className="text-white font-semibold">Order Details & Token</TableHead>
+                        <TableHead className="text-white font-semibold">Payment & Delivery</TableHead>
+                        <TableHead className="text-white font-semibold">Address</TableHead>
                         <TableHead className="text-white font-semibold">Status</TableHead>
                         <TableHead className="text-white font-semibold">Actions</TableHead>
                     </TableRow>
@@ -440,14 +438,36 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                             className="text-gray-100 cursor-pointer hover:bg-gray-800/50" 
                             key={order.id}
                         >
-                            <TableCell>{order.id}</TableCell>
                             <TableCell>{formatDate(order.created_at)}</TableCell>
+                            <TableCell>{order.phone_number}</TableCell>
                             <TableCell>{order.display_name}</TableCell>
-                            <TableCell>{order.full_name}</TableCell>
-                            <TableCell>{formatOrderDetails(order.order_details)}</TableCell>
-                            <TableCell>{order.token_redemption}</TableCell>
-                            <TableCell>${order.total}</TableCell>
-                            <TableCell>{order.delivery_fee ? `$${order.delivery_fee}` : 'N/A'}</TableCell>
+                            <TableCell>
+                                <div>
+                                    <div>{formatOrderDetails(order.order_details)}</div>
+                                    {order.token_redemption && (
+                                        <div className="text-sm text-gray-400 mt-1">
+                                            Token: {order.token_redemption}
+                                        </div>
+                                    )}
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <div>
+                                    <div>{order.payment_method}</div>
+                                    <div className="text-sm text-gray-400 mt-1">{order.delivery_method}</div>
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <div>
+                                    <div>{order.street_address}</div>
+                                    {order.address_line_2 && (
+                                        <div>{order.address_line_2}</div>
+                                    )}
+                                    <div className="text-sm text-gray-400">
+                                        {order.city}, {order.state} {order.zipcode}
+                                    </div>
+                                </div>
+                            </TableCell>
                             <TableCell>{getStatusBadge(order.status)}</TableCell>
                             <TableCell>
                                 <Button size="sm" className="mr-2" onClick={() => handleEditOrder(order)}>Edit</Button>
