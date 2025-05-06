@@ -224,7 +224,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
             }
         }
         fetchData()
-    }, [dateRange, toast])
+    }, [dateRange])
 
     const handleEditOrder = async (order: Order) => {
         try {
@@ -424,7 +424,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                     <TableRow>
                         <TableHead className="text-white font-semibold">Created At</TableHead>
                         <TableHead className="text-white font-semibold">Phone Number</TableHead>
-                        <TableHead className="text-white font-semibold">Display Name</TableHead>
+                        <TableHead className="text-white font-semibold">Name</TableHead>
                         <TableHead className="text-white font-semibold">Order Details & Token</TableHead>
                         <TableHead className="text-white font-semibold">Payment & Delivery</TableHead>
                         <TableHead className="text-white font-semibold">Address</TableHead>
@@ -441,7 +441,12 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                         >
                             <TableCell>{formatDate(order.created_at)}</TableCell>
                             <TableCell>{order.phone_number}</TableCell>
-                            <TableCell>{order.display_name}</TableCell>
+                            <TableCell>
+                                <div>
+                                    <div>{order.full_name}</div>
+                                    <div className="text-sm text-gray-400">{order.display_name}</div>
+                                </div>
+                            </TableCell>
                             <TableCell>
                                 <div>
                                     <div>{formatOrderDetails(order.order_details)}</div>
