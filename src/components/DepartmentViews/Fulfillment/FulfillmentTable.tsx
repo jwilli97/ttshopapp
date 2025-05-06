@@ -428,6 +428,7 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                         <TableHead className="text-white font-semibold">Order Details & Token</TableHead>
                         <TableHead className="text-white font-semibold">Payment & Delivery</TableHead>
                         <TableHead className="text-white font-semibold">Address</TableHead>
+                        <TableHead className="text-white font-semibold">Total & Fee</TableHead>
                         <TableHead className="text-white font-semibold">Status</TableHead>
                         <TableHead className="text-white font-semibold">Actions</TableHead>
                     </TableRow>
@@ -466,6 +467,16 @@ export function FulfillmentTable({ orders: initialOrders, onEditOrder }: OrdersT
                                     <div className="text-sm text-gray-400">
                                         {order.city}, {order.state} {order.zipcode}
                                     </div>
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <div>
+                                    <div className="font-medium">${order.total}</div>
+                                    {order.delivery_fee && (
+                                        <div className="text-sm text-gray-400 mt-1">
+                                            +${order.delivery_fee} delivery
+                                        </div>
+                                    )}
                                 </div>
                             </TableCell>
                             <TableCell>{getStatusBadge(order.status)}</TableCell>
